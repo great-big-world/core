@@ -1,0 +1,16 @@
+repositories {
+    maven {
+        url = uri "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/gbw_core.accesswidener")
+}
+
+dependencies {
+    modCompileOnly "maven.modrinth:sodium:mc1.21.1-0.6.0-beta.4-fabric"
+}

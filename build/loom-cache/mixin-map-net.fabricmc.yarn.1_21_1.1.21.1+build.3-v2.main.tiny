@@ -1,0 +1,6 @@
+v1	named	intermediary
+FIELD	dev/creoii/greatbigworld/mixin/client/ClientPlayerInteractionManagerMixin	Lnet/minecraft/client/MinecraftClient;	client	field_3712
+FIELD	dev/creoii/greatbigworld/mixin/client/CreateWorldScreenGameTabMixin	Lnet/minecraft/client/gui/widget/TextFieldWidget;	worldNameField	field_42177
+FIELD	dev/creoii/greatbigworld/mixin/client/CreateWorldScreenGameTabMixin	Lnet/minecraft/client/gui/screen/world/CreateWorldScreen;	field_42174	field_42174
+FIELD	dev/creoii/greatbigworld/mixin/client/SectionBuilderMixin	Lnet/minecraft/client/render/block/BlockRenderManager;	blockRenderManager	field_52164
+FIELD	dev/creoii/greatbigworld/mixin/world/HeightmapTypeMixin	[Lnet/minecraft/world/Heightmap$Type;	field_13199	field_13199

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "gbw_core",
+  "version": "0.1.4+1.21.1",
+  "name": "Great Big World Core",
+  "description": "",
+  "authors": [
+    "creoii"
+  ],
+  "contact": {},
+  "license": "All Rights Reserved",
+  "icon": "assets/gbw_core/icon.png",
+  "environment": "*",
+  "accessWidener": "gbw_core.accesswidener",
+  "mixins": [
+    "gbw_core.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "dev.creoii.greatbigworld.GreatBigWorld"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "fabric": "*",
+    "minecraft": "1.21.1"
+  },
+  "custom": {
+    "modmenu": {
+      "parent": {
+        "id": "great_big_world",
+        "name": "Great Big World",
+        "description": ""
+      }
+    }
+  }
+}
