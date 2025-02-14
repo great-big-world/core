@@ -7,5 +7,5 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 public final class GBWBlockTags {
-    public static final TagKey<Block> WEATHER_RENDER_IGNORES = TagKey.of(RegistryKeys.BLOCK, Identifier.of(GreatBigWorld.NAMESPACE, "weather_render_ignores"));
+    public static final TagKey<Block> PRECIPITATION_IGNORES = TagKey.of(RegistryKeys.BLOCK, Identifier.of(GreatBigWorld.NAMESPACE, "precipitation_ignores"));
 }

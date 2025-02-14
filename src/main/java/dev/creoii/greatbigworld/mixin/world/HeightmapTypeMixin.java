@@ -34,7 +34,7 @@ public class HeightmapTypeMixin {
         Heightmap.Type last = types.getLast();
 
         Heightmap.Type weather = create("WEATHER", last.ordinal() + 1, "WEATHER", Heightmap.Purpose.CLIENT, state -> {
-            if (state.isIn(GBWBlockTags.WEATHER_RENDER_IGNORES))
+            if (state.isIn(GBWBlockTags.PRECIPITATION_IGNORES))
                 return false;
             else return state.blocksMovement() || !state.getFluidState().isEmpty();
         });

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "gbw_core",
-  "version": "0.1.4+1.21.1",
+  "version": "0.1.5+1.21.4",
   "name": "Great Big World Core",
   "description": "",
   "authors": [
@@ -23,7 +23,7 @@
   "depends": {
     "fabricloader": ">=0.16.10",
     "fabric": "*",
-    "minecraft": "1.21.1"
+    "minecraft": "1.21.4"
   },
   "custom": {
     "modmenu": {
