@@ -9,6 +9,12 @@ public interface AbstractBlockStateAccessor {
     @Accessor
     int getLuminance();
 
+    @Accessor
+    float getHardness();
+
     @Accessor("luminance")
     void setLuminance(int luminance);
+
+    @Accessor("hardness")
+    void setHardness(float hardness);
 }

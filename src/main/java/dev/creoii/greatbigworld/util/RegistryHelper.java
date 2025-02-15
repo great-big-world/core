@@ -20,10 +20,6 @@ public final class RegistryHelper {
         return Registry.register(Registries.BLOCK, id, factory.apply(settings.registryKey(RegistryKey.of(RegistryKeys.BLOCK, id))));
     }
 
-    public static Block registerSlab(Identifier id, AbstractBlock.Settings settings) {
-        return registerBlock(id, SlabBlock::new, settings);
-    }
-
     public static Block registerStairs(Identifier id, BlockState base, AbstractBlock.Settings settings) {
         return registerBlock(id, (settings1 -> new StairsBlock(base, settings)), settings);
     }
@@ -49,10 +45,10 @@ public final class RegistryHelper {
     }
 
     public static Item registerBlockItem(Identifier id, Block block, Item.Settings settings) {
-        return registerItem(id, settings1 -> new BlockItem(block, settings1), settings);
+        return registerItem(id, settings1 -> new BlockItem(block, settings1), settings.useBlockPrefixedTranslationKey());
     }
 
     public static Item registerBlockItem(Identifier id, Block block) {
-        return registerItem(id, settings1 -> new BlockItem(block, settings1));
+        return registerItem(id, settings1 -> new BlockItem(block, settings1.useBlockPrefixedTranslationKey()));
     }
 }

@@ -1,6 +1,7 @@
 {
   "mappings": {
     "dev/creoii/greatbigworld/mixin/AbstractBlockStateAccessor": {
+      "hardness": "field_23172:F",
       "luminance": "field_23167:I"
     },
     "dev/creoii/greatbigworld/mixin/EntityMixin": {
@@ -23,9 +24,9 @@
       "Lnet/minecraft/client/render/block/BlockRenderManager;renderBlock(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;ZLnet/minecraft/util/math/random/Random;)V": "Lnet/minecraft/class_776;method_3355(Lnet/minecraft/class_2680;Lnet/minecraft/class_2338;Lnet/minecraft/class_1920;Lnet/minecraft/class_4587;Lnet/minecraft/class_4588;ZLnet/minecraft/class_5819;)V",
       "build": "Lnet/minecraft/class_9810;method_60904(Lnet/minecraft/class_4076;Lnet/minecraft/class_853;Lnet/minecraft/class_8251;Lnet/minecraft/class_750;)Lnet/minecraft/class_9810$class_9811;"
     },
-    "dev/creoii/greatbigworld/mixin/client/WorldRendererMixin": {
+    "dev/creoii/greatbigworld/mixin/client/WeatherRenderingMixin": {
       "Lnet/minecraft/world/World;getTopY(Lnet/minecraft/world/Heightmap$Type;II)I": "Lnet/minecraft/class_1937;method_8624(Lnet/minecraft/class_2902$class_2903;II)I",
-      "renderWeather": "Lnet/minecraft/class_761;method_22714(Lnet/minecraft/class_765;FDDD)V"
+      "buildPrecipitationPieces": "Lnet/minecraft/class_9976;method_62315(Lnet/minecraft/class_1937;IFLnet/minecraft/class_243;ILjava/util/List;Ljava/util/List;)V"
     },
     "dev/creoii/greatbigworld/mixin/world/HeightmapTypeMixin": {
       "<clinit>": "Lnet/minecraft/class_2902$class_2903;<clinit>()V",
@@ -39,6 +40,7 @@
   "data": {
     "named:intermediary": {
       "dev/creoii/greatbigworld/mixin/AbstractBlockStateAccessor": {
+        "hardness": "field_23172:F",
         "luminance": "field_23167:I"
       },
       "dev/creoii/greatbigworld/mixin/EntityMixin": {
@@ -61,9 +63,9 @@
         "Lnet/minecraft/client/render/block/BlockRenderManager;renderBlock(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;ZLnet/minecraft/util/math/random/Random;)V": "Lnet/minecraft/class_776;method_3355(Lnet/minecraft/class_2680;Lnet/minecraft/class_2338;Lnet/minecraft/class_1920;Lnet/minecraft/class_4587;Lnet/minecraft/class_4588;ZLnet/minecraft/class_5819;)V",
         "build": "Lnet/minecraft/class_9810;method_60904(Lnet/minecraft/class_4076;Lnet/minecraft/class_853;Lnet/minecraft/class_8251;Lnet/minecraft/class_750;)Lnet/minecraft/class_9810$class_9811;"
       },
-      "dev/creoii/greatbigworld/mixin/client/WorldRendererMixin": {
+      "dev/creoii/greatbigworld/mixin/client/WeatherRenderingMixin": {
         "Lnet/minecraft/world/World;getTopY(Lnet/minecraft/world/Heightmap$Type;II)I": "Lnet/minecraft/class_1937;method_8624(Lnet/minecraft/class_2902$class_2903;II)I",
-        "renderWeather": "Lnet/minecraft/class_761;method_22714(Lnet/minecraft/class_765;FDDD)V"
+        "buildPrecipitationPieces": "Lnet/minecraft/class_9976;method_62315(Lnet/minecraft/class_1937;IFLnet/minecraft/class_243;ILjava/util/List;Ljava/util/List;)V"
       },
       "dev/creoii/greatbigworld/mixin/world/HeightmapTypeMixin": {
         "<clinit>": "Lnet/minecraft/class_2902$class_2903;<clinit>()V",
