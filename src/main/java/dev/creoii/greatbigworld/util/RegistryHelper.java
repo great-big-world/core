@@ -36,11 +36,23 @@ public final class RegistryHelper {
         return registerItem(id, Item::new, settings);
     }
 
+    public static Item registerItem(Identifier id) {
+        return registerItem(id, Item::new);
+    }
+
     public static Item registerItem(Identifier id, Function<Item.Settings, Item> factory, Item.Settings settings) {
         return Registry.register(Registries.ITEM, id, factory.apply(settings.registryKey(RegistryKey.of(RegistryKeys.ITEM, id))));
     }
 
+    public static Item registerItem(Identifier id, Function<Item.Settings, Item> factory) {
+        return Registry.register(Registries.ITEM, id, factory.apply(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id))));
+    }
+
     public static Item registerBlockItem(Identifier id, Block block, Item.Settings settings) {
         return registerItem(id, settings1 -> new BlockItem(block, settings1), settings);
+    }
+
+    public static Item registerBlockItem(Identifier id, Block block) {
+        return registerItem(id, settings1 -> new BlockItem(block, settings1));
     }
 }
