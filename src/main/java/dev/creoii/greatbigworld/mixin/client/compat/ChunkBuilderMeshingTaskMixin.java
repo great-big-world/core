@@ -27,7 +27,7 @@ public class ChunkBuilderMeshingTaskMixin {
             BlockState overlay = overlayState.getOverlayState(blockState, blockPos, Random.create());
             if (overlay.getBlock() != Blocks.AIR) {
                 BakedModel model = cache.getBlockModels().getModel(overlay);
-                blockRenderer.renderModel(model, overlay, blockPos, BlockPos.ORIGIN);
+                blockRenderer.renderModel(model, overlay, blockPos, modelOffset);
             }
         }
     }
