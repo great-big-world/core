@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 public class HeightmapTypeMixin {
     @SuppressWarnings("InvokerTarget")
     @Invoker("<init>")
-    private static Heightmap.Type create(String internalName, int internalId, String name, Heightmap.Purpose purpose, Predicate<BlockState> blockPredicate) {
+    private static Heightmap.Type create(String internalName, int internalId, final int index, final String id, final Heightmap.Purpose purpose, final Predicate<BlockState> blockPredicate) {
         throw new AssertionError();
     }
 
@@ -33,7 +33,7 @@ public class HeightmapTypeMixin {
         ArrayList<Heightmap.Type> types = new ArrayList<>(Arrays.asList(field_13199));
         Heightmap.Type last = types.getLast();
 
-        Heightmap.Type weather = create("WEATHER", last.ordinal() + 1, "WEATHER", Heightmap.Purpose.CLIENT, state -> {
+        Heightmap.Type weather = create("WEATHER", last.ordinal() + 1, 6, "WEATHER", Heightmap.Purpose.CLIENT, state -> {
             if (state.isIn(GBWBlockTags.PRECIPITATION_IGNORES))
                 return false;
             else return state.blocksMovement() || !state.getFluidState().isEmpty();
