@@ -1,0 +1,37 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "#all",
+		"all": "#bottom",
+		"emissive": "#top"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#all"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#all"}
+			}
+		},
+		{
+			"name": "emissive_layer",
+			"from": [-0.001, -0.001, -0.001],
+			"to": [16.001, 16.001, 16.001],
+			"shade": false,
+			"light_emission": 15,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#emissive"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#emissive"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#emissive"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#emissive"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#emissive"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#emissive"}
+			}
+		}
+	]
+}

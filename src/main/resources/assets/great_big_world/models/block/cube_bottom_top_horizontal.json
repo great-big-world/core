@@ -1,5 +1,14 @@
 {
   "parent": "block/block",
+  "textures": {
+    "particle": "#side",
+    "down": "#bottom",
+    "up": "#top",
+    "north": "#side",
+    "east": "#side",
+    "south": "#side",
+    "west": "#side"
+  },
   "elements": [
     {
       "from": [ 0, 0, 0 ],
@@ -13,14 +22,5 @@
         "east":  { "texture": "#east", "cullface": "east" }
       }
     }
-  ],
-  "textures": {
-    "particle": "#side",
-    "down": "#bottom",
-    "up": "#top",
-    "north": "#side",
-    "east": "#side",
-    "south": "#side",
-    "west": "#side"
-  }
+  ]
 }
