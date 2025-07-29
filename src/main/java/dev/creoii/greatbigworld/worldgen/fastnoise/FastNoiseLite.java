@@ -51,14 +51,14 @@
 // perform a file-wide replacement on the following strings (including /*FNLfloat*/)
 // /*FNLfloat*/ float
 // /*FNLfloat*/ double
-package dev.creoii.greatbigworld.worldgen;
+package dev.creoii.greatbigworld.worldgen.fastnoise;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringIdentifiable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import static dev.creoii.greatbigworld.worldgen.FastNoiseParameters.*;
+import static dev.creoii.greatbigworld.worldgen.fastnoise.FastNoiseParameters.*;
 
 public class FastNoiseLite {
     public enum NoiseType implements StringIdentifiable {

@@ -1,4 +1,4 @@
-package dev.creoii.greatbigworld.worldgen;
+package dev.creoii.greatbigworld.worldgen.fastnoise;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

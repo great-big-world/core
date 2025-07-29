@@ -24,7 +24,7 @@ public class ChunkBuilderMeshingTaskMixin {
     @Inject(method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;", at = @At(value = "INVOKE", target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer;renderModel(Lnet/minecraft/client/render/model/BlockStateModel;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)V"))
     private void gbw$renderBlockOverlays(ChunkBuildContext buildContext, CancellationToken cancellationToken, CallbackInfoReturnable<ChunkBuildOutput> cir, @Local BlockRenderer blockRenderer, @Local ChunkBuildBuffers buffers, @Local BlockRenderCache cache, @Local(ordinal = 0) BlockPos.Mutable blockPos, @Local(ordinal = 1) BlockPos.Mutable modelOffset, @Local BlockState blockState) {
         if (blockState.getBlock() instanceof OverlayState overlayState) {
-            BlockState overlay = overlayState.getOverlayState(blockState, blockPos, Random.create());
+            BlockState overlay = overlayState.gbw$getOverlayState(blockState, blockPos, Random.create());
             if (overlay.getBlock() != Blocks.AIR) {
                 BlockStateModel model = cache.getBlockModels().getModel(overlay);
                 blockRenderer.renderModel(model, overlay, blockPos, modelOffset);

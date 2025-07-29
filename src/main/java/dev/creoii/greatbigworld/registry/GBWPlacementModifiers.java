@@ -1,6 +1,9 @@
-package dev.creoii.greatbigworld.worldgen;
+package dev.creoii.greatbigworld.registry;
 
 import dev.creoii.greatbigworld.GreatBigWorld;
+import dev.creoii.greatbigworld.worldgen.placementmodifier.AllOfPlacementModifier;
+import dev.creoii.greatbigworld.worldgen.placementmodifier.AnyOfPlacementModifier;
+import dev.creoii.greatbigworld.worldgen.placementmodifier.NoisePlacementModifier;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;

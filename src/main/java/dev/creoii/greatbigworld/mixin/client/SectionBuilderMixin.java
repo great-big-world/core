@@ -31,7 +31,7 @@ public class SectionBuilderMixin {
     @Inject(method = "build", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/BlockRenderManager;renderBlock(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;ZLjava/util/List;)V"))
     private void gbw$renderBlockOverlays(ChunkSectionPos sectionPos, ChunkRendererRegion renderRegion, VertexSorter vertexSorter, BlockBufferAllocatorStorage allocatorStorage, CallbackInfoReturnable<SectionBuilder.RenderData> cir, @Local MatrixStack matrixStack, @Local List<BlockModelPart> list, @Local Random random, @Local(ordinal = 2) BlockPos blockPos3, @Local BufferBuilder bufferBuilder, @Local BlockState blockState) {
         if (blockState.getBlock() instanceof OverlayState overlayState) {
-            BlockState overlay = overlayState.getOverlayState(blockState, blockPos3, random);
+            BlockState overlay = overlayState.gbw$getOverlayState(blockState, blockPos3, random);
             if (overlay.getBlock() != Blocks.AIR) {
                 blockRenderManager.getModel(blockState).addParts(random, list);
                 list.clear();

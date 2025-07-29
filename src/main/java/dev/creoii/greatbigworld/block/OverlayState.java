@@ -9,7 +9,7 @@ import net.minecraft.util.math.random.Random;
 
 public interface OverlayState {
     @Environment(EnvType.CLIENT)
-    default BlockState getOverlayState(BlockState state, BlockPos pos, Random random) {
+    default BlockState gbw$getOverlayState(BlockState state, BlockPos pos, Random random) {
         return Blocks.AIR.getDefaultState();
     }
 }

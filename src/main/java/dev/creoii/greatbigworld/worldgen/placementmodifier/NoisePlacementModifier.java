@@ -1,8 +1,9 @@
-package dev.creoii.greatbigworld.worldgen;
+package dev.creoii.greatbigworld.worldgen.placementmodifier;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.creoii.greatbigworld.registry.GBWPlacementModifiers;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerChunkManager;
