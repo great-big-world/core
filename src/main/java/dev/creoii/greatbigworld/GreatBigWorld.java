@@ -14,7 +14,7 @@ public class GreatBigWorld implements ModInitializer {
     public static final String NAMESPACE = "great_big_world";
     public static final Logger LOGGER = LogManager.getLogger(GreatBigWorld.class);
 
-    public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(GreatBigWorld.NAMESPACE, "the_alterworld"));;
+    public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));;
 
     @Override
     public void onInitialize() {
