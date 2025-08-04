@@ -1,5 +1,8 @@
 package dev.creoii.greatbigworld.util;
 
+import net.minecraft.block.MapColor;
+import net.minecraft.util.DyeColor;
+
 public final class ColorHelper {
     public static int add(int color, int r, int g, int b) {
         return (Math.min(red(color) + r, 255) << 16) | (Math.min(green(color) + g, 255) << 8) | Math.min(blue(color) + b, 255);
@@ -33,5 +36,26 @@ public final class ColorHelper {
 
     public static int blue(int color) {
         return color & 0xff;
+    }
+
+    public static MapColor getTerracottaColor(DyeColor color) {
+        return switch (color) {
+            case BROWN -> MapColor.TERRACOTTA_BROWN;
+            case RED -> MapColor.TERRACOTTA_RED;
+            case ORANGE -> MapColor.TERRACOTTA_ORANGE;
+            case YELLOW -> MapColor.TERRACOTTA_YELLOW;
+            case LIME -> MapColor.TERRACOTTA_LIME;
+            case GREEN -> MapColor.TERRACOTTA_GREEN;
+            case CYAN -> MapColor.TERRACOTTA_CYAN;
+            case BLUE -> MapColor.TERRACOTTA_BLUE;
+            case LIGHT_BLUE -> MapColor.TERRACOTTA_LIGHT_BLUE;
+            case PINK -> MapColor.TERRACOTTA_PINK;
+            case MAGENTA -> MapColor.TERRACOTTA_MAGENTA;
+            case PURPLE -> MapColor.TERRACOTTA_PURPLE;
+            case BLACK -> MapColor.TERRACOTTA_BLACK;
+            case GRAY -> MapColor.TERRACOTTA_GRAY;
+            case LIGHT_GRAY -> MapColor.TERRACOTTA_LIGHT_GRAY;
+            case WHITE -> MapColor.TERRACOTTA_WHITE;
+        };
     }
 }
