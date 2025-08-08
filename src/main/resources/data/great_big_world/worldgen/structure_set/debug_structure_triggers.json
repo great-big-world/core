@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 84612058,
+    "separation": 14,
+    "spacing": 24
+  },
+  "structures": [
+    {
+      "structure": "great_big_world:debug_structure_trigger",
+      "weight": 1
+    }
+  ]
+}

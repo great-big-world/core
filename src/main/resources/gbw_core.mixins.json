@@ -10,7 +10,14 @@
     "compat.LithiumEntityCollisionsMixin",
     "world.CollisionViewMixin",
     "world.HeightmapTypeMixin",
-    "world.LevelStorageMixin"
+    "world.LevelStorageMixin",
+    "world.structure.JigsawReplacementStructureProcessorMixin",
+    "world.structure.ListPoolElementMixin",
+    "world.structure.PoolStructurePieceMixin",
+    "world.structure.SinglePoolElementMixin",
+    "world.structure.StructurePoolElementMixin",
+    "world.structure.StructureStartMixin",
+    "world.structure.StructureTemplateMixin"
   ],
   "client": [
     "client.CreateWorldScreenGameTabMixin",

@@ -51,14 +51,14 @@
 // perform a file-wide replacement on the following strings (including /*FNLfloat*/)
 // /*FNLfloat*/ float
 // /*FNLfloat*/ double
-package dev.creoii.greatbigworld.worldgen.fastnoise;
+package dev.creoii.greatbigworld.world.fastnoise;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringIdentifiable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import static dev.creoii.greatbigworld.worldgen.fastnoise.FastNoiseParameters.*;
+import static dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters.*;
 
 public class FastNoiseLite {
     public enum NoiseType implements StringIdentifiable {
@@ -651,7 +651,6 @@ public class FastNoiseLite {
             -0.7870349638f, 0.03447489231f, 0.6159443543f, 0, -0.2015596421f, 0.6859872284f, 0.6991389226f, 0, -0.08581082512f, -0.10920836f, -0.9903080513f, 0, 0.5532693395f, 0.7325250401f, -0.396610771f, 0, -0.1842489331f, -0.9777375055f, -0.1004076743f, 0, 0.0775473789f, -0.9111505856f, 0.4047110257f, 0, 0.1399838409f, 0.7601631212f, -0.6344734459f, 0, 0.4484419361f, -0.845289248f, 0.2904925424f, 0
     };
 
-
     private static float fastMin(float a, float b) { return a < b ? a : b; }
 
     private static float fastMax(float a, float b) { return a > b ? a : b; }
@@ -749,7 +748,6 @@ public class FastNoiseLite {
         return xd * xg + yd * yg + zd * zg;
     }
 
-
     // Generic noise gen
 
     private float genNoiseSingle(long seed, /*FNLfloat*/ float x, /*FNLfloat*/ float y) {
@@ -773,7 +771,6 @@ public class FastNoiseLite {
             case VALUE -> SingleValue(seed, x, y, z);
         };
     }
-
 
     // Noise Coordinate Transforms (frequency, and possible skew or rotation)
 
@@ -803,7 +800,6 @@ public class FastNoiseLite {
             }
         }
     }
-
 
     // Fractal FBm
 
@@ -844,7 +840,6 @@ public class FastNoiseLite {
         return sum;
     }
 
-
     // Fractal Ridged
 
     private float genFractalRidged(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
@@ -884,7 +879,6 @@ public class FastNoiseLite {
         return sum;
     }
 
-
     // Fractal PingPong
 
     private float genFractalPingPong(/*FNLfloat*/ float x, /*FNLfloat*/ float y) {
@@ -923,7 +917,6 @@ public class FastNoiseLite {
 
         return sum;
     }
-
 
     // Simplex/OpenSimplex2 Noise
 
@@ -1074,7 +1067,6 @@ public class FastNoiseLite {
 
         return value * 32.69428253173828125f;
     }
-
 
     // OpenSimplex2S Noise
 
@@ -1557,7 +1549,6 @@ public class FastNoiseLite {
         };
     }
 
-
     // Perlin Noise
     private float SinglePerlin(long seed, float x, float y)
     {
@@ -1617,7 +1608,6 @@ public class FastNoiseLite {
         return lerp(yf0, yf1, zs) * .964921414852142333984375f;
     }
 
-
     // Value Cubic Noise
     private float SingleValueCubic(long seed, float x, float y) {
         int x1 = fastFloor(x);
@@ -1670,7 +1660,6 @@ public class FastNoiseLite {
         int y3 = y1 + (PRIME_Y << 1);
         int z3 = z1 + (PRIME_Z << 1);
 
-
         return cubicLerp(
                 cubicLerp(
                         cubicLerp(valCoord(seed, x0, y0, z0), valCoord(seed, x1, y0, z0), valCoord(seed, x2, y0, z0), valCoord(seed, x3, y0, z0), xs),
@@ -1698,7 +1687,6 @@ public class FastNoiseLite {
                         ys),
                 zs) * (1 / (1.5f * 1.5f * 1.5f));
     }
-
 
     // Value Noise
     private float SingleValue(long seed, float x, float y) {
@@ -1745,7 +1733,6 @@ public class FastNoiseLite {
 
         return lerp(yf0, yf1, zs);
     }
-
 
     // Domain Warp
 
@@ -1826,7 +1813,6 @@ public class FastNoiseLite {
 
         DoSingleDomainWarp(seed, amp, freq, xs, ys, zs, coord);
     }
-
 
     // Domain Warp Fractal Progressive
     private void DomainWarpFractalProgressive(Vector2f coord) {
@@ -1971,7 +1957,6 @@ public class FastNoiseLite {
         }
     }
 
-
     // Domain Warp Basic Grid
     private void SingleDomainWarpBasicGrid(long seed, float warpAmp, float frequency, float x, float y, Vector2f coord) {
         float xf = x * frequency;
@@ -2060,7 +2045,6 @@ public class FastNoiseLite {
         coord.y += lerp(ly0y, lerp(ly0x, ly1x, ys), zs) * warpAmp;
         coord.z += lerp(lz0y, lerp(lz0x, lz1x, ys), zs) * warpAmp;
     }
-
 
     // Domain Warp Simplex/OpenSimplex2
     private void SingleDomainWarpSimplexGradient(long seed, float warpAmp, float frequency, /*FNLfloat*/ float x, /*FNLfloat*/ float y, Vector2f coord, boolean outGradOnly) {

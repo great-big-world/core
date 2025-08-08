@@ -1,4 +1,4 @@
-package dev.creoii.greatbigworld.worldgen.decorator;
+package dev.creoii.greatbigworld.world.decorator;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

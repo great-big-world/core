@@ -9,3 +9,4 @@ accessible class net/minecraft/client/gui/screen/world/CreateWorldScreen$GameTab
 mutable field net/minecraft/block/AbstractBlock$AbstractBlockState luminance I
 accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabs Lcom/google/common/collect/ImmutableList;
 mutable field net/minecraft/block/AbstractBlock$AbstractBlockState hardness F
+accessible field net/minecraft/client/world/ClientWorld client Lnet/minecraft/client/MinecraftClient;

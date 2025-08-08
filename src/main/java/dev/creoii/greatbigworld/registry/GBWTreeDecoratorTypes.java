@@ -1,8 +1,8 @@
 package dev.creoii.greatbigworld.registry;
 
 import dev.creoii.greatbigworld.GreatBigWorld;
-import dev.creoii.greatbigworld.worldgen.decorator.AlterGroundTreeDecorator;
-import dev.creoii.greatbigworld.worldgen.decorator.BranchTreeDecorator;
+import dev.creoii.greatbigworld.world.decorator.AlterGroundTreeDecorator;
+import dev.creoii.greatbigworld.world.decorator.BranchTreeDecorator;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;

@@ -1,10 +1,20 @@
 package dev.creoii.greatbigworld;
 
-import dev.creoii.greatbigworld.registry.GBWTreeDecoratorTypes;
-import dev.creoii.greatbigworld.registry.GBWPlacementModifiers;
+import com.mojang.serialization.Lifecycle;
+import dev.creoii.greatbigworld.block.StructureTriggerBlock;
+import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
+import dev.creoii.greatbigworld.registry.*;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.registry.*;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
@@ -16,9 +26,65 @@ public class GreatBigWorld implements ModInitializer {
 
     public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));;
 
+    public static final RegistryKey<Registry<StructureTrigger>> STRUCTURE_TRIGGERS_KEY = RegistryKey.ofRegistry(Identifier.of(NAMESPACE, "structure_triggers"));
+    public static final Registry<StructureTrigger> STRUCTURE_TRIGGERS = new SimpleDefaultedRegistry<>("great_big_world:empty", STRUCTURE_TRIGGERS_KEY, Lifecycle.stable(), false);
+
     @Override
     public void onInitialize() {
+        GBWBlocks.register();
+        GBWItems.register();
+        GBWBlockEntityTypes.register();
         GBWTreeDecoratorTypes.register();
         GBWPlacementModifiers.register();
+        GBWStructureTriggers.register();
+
+        PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
+        PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
+            context.server().execute(() -> {
+                if (!context.player().isCreativeLevelTwoOp())
+                    return;
+                BlockEntity blockEntity = context.player().getWorld().getBlockEntity(updateStructureTriggerC2S.pos());
+                if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
+                    structureTriggerBlockEntity.setTarget(updateStructureTriggerC2S.target());
+                    structureTriggerBlockEntity.setTriggerType(StructureTriggerBlock.TriggerType.valueOf(updateStructureTriggerC2S.triggerType().toUpperCase()));
+                    structureTriggerBlockEntity.setTickRate(updateStructureTriggerC2S.tickRate());
+                    structureTriggerBlockEntity.setFinalState(updateStructureTriggerC2S.finalState());
+                }
+            });
+        });
+        ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, (structureTriggerC2S, context) -> {
+            context.server().execute(() -> {
+                if (!context.player().isCreativeLevelTwoOp())
+                    return;
+                BlockEntity blockEntity = context.player().getWorld().getBlockEntity(structureTriggerC2S.pos());
+                if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
+                    StructureTrigger trigger = STRUCTURE_TRIGGERS.get(structureTriggerBlockEntity.getTarget());
+                    Identifier id = Identifier.tryParse(structureTriggerBlockEntity.getFinalState());
+                    if (trigger != null && id != null) {
+                        BlockState finalState = Registries.BLOCK.get(id).getDefaultState();
+                        if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
+                            trigger.trigger((ServerWorld) context.player().getWorld(), structureTriggerC2S.pos(), finalState);
+                        } else {
+                            StructureTriggerManager manager = StructureTriggerManager.getServerState((ServerWorld) context.player().getWorld());
+                            manager.addTrigger(structureTriggerC2S.pos(), new StructureTriggerManager.StructureTriggerInfo(null, trigger, finalState, structureTriggerC2S.tickRate()));
+                        }
+                    }
+                }
+            });
+        });
+
+        ServerWorldEvents.LOAD.register((minecraftServer, serverWorld) -> {
+            StructureTriggerManager manager = StructureTriggerManager.getServerState(serverWorld);
+            manager.init(serverWorld);
+        });
+
+        ServerTickEvents.END_WORLD_TICK.register(world -> {
+            if (world.getTickManager().shouldTick()) {
+                StructureTriggerManager manager = StructureTriggerManager.getServerState(world);
+                manager.tick(world);
+            }
+        });
     }
 }

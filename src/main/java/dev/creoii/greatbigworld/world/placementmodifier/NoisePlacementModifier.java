@@ -1,4 +1,4 @@
-package dev.creoii.greatbigworld.worldgen.placementmodifier;
+package dev.creoii.greatbigworld.world.placementmodifier;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

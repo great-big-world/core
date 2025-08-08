@@ -1,0 +1,10 @@
+{
+  "block.great_big_world.structure_trigger": "Structure Trigger",
+
+  "structure_trigger.target": "Target Name:",
+  "structure_trigger.final_state": "Turns into:",
+  "structure_trigger.trigger": "Trigger",
+  "structure_trigger.trigger_type_init": "Init",
+  "structure_trigger.trigger_type_tick": "Tick",
+  "structure_trigger.tick_rate": "Tick Rate"
+}
