@@ -1,7 +1,7 @@
 package dev.creoii.greatbigworld.mixin.world.structure;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.creoii.greatbigworld.util.StructureTriggerStart;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerStart;
 import net.minecraft.structure.StructureLiquidSettings;
 import net.minecraft.structure.StructureTemplateManager;
 import net.minecraft.structure.pool.ListPoolElement;

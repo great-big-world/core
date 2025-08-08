@@ -17,6 +17,15 @@
         "processors": "minecraft:empty"
       },
       "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "great_big_world:debug_structure_trigger3",
+        "projection": "rigid",
+        "processors": "minecraft:empty"
+      },
+      "weight": 1
     }
   ],
   "fallback": "minecraft:empty"

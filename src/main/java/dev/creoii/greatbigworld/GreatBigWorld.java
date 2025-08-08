@@ -5,6 +5,8 @@ import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.*;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroupContainer;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -47,6 +49,9 @@ public class GreatBigWorld implements ModInitializer {
                     return;
                 BlockEntity blockEntity = context.player().getWorld().getBlockEntity(updateStructureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
+                    if (updateStructureTriggerC2S.group() != null)
+                        structureTriggerBlockEntity.setGroup(Identifier.of(updateStructureTriggerC2S.group()));
+                    structureTriggerBlockEntity.setGroupDataType(updateStructureTriggerC2S.groupDataType());
                     structureTriggerBlockEntity.setTarget(updateStructureTriggerC2S.target());
                     structureTriggerBlockEntity.setTriggerType(StructureTriggerBlock.TriggerType.valueOf(updateStructureTriggerC2S.triggerType().toUpperCase()));
                     structureTriggerBlockEntity.setTickRate(updateStructureTriggerC2S.tickRate());
@@ -65,7 +70,8 @@ public class GreatBigWorld implements ModInitializer {
                     if (trigger != null && id != null) {
                         BlockState finalState = Registries.BLOCK.get(id).getDefaultState();
                         if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
-                            trigger.trigger((ServerWorld) context.player().getWorld(), structureTriggerC2S.pos(), finalState);
+                            StructureTriggerGroup group = ((StructureTriggerGroupContainer) (Object) trigger.structureStart().getValue()).gbw$getStructureTriggerGroup(trigger.group());
+                            trigger.trigger((ServerWorld) context.player().getWorld(), structureTriggerC2S.pos(), finalState, group);
                         } else {
                             StructureTriggerManager manager = StructureTriggerManager.getServerState((ServerWorld) context.player().getWorld());
                             manager.addTrigger(structureTriggerC2S.pos(), new StructureTriggerManager.StructureTriggerInfo(null, trigger, finalState, structureTriggerC2S.tickRate()));

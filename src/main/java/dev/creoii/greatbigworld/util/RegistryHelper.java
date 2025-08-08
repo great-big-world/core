@@ -45,10 +45,10 @@ public final class RegistryHelper {
     }
 
     public static Item registerBlockItem(Identifier id, Block block, Item.Settings settings) {
-        return registerItem(id, settings1 -> new BlockItem(block, settings1), settings.useBlockPrefixedTranslationKey());
+        return registerItem(id, settings1 -> new BlockItem(block, settings1), settings.registryKey(RegistryKey.of(RegistryKeys.ITEM, id)).useBlockPrefixedTranslationKey());
     }
 
     public static Item registerBlockItem(Identifier id, Block block) {
-        return registerItem(id, settings1 -> new BlockItem(block, settings1.useBlockPrefixedTranslationKey()));
+        return registerItem(id, settings1 -> new BlockItem(block, settings1.registryKey(RegistryKey.of(RegistryKeys.ITEM, id)).useBlockPrefixedTranslationKey()));
     }
 }

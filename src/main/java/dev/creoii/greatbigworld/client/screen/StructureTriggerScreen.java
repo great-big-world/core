@@ -2,6 +2,7 @@ package dev.creoii.greatbigworld.client.screen;
 
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,6 +18,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class StructureTriggerScreen extends Screen {
+    private static final Text GROUP_TEXT = Text.translatable("structure_trigger.group");
     private static final Text TARGET_TEXT = Text.translatable("structure_trigger.target");
     private static final Text FINAL_STATE_TEXT = Text.translatable("structure_trigger.final_state");
     private static final Text TRIGGER_TEXT = Text.translatable("structure_trigger.trigger");
@@ -24,6 +26,8 @@ public class StructureTriggerScreen extends Screen {
     private static final Text TRIGGER_TYPE_TICK = Text.translatable("structure_trigger.trigger_type_tick");
     private static final Text TICK_RATE_TEXT = Text.translatable("structure_trigger.tick_rate");
     private final StructureTriggerBlockEntity functionBlock;
+    private TextFieldWidget groupField;
+    private ButtonWidget groupDataTypeButton;
     private TextFieldWidget targetField;
     private TextFieldWidget tickRateField;
     private TextFieldWidget finalStateField;
@@ -46,7 +50,7 @@ public class StructureTriggerScreen extends Screen {
     }
 
     private void updateServer() {
-        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(functionBlock.getPos(), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
+        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(functionBlock.getPos(), groupField.getText(), StructureTriggerGroup.DataType.valueOf(groupDataTypeButton.getMessage().getString().toUpperCase()), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
     }
 
     private void trigger() {
@@ -58,6 +62,16 @@ public class StructureTriggerScreen extends Screen {
     }
 
     protected void init() {
+        groupField = new TextFieldWidget(textRenderer, 3, 45, 150, 20, GROUP_TEXT);
+        groupField.setMaxLength(128);
+        groupField.setText(functionBlock.getGroup() == null ? "" : functionBlock.getGroup().toString());
+        groupField.setChangedListener(target -> updateDoneButtonState());
+        addSelectableChild(groupField);
+        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(functionBlock.getGroupDataType() == null ? "" : functionBlock.getGroupDataType().name()), button -> {
+            int dataTypeI = StructureTriggerGroup.DataType.valueOf(button.getMessage().getString().toUpperCase()).ordinal();
+            int nextI = (dataTypeI + 1) % StructureTriggerGroup.DataType.values().length;
+            button.setMessage(Text.literal(StructureTriggerGroup.DataType.values()[nextI].name().toLowerCase()));
+        }).dimensions(width - 153, 45, 150, 20).build());
         targetField = new TextFieldWidget(textRenderer, width / 2 - 153, 80, 300, 20, TARGET_TEXT);
         targetField.setMaxLength(128);
         targetField.setText(functionBlock.getTarget().toString());
@@ -67,7 +81,7 @@ public class StructureTriggerScreen extends Screen {
         finalStateField.setMaxLength(256);
         finalStateField.setText(functionBlock.getFinalState());
         addSelectableChild(finalStateField);
-        tickRateField = new TextFieldWidget(textRenderer, width - 150, 150, 150, 20, TICK_RATE_TEXT);
+        tickRateField = new TextFieldWidget(textRenderer, width - 153, 150, 150, 20, TICK_RATE_TEXT);
         tickRateField.setMaxLength(10);
         tickRateField.setText(String.valueOf(functionBlock.getTickRate()));
         tickRateField.setChangedListener(target -> updateDoneButtonState());
@@ -76,7 +90,7 @@ public class StructureTriggerScreen extends Screen {
             if (button.getMessage() == TRIGGER_TYPE_INIT)
                 button.setMessage(TRIGGER_TYPE_TICK);
             else button.setMessage(TRIGGER_TYPE_INIT);
-        }).dimensions(0, 150, 210, 20).build());
+        }).dimensions(3, 150, 210, 20).build());
         triggerButton = addDrawableChild(ButtonWidget.builder(TRIGGER_TEXT, button -> {
             onDone();
             trigger();
@@ -127,6 +141,8 @@ public class StructureTriggerScreen extends Screen {
 
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
+        context.drawTextWithShadow(textRenderer, GROUP_TEXT, width / 2 - 153, 35, 10526880);
+        groupField.render(context, mouseX, mouseY, deltaTicks);
         context.drawTextWithShadow(textRenderer, TARGET_TEXT, width / 2 - 153, 70, 10526880);
         targetField.render(context, mouseX, mouseY, deltaTicks);
 

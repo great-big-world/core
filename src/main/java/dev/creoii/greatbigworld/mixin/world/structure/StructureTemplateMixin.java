@@ -7,9 +7,7 @@ import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.GBWBlocks;
-import dev.creoii.greatbigworld.util.StructureTriggerStart;
-import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
-import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
+import dev.creoii.greatbigworld.world.structuretrigger.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
@@ -25,8 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(StructureTemplate.class)
 public class StructureTemplateMixin implements StructureTriggerStart {
-    @Unique
-    private StructureStart structureStart;
+    @Unique private StructureStart structureStart;
 
     @WrapOperation(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/ServerWorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z", ordinal = 1))
     private boolean gbw$triggerStructureTriggersOnPlace(ServerWorldAccess instance, BlockPos pos, BlockState blockState, int i, Operation<Boolean> original, @Local StructureTemplate.StructureBlockInfo structureBlockInfo) {
@@ -40,9 +37,10 @@ public class StructureTemplateMixin implements StructureTriggerStart {
                     instance.setBlockState(pos, finalState, i);
                     trigger.structureStart().setValue(structureStart);
                     StructureTriggerBlock.TriggerType triggerType = StructureTriggerBlock.TriggerType.valueOf(structureBlockInfo.nbt().getString("trigger_type", "init").toUpperCase());
-                    if (triggerType == StructureTriggerBlock.TriggerType.INIT)
-                        trigger.trigger((ServerWorld) instance, pos, finalState);
-                    else {
+                    if (triggerType == StructureTriggerBlock.TriggerType.INIT) {
+                        StructureTriggerGroup group = ((StructureTriggerGroupContainer) (Object) structureStart).gbw$getStructureTriggerGroup(trigger.group());
+                        trigger.trigger((ServerWorld) instance, pos, finalState, group);
+                    } else {
                         int tickRate = structureBlockInfo.nbt().getInt("tick_rate", 20);
                         StructureTriggerManager manager = StructureTriggerManager.getServerState((ServerWorld) instance);
                         manager.addTrigger(pos, new StructureTriggerManager.StructureTriggerInfo(instance.getRegistryManager().getOptional(RegistryKeys.STRUCTURE).get().getEntry(structureStart.getStructure()).getKey().get(), trigger, finalState, tickRate));

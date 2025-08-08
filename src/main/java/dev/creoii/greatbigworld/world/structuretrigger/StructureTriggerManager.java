@@ -44,10 +44,26 @@ public class StructureTriggerManager extends PersistentState {
 
     public void addTrigger(BlockPos pos, StructureTriggerInfo trigger) {
         structureTriggers.put(pos, trigger);
+
+        StructureTriggerInfo triggerInfo = structureTriggers.get(pos);
+        if (triggerInfo != null) {
+            if (triggerInfo.trigger.structureStart().getValue() == null)
+                return;
+            ((StructureTriggerGroupContainer) (Object) triggerInfo.trigger.structureStart().getValue()).gbw$addStructureTrigger(triggerInfo.trigger);
+        }
     }
 
     public void removeTrigger(BlockPos pos) {
-        structureTriggers.remove(pos);
+        if (structureTriggers.containsKey(pos)) {
+            structureTriggers.remove(pos);
+
+            StructureTriggerInfo triggerInfo = structureTriggers.get(pos);
+            if (triggerInfo != null) {
+                if (triggerInfo.trigger.structureStart().getValue() == null)
+                    return;
+                ((StructureTriggerGroupContainer) (Object) triggerInfo.trigger.structureStart().getValue()).gbw$removeStructureTrigger(triggerInfo.trigger);
+            }
+        }
     }
 
     public void init(ServerWorld world) {
@@ -55,7 +71,6 @@ public class StructureTriggerManager extends PersistentState {
         structureRegistry.ifPresent(structures -> structureTriggers.forEach((pos, info) -> {
             StructureStart structureStart = world.getStructureAccessor().getStructureAt(pos, structures.get(info.structureRef));
             if (structureStart != StructureStart.DEFAULT) {
-                System.out.println("init structure start at " + pos.toShortString());
                 info.trigger.structureStart().setValue(structureStart);
             }
         }));
@@ -68,7 +83,10 @@ public class StructureTriggerManager extends PersistentState {
             BlockPos pos = entry.getKey();
             StructureTriggerInfo triggerInfo = entry.getValue();
             if (world.getTime() % triggerInfo.tickRate == 0) {
-                if (!triggerInfo.trigger.trigger(world, pos, triggerInfo.state)) {
+                StructureTriggerGroup group = null;
+                if (triggerInfo.trigger().structureStart().getValue() != null)
+                    group = ((StructureTriggerGroupContainer) (Object) triggerInfo.trigger().structureStart().getValue()).gbw$getStructureTriggerGroup(triggerInfo.trigger().group());
+                if (!triggerInfo.trigger.trigger(world, pos, triggerInfo.state, group)) {
                     removeTrigger(pos);
                 }
             }

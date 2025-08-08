@@ -1,6 +1,6 @@
 package dev.creoii.greatbigworld.mixin.world.structure;
 
-import dev.creoii.greatbigworld.util.StructureTriggerStart;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerStart;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.pool.StructurePoolElement;
 import org.spongepowered.asm.mixin.Mixin;

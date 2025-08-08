@@ -1,4 +1,4 @@
-package dev.creoii.greatbigworld.util;
+package dev.creoii.greatbigworld.world.structuretrigger;
 
 import net.minecraft.structure.StructureStart;
 

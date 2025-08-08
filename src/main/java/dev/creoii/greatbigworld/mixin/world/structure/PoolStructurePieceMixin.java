@@ -1,6 +1,6 @@
 package dev.creoii.greatbigworld.mixin.world.structure;
 
-import dev.creoii.greatbigworld.util.StructureTriggerStart;
+import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerStart;
 import net.minecraft.structure.*;
 import net.minecraft.structure.pool.StructurePoolElement;
 import net.minecraft.util.math.BlockBox;

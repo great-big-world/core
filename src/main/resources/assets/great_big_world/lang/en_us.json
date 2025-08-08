@@ -1,6 +1,7 @@
 {
   "block.great_big_world.structure_trigger": "Structure Trigger",
 
+  "structure_trigger.group": "Group Name:",
   "structure_trigger.target": "Target Name:",
   "structure_trigger.final_state": "Turns into:",
   "structure_trigger.trigger": "Trigger",
