@@ -12,17 +12,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record StructureTrigger(@Nullable Identifier group, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-    public StructureTrigger(@Nullable Identifier group, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-        this(group, new MutableObject<>(), structureTrigger);
+public record StructureTrigger(@Nullable Identifier group, StructureTriggerGroup.DataType dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+    public StructureTrigger(@Nullable Identifier group, StructureTriggerGroup.DataType dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+        this(group, dataType, new MutableObject<>(), structureTrigger);
     }
 
     public StructureTrigger(Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-        this(null, new MutableObject<>(), structureTrigger);
+        this(null, StructureTriggerGroup.DataType.INT, new MutableObject<>(), structureTrigger);
     }
 
     public static StructureTrigger copy(StructureTrigger trigger) {
-        return new StructureTrigger(trigger.group, trigger.structureStart, trigger.structureTrigger);
+        return new StructureTrigger(trigger.group, trigger.dataType, trigger.structureStart, trigger.structureTrigger);
     }
 
     public boolean trigger(ServerWorld world, BlockPos pos, BlockState state, StructureTriggerGroup group) {

@@ -32,6 +32,7 @@ public class StructureTriggerManager extends PersistentState {
     }, structureTriggerManager -> new HashMap<>(structureTriggerManager.structureTriggers));
     private static final PersistentStateType<StructureTriggerManager> STATE_TYPE = new PersistentStateType<>("gbw_structure_triggers", StructureTriggerManager::new, CODEC, null);
     private final HashMap<BlockPos, StructureTriggerInfo> structureTriggers;
+    private ServerWorld world;
 
     public StructureTriggerManager() {
         structureTriggers = new HashMap<>();
@@ -67,6 +68,7 @@ public class StructureTriggerManager extends PersistentState {
     }
 
     public void init(ServerWorld world) {
+        this.world = world;
         Optional<Registry<Structure>> structureRegistry = world.getRegistryManager().getOptional(RegistryKeys.STRUCTURE);
         structureRegistry.ifPresent(structures -> structureTriggers.forEach((pos, info) -> {
             StructureStart structureStart = world.getStructureAccessor().getStructureAt(pos, structures.get(info.structureRef));

@@ -16,6 +16,7 @@ import net.minecraft.structure.StructureStart;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.ServerWorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,12 +38,14 @@ public class StructureTemplateMixin implements StructureTriggerStart {
                     instance.setBlockState(pos, finalState, i);
                     trigger.structureStart().setValue(structureStart);
                     StructureTriggerBlock.TriggerType triggerType = StructureTriggerBlock.TriggerType.valueOf(structureBlockInfo.nbt().getString("trigger_type", "init").toUpperCase());
+
+                    ServerWorld serverWorld = instance instanceof ChunkRegion chunkRegion ? chunkRegion.world : (ServerWorld) instance;
                     if (triggerType == StructureTriggerBlock.TriggerType.INIT) {
                         StructureTriggerGroup group = ((StructureTriggerGroupContainer) (Object) structureStart).gbw$getStructureTriggerGroup(trigger.group());
-                        trigger.trigger((ServerWorld) instance, pos, finalState, group);
+                        trigger.trigger(serverWorld, pos, finalState, group);
                     } else {
                         int tickRate = structureBlockInfo.nbt().getInt("tick_rate", 20);
-                        StructureTriggerManager manager = StructureTriggerManager.getServerState((ServerWorld) instance);
+                        StructureTriggerManager manager = StructureTriggerManager.getServerState(serverWorld);
                         manager.addTrigger(pos, new StructureTriggerManager.StructureTriggerInfo(instance.getRegistryManager().getOptional(RegistryKeys.STRUCTURE).get().getEntry(structureStart.getStructure()).getKey().get(), trigger, finalState, tickRate));
                     }
                 }

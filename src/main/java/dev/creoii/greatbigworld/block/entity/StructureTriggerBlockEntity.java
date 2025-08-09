@@ -74,7 +74,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         this.group = group;
     }
 
-    public void setGroupDataType(@Nullable StructureTriggerGroup.DataType groupDataType) {
+    public void setGroupDataType(StructureTriggerGroup.DataType groupDataType) {
         this.groupDataType = groupDataType;
     }
 

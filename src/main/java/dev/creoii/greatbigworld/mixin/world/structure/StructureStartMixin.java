@@ -38,7 +38,7 @@ public class StructureStartMixin implements StructureTriggerGroupContainer {
         if (structureTriggers.containsKey(trigger.group())) {
             structureTriggers.get(trigger.group()).gbw$addStructureTrigger(trigger);
         } else {
-            structureTriggers.put(trigger.group(), new StructureTriggerGroup(StructureTriggerGroup.DataType.INT));
+            structureTriggers.put(trigger.group(), new StructureTriggerGroup(trigger.dataType()));
             structureTriggers.get(trigger.group()).gbw$addStructureTrigger(trigger);
         }
     }

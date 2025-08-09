@@ -1,8 +1,7 @@
 package dev.creoii.greatbigworld.world.structuretrigger;
 
 import net.minecraft.util.Identifier;
-import org.apache.commons.lang3.mutable.Mutable;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,11 @@ public class StructureTriggerGroup implements StructureTriggerContainer {
     }
 
     public enum DataType {
-        INT(MutableInt::new);
+        BOOL(MutableBoolean::new),
+        INT(MutableInt::new),
+        FLOAT(MutableFloat::new),
+        STRING(() -> new MutableObject<>("")),
+        LIST(() -> new MutableObject<List<?>>(new ArrayList<>()));
 
         private final Supplier<Mutable<?>> data;
 
@@ -57,12 +60,6 @@ public class StructureTriggerGroup implements StructureTriggerContainer {
 
         public Mutable<?> getData() {
             return data.get();
-        }
-
-        public void setData(Object o) {
-            if (data.get() instanceof MutableInt mutableInt && o instanceof Integer i) {
-                mutableInt.setValue(i);
-            }
         }
     }
 }
