@@ -4,31 +4,30 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.greatbigworld.registry.GBWPlacementModifierTypes;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerChunkManager;
+import dev.creoii.greatbigworld.world.fastnoise.FastNoiseLite;
+import dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.gen.feature.FeaturePlacementContext;
 import net.minecraft.world.gen.placementmodifier.AbstractConditionalPlacementModifier;
 import net.minecraft.world.gen.placementmodifier.PlacementModifierType;
 
-public class NoisePlacementModifier extends AbstractConditionalPlacementModifier {
-        public static final MapCodec<NoisePlacementModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return instance.group(RegistryKey.createCodec(RegistryKeys.NOISE_PARAMETERS).fieldOf("noise").forGetter(predicate -> {
+public class FastNoisePlacementModifier extends AbstractConditionalPlacementModifier {
+    public static final MapCodec<FastNoisePlacementModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> {
+        return instance.group(FastNoiseParameters.REGISTRY_ENTRY_CODEC.fieldOf("noise").forGetter(predicate -> {
             return predicate.noise;
         }), Codec.DOUBLE.optionalFieldOf("min_threshold", -1d).forGetter(predicate -> {
             return predicate.minThreshold;
         }), Codec.DOUBLE.optionalFieldOf("max_threshold", 1d).forGetter(predicate -> {
             return predicate.maxThreshold;
-        })).apply(instance, NoisePlacementModifier::new);
+        })).apply(instance, FastNoisePlacementModifier::new);
     });
-    private final RegistryKey<DoublePerlinNoiseSampler.NoiseParameters> noise;
+    private final RegistryEntry<FastNoiseParameters> noise;
     private final double minThreshold;
     private final double maxThreshold;
 
-    public NoisePlacementModifier(RegistryKey<DoublePerlinNoiseSampler.NoiseParameters> noise, double minThreshold, double maxThreshold) {
+    public FastNoisePlacementModifier(RegistryEntry<FastNoiseParameters> noise, double minThreshold, double maxThreshold) {
         this.noise = noise;
         this.minThreshold = minThreshold;
         this.maxThreshold = maxThreshold;
@@ -36,16 +35,17 @@ public class NoisePlacementModifier extends AbstractConditionalPlacementModifier
 
     @Override
     public PlacementModifierType<?> getType() {
-        return GBWPlacementModifierTypes.NOISE;
+        return GBWPlacementModifierTypes.FAST_NOISE;
     }
 
     @Override
     public boolean shouldPlace(FeaturePlacementContext context, Random random, BlockPos pos) {
-        if (context.getWorld().getChunkManager() instanceof ServerChunkManager chunkManager) {
-            DoublePerlinNoiseSampler sampler = chunkManager.getNoiseConfig().getOrCreateSampler(noise);
-            double noiseValue = sampler.sample(pos.getX(), pos.getY(), pos.getZ());
-            return noiseValue >= minThreshold && noiseValue <= maxThreshold;
-        }
-        return false;
+        if (!noise.hasKeyAndValue())
+            return false;
+        FastNoiseLite fastNoiseLite = new FastNoiseLite(noise.value());
+        if (noise.value().seed() == 1337L)
+            fastNoiseLite.seed(context.getWorld().getSeed());
+        double noiseValue = fastNoiseLite.getNoise(pos.getX(), pos.getY(), pos.getZ());
+        return noiseValue >= minThreshold && noiseValue <= maxThreshold;
     }
 }

@@ -3,7 +3,7 @@ package dev.creoii.greatbigworld.world.placementmodifier;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.greatbigworld.GreatBigWorld;
-import dev.creoii.greatbigworld.registry.GBWPlacementModifiers;
+import dev.creoii.greatbigworld.registry.GBWPlacementModifierTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -31,7 +31,7 @@ public class AnyOfPlacementModifier extends AbstractConditionalPlacementModifier
 
     @Override
     public PlacementModifierType<?> getType() {
-        return GBWPlacementModifiers.ANY_OF;
+        return GBWPlacementModifierTypes.ANY_OF;
     }
 
     @Override
