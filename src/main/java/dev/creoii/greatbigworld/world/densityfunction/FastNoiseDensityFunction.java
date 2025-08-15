@@ -36,8 +36,6 @@ public class FastNoiseDensityFunction implements DensityFunction {
 
     @Override
     public double sample(NoisePos pos) {
-        if (!noise.hasKeyAndValue())
-            throw new IllegalArgumentException("FastNoise value " + noise.getKey().orElseThrow().getValue() + " is not present.");
         FastNoiseLite fastNoiseLite = new FastNoiseLite(noise.value());
         return fastNoiseLite.getNoise((float) (pos.blockX() * xzScale), (float) (pos.blockY() * yScale), (float) (pos.blockZ() * xzScale));
     }
