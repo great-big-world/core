@@ -12,11 +12,11 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 public class StructureTriggerBlockEntity extends BlockEntity {
     public static final Identifier DEFAULT_TARGET = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
@@ -94,26 +94,28 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         this.finalState = finalState;
     }
 
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        super.writeNbt(nbt, registries);
-        nbt.putString(GROUP_KEY, group == null ? "" : group.toString());
-        nbt.putString(GROUP_DATA_TYPE_KEY, groupDataType.name().toLowerCase());
-        nbt.put(TARGET_KEY, Identifier.CODEC, target);
-        nbt.putString(TRIGGER_TYPE_KEY, triggerType.asString().toLowerCase());
-        nbt.putInt(TICK_RATE_KEY, tickRate);
-        nbt.putString(FINAL_STATE_KEY, finalState);
+    @Override
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+        view.putString(GROUP_KEY, group == null ? "" : group.toString());
+        view.putString(GROUP_DATA_TYPE_KEY, groupDataType.name().toLowerCase());
+        view.put(TARGET_KEY, Identifier.CODEC, target);
+        view.putString(TRIGGER_TYPE_KEY, triggerType.asString().toLowerCase());
+        view.putInt(TICK_RATE_KEY, tickRate);
+        view.putString(FINAL_STATE_KEY, finalState);
     }
 
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        super.readNbt(nbt, registries);
-        String nbtGroup = nbt.getString(GROUP_KEY, "");
+    @Override
+    protected void readData(ReadView view) {
+        super.readData(view);
+        String nbtGroup = view.getString(GROUP_KEY, "");
         group = nbtGroup == null || nbtGroup.isEmpty() ? null : Identifier.of(nbtGroup);
-        groupDataType = StructureTriggerGroup.DataType.valueOf(nbt.getString(GROUP_DATA_TYPE_KEY, "int").toUpperCase());
-        target = nbt.get(TARGET_KEY, Identifier.CODEC).orElse(DEFAULT_TARGET);
-        Optional<String> triggerTypeString = nbt.getString(TRIGGER_TYPE_KEY);
-        triggerType = triggerTypeString.map(s -> StructureTriggerBlock.TriggerType.valueOf(s.toUpperCase())).orElse(DEFAULT_TRIGGER_TYPE);
-        tickRate = nbt.getInt(TICK_RATE_KEY, DEFAULT_TICK_RATE);
-        finalState = nbt.getString(FINAL_STATE_KEY, DEFAULT_FINAL_STATE);
+        groupDataType = StructureTriggerGroup.DataType.valueOf(view.getString(GROUP_DATA_TYPE_KEY, "int").toUpperCase());
+        target = view.read(TARGET_KEY, Identifier.CODEC).orElse(DEFAULT_TARGET);
+        String triggerTypeString = view.getString(TRIGGER_TYPE_KEY, DEFAULT_TRIGGER_TYPE.name());
+        triggerType = StructureTriggerBlock.TriggerType.valueOf(triggerTypeString.toUpperCase());
+        tickRate = view.getInt(TICK_RATE_KEY, DEFAULT_TICK_RATE);
+        finalState = view.getString(FINAL_STATE_KEY, DEFAULT_FINAL_STATE);
     }
 
     public BlockEntityUpdateS2CPacket toUpdatePacket() {
