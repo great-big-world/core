@@ -40,6 +40,7 @@ public class GreatBigWorld implements ModInitializer {
         GBWBlocks.register();
         GBWItems.register();
         GBWBlockEntityTypes.register();
+        GBWFeatures.register();
         GBWTreeDecoratorTypes.register();
         GBWPlacementModifierTypes.register();
         GBWDensityFunctionTypes.register();
