@@ -3,10 +3,10 @@ package dev.creoii.greatbigworld.mixin.world.structure;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.GBWBlocks;
+import dev.creoii.greatbigworld.registry.GBWRegistries;
 import dev.creoii.greatbigworld.world.structuretrigger.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registries;
@@ -33,8 +33,8 @@ public class StructureTemplateMixin implements StructureTriggerStart {
             if (finalStateId != null) {
                 Identifier targetId = structureBlockInfo.nbt().get("target", Identifier.CODEC).orElse(StructureTriggerBlockEntity.DEFAULT_TARGET);
                 BlockState finalState = Registries.BLOCK.get(finalStateId).getDefaultState();
-                if (GreatBigWorld.STRUCTURE_TRIGGERS.containsId(targetId)) {
-                    StructureTrigger trigger = StructureTrigger.copy(GreatBigWorld.STRUCTURE_TRIGGERS.get(targetId));
+                if (GBWRegistries.STRUCTURE_TRIGGERS.containsId(targetId)) {
+                    StructureTrigger trigger = StructureTrigger.copy(GBWRegistries.STRUCTURE_TRIGGERS.get(targetId));
                     instance.setBlockState(pos, finalState, i);
                     trigger.structureStart().setValue(structureStart);
                     StructureTriggerBlock.TriggerType triggerType = StructureTriggerBlock.TriggerType.valueOf(structureBlockInfo.nbt().getString("trigger_type", "init").toUpperCase());

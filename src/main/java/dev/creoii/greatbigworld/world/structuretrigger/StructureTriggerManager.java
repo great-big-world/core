@@ -2,7 +2,7 @@ package dev.creoii.greatbigworld.world.structuretrigger;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.creoii.greatbigworld.GreatBigWorld;
+import dev.creoii.greatbigworld.registry.GBWRegistries;
 import net.minecraft.block.BlockState;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -101,10 +101,10 @@ public class StructureTriggerManager extends PersistentState {
     }
 
     public record StructureTriggerInfo(RegistryKey<Structure> structureRef, StructureTrigger trigger, BlockState state, int tickRate) {
-        public static final Codec<StructureTriggerInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(RegistryKey.createCodec(RegistryKeys.STRUCTURE).fieldOf("structure_ref").forGetter(info -> info.structureRef), Identifier.CODEC.fieldOf("trigger_id").forGetter(info -> GreatBigWorld.STRUCTURE_TRIGGERS.getId(info.trigger)), BlockState.CODEC.fieldOf("state").forGetter(info -> info.state), Codec.INT.fieldOf("tick_rate").forGetter(info -> info.tickRate)).apply(instance, StructureTriggerInfo::new));
+        public static final Codec<StructureTriggerInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(RegistryKey.createCodec(RegistryKeys.STRUCTURE).fieldOf("structure_ref").forGetter(info -> info.structureRef), Identifier.CODEC.fieldOf("trigger_id").forGetter(info -> GBWRegistries.STRUCTURE_TRIGGERS.getId(info.trigger)), BlockState.CODEC.fieldOf("state").forGetter(info -> info.state), Codec.INT.fieldOf("tick_rate").forGetter(info -> info.tickRate)).apply(instance, StructureTriggerInfo::new));
 
         public StructureTriggerInfo(RegistryKey<Structure> structureRef, Identifier trigger, BlockState state, int tickRate) {
-            this(structureRef, GreatBigWorld.STRUCTURE_TRIGGERS.get(trigger), state, tickRate);
+            this(structureRef, GBWRegistries.STRUCTURE_TRIGGERS.get(trigger), state, tickRate);
         }
     }
 }

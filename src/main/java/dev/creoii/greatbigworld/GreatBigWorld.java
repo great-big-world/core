@@ -1,10 +1,8 @@
 package dev.creoii.greatbigworld;
 
-import com.mojang.serialization.Lifecycle;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.*;
-import dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroupContainer;
@@ -12,7 +10,6 @@ import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
@@ -30,13 +27,10 @@ public class GreatBigWorld implements ModInitializer {
 
     public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));;
 
-    public static final RegistryKey<Registry<StructureTrigger>> STRUCTURE_TRIGGERS_KEY = RegistryKey.ofRegistry(Identifier.of(NAMESPACE, "structure_triggers"));
-    public static final Registry<StructureTrigger> STRUCTURE_TRIGGERS = new SimpleDefaultedRegistry<>("great_big_world:empty", STRUCTURE_TRIGGERS_KEY, Lifecycle.stable(), false);
-
-    public static final RegistryKey<Registry<FastNoiseParameters>> FAST_NOISE_PARAMETERS_KEY = RegistryKey.ofRegistry(Identifier.of(NAMESPACE, "worldgen/fast_noise"));
-
     @Override
     public void onInitialize() {
+        GBWRegistries.register();
+
         GBWBlocks.register();
         GBWItems.register();
         GBWBlockEntityTypes.register();
@@ -45,8 +39,6 @@ public class GreatBigWorld implements ModInitializer {
         GBWPlacementModifierTypes.register();
         GBWDensityFunctionTypes.register();
         GBWStructureTriggers.register();
-
-        DynamicRegistries.register(FAST_NOISE_PARAMETERS_KEY, FastNoiseParameters.CODEC);
 
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);
@@ -73,7 +65,7 @@ public class GreatBigWorld implements ModInitializer {
                     return;
                 BlockEntity blockEntity = context.player().getWorld().getBlockEntity(structureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
-                    StructureTrigger trigger = STRUCTURE_TRIGGERS.get(structureTriggerBlockEntity.getTarget());
+                    StructureTrigger trigger = GBWRegistries.STRUCTURE_TRIGGERS.get(structureTriggerBlockEntity.getTarget());
                     Identifier id = Identifier.tryParse(structureTriggerBlockEntity.getFinalState());
                     if (trigger != null && id != null) {
                         BlockState finalState = Registries.BLOCK.get(id).getDefaultState();

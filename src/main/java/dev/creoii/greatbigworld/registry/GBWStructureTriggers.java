@@ -7,6 +7,6 @@ import net.minecraft.util.Identifier;
 
 public final class GBWStructureTriggers {
     public static void register() {
-        Registry.register(GreatBigWorld.STRUCTURE_TRIGGERS, Identifier.of(GreatBigWorld.NAMESPACE, "empty"), new StructureTrigger((world, pos, state, structureStart, group) -> false));
+        Registry.register(GBWRegistries.STRUCTURE_TRIGGERS, Identifier.of(GreatBigWorld.NAMESPACE, "empty"), new StructureTrigger((world, pos, state, structureStart, group) -> false));
     }
 }
