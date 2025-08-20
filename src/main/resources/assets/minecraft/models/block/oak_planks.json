@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": {
+      "minecraft:overworld": "minecraft:block/oak_planks",
+      "great_big_world:the_alterworld": "great_big_world:block/alt/oak_planks"
+    }
+  }
+}

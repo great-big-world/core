@@ -24,7 +24,10 @@
     "client.MinecraftClientMixin",
     "client.SectionBuilderMixin",
     "client.WeatherRenderingMixin",
-    "client.compat.ChunkBuilderMeshingTaskMixin"
+    "client.compat.ChunkBuilderMeshingTaskMixin",
+    "client.model.ModelTexturesBuilderMixin",
+    "client.model.ModelTexturesMixin",
+    "client.model.ModelTexturesTexturesBuilderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

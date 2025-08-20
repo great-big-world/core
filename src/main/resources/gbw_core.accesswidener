@@ -5,6 +5,9 @@ accessible method net/minecraft/world/gen/placementmodifier/AbstractConditionalP
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
 accessible class net/minecraft/client/render/chunk/SectionBuilder$RenderData
 accessible class net/minecraft/client/gui/screen/world/CreateWorldScreen$GameTab
+accessible class net/minecraft/client/render/model/ModelTextures$SpriteEntry
+extendable class net/minecraft/client/render/model/ModelTextures$Entry
+accessible class net/minecraft/client/render/model/ModelTextures$TextureReferenceEntry
 
 mutable field net/minecraft/block/AbstractBlock$AbstractBlockState luminance I
 accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabs Lcom/google/common/collect/ImmutableList;
