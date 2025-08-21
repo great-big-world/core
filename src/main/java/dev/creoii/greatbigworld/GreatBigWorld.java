@@ -42,6 +42,7 @@ public class GreatBigWorld implements ModInitializer {
 
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_ID, StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {

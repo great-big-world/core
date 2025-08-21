@@ -1,15 +1,20 @@
 package dev.creoii.greatbigworld.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
-import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -33,9 +38,9 @@ public class StructureTriggerBlock extends Block implements BlockEntityProvider,
     }
 
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof StructureTriggerBlockEntity structureTriggerBlockEntity && player.isCreativeLevelTwoOp()) {
-            if (player instanceof ClientPlayerEntity clientPlayer) {
-                clientPlayer.clientWorld.client.setScreen(new StructureTriggerScreen(structureTriggerBlockEntity));
+        if (world.getBlockEntity(pos) instanceof StructureTriggerBlockEntity && player.isCreativeLevelTwoOp()) {
+            if (!world.isClient) {
+                ServerPlayNetworking.send((ServerPlayerEntity) player, new OpenStructureTriggerScreenS2C(pos));
             }
             return ActionResult.SUCCESS;
         } else return ActionResult.PASS;
@@ -44,6 +49,24 @@ public class StructureTriggerBlock extends Block implements BlockEntityProvider,
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(TRIGGER_TYPE);
+    }
+
+    public record OpenStructureTriggerScreenS2C(BlockPos pos) implements CustomPayload {
+        public static final CustomPayload.Id<OpenStructureTriggerScreenS2C> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "open_structure_trigger_screen"));
+        public static final PacketCodec<RegistryByteBuf, OpenStructureTriggerScreenS2C> PACKET_CODEC = PacketCodec.of(OpenStructureTriggerScreenS2C::write, OpenStructureTriggerScreenS2C::new);
+
+        public OpenStructureTriggerScreenS2C(RegistryByteBuf buf) {
+            this(buf.readBlockPos());
+        }
+
+        public void write(RegistryByteBuf buf) {
+            buf.writeBlockPos(pos);
+        }
+
+        @Override
+        public Id<? extends CustomPayload> getId() {
+            return PACKET_ID;
+        }
     }
 
     public enum TriggerType implements StringIdentifiable {

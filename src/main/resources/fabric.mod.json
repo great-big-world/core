@@ -18,6 +18,9 @@
   "entrypoints": {
     "main": [
       "dev.creoii.greatbigworld.GreatBigWorld"
+    ],
+    "client": [
+      "dev.creoii.greatbigworld.client.GreatBigWorldClient"
     ]
   },
   "depends": {
