@@ -38,7 +38,7 @@ public class StructureTriggerBlock extends Block implements BlockEntityProvider,
     }
 
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof StructureTriggerBlockEntity && player.isCreativeLevelTwoOp()) {
+        if (player.isCreativeLevelTwoOp() && world.getBlockEntity(pos) instanceof StructureTriggerBlockEntity) {
             if (!world.isClient) {
                 ServerPlayNetworking.send((ServerPlayerEntity) player, new OpenStructureTriggerScreenS2C(pos));
             }
