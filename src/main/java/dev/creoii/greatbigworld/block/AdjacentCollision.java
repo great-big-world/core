@@ -5,10 +5,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 
 public interface AdjacentCollision {
-    default boolean canEntityCollideAdjacent(Entity entity, BlockState state, BlockPos pos) {
-        return false;
-    }
-
     default void onAdjacentEntityCollision(Entity entity, BlockState state, BlockPos pos) {
     }
 }

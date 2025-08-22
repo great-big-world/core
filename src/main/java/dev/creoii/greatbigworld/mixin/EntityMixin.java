@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.border.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,11 +24,12 @@ public class EntityMixin {
         });
         if (optionalPos.isPresent()) {
             BlockPos pos = optionalPos.get();
+            WorldBorder worldBorder = entity.getWorld().getWorldBorder();
+            if (!worldBorder.contains(pos))
+                return;
             BlockState state = entity.getWorld().getBlockState(pos);
             if (state.getBlock() instanceof AdjacentCollision adjacentCollision) {
-                if (adjacentCollision.canEntityCollideAdjacent(entity, state, pos)) {
-                    adjacentCollision.onAdjacentEntityCollision(entity, state, pos);
-                }
+                adjacentCollision.onAdjacentEntityCollision(entity, state, pos);
             }
         }
     }
