@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.registry.*;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +24,7 @@ public class GreatBigWorld implements ModInitializer {
     public static final String NAMESPACE = "great_big_world";
     public static final Logger LOGGER = LogManager.getLogger(GreatBigWorld.class);
 
-    public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));;
+    public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));
 
     @Override
     public void onInitialize() {
@@ -72,9 +71,9 @@ public class GreatBigWorld implements ModInitializer {
                         BlockState finalState = Registries.BLOCK.get(id).getDefaultState();
                         if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
                             StructureTriggerGroup group = ((StructureTriggerGroupContainer) (Object) trigger.structureStart().getValue()).gbw$getStructureTriggerGroup(trigger.group());
-                            trigger.trigger((ServerWorld) context.player().getWorld(), structureTriggerC2S.pos(), finalState, group);
+                            trigger.trigger(context.player().getWorld(), structureTriggerC2S.pos(), finalState, group);
                         } else {
-                            StructureTriggerManager manager = StructureTriggerManager.getServerState((ServerWorld) context.player().getWorld());
+                            StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().getWorld());
                             manager.addTrigger(structureTriggerC2S.pos(), new StructureTriggerManager.StructureTriggerInfo(null, trigger, finalState, structureTriggerC2S.tickRate()));
                         }
                     }

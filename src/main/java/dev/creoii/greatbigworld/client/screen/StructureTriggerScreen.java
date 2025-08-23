@@ -67,7 +67,7 @@ public class StructureTriggerScreen extends Screen {
         groupField.setText(functionBlock.getGroup() == null ? "" : functionBlock.getGroup().toString());
         groupField.setChangedListener(target -> updateDoneButtonState());
         addSelectableChild(groupField);
-        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(functionBlock.getGroupDataType() == null ? "" : functionBlock.getGroupDataType().name()), button -> {
+        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(functionBlock.getGroupDataType() == null ? "" : functionBlock.getGroupDataType().name().toLowerCase()), button -> {
             int dataTypeI = StructureTriggerGroup.DataType.valueOf(button.getMessage().getString().toUpperCase()).ordinal();
             int nextI = (dataTypeI + 1) % StructureTriggerGroup.DataType.values().length;
             button.setMessage(Text.literal(StructureTriggerGroup.DataType.values()[nextI].name().toLowerCase()));

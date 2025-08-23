@@ -12,17 +12,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record StructureTrigger(@Nullable Identifier group, StructureTriggerGroup.DataType dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-    public StructureTrigger(@Nullable Identifier group, StructureTriggerGroup.DataType dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-        this(group, dataType, new MutableObject<>(), structureTrigger);
+public record StructureTrigger(Identifier id, @Nullable Identifier group, StructureTriggerGroup.DataType dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+    public StructureTrigger(Identifier id, @Nullable Identifier group, StructureTriggerGroup.DataType dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+        this(id, group, dataType, new MutableObject<>(), structureTrigger);
     }
 
-    public StructureTrigger(Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-        this(null, StructureTriggerGroup.DataType.INT, new MutableObject<>(), structureTrigger);
+    public StructureTrigger(Identifier id, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+        this(id, null, StructureTriggerGroup.DataType.INT, new MutableObject<>(), structureTrigger);
     }
 
     public static StructureTrigger copy(StructureTrigger trigger) {
-        return new StructureTrigger(trigger.group, trigger.dataType, trigger.structureStart, trigger.structureTrigger);
+        return new StructureTrigger(trigger.id, trigger.group, trigger.dataType, trigger.structureStart, trigger.structureTrigger);
     }
 
     public boolean trigger(ServerWorld world, BlockPos pos, BlockState state, StructureTriggerGroup group) {

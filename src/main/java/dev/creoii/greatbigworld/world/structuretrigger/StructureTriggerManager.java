@@ -29,7 +29,9 @@ public class StructureTriggerManager extends PersistentState {
         StructureTriggerManager manager = new StructureTriggerManager();
         manager.structureTriggers.putAll(posStructureTriggerInfoMap);
         return manager;
-    }, structureTriggerManager -> new HashMap<>(structureTriggerManager.structureTriggers));
+    }, structureTriggerManager -> {
+        return new HashMap<>(structureTriggerManager.structureTriggers);
+    });
     private static final PersistentStateType<StructureTriggerManager> STATE_TYPE = new PersistentStateType<>("gbw_structure_triggers", StructureTriggerManager::new, CODEC, null);
     private final HashMap<BlockPos, StructureTriggerInfo> structureTriggers;
 
@@ -68,6 +70,7 @@ public class StructureTriggerManager extends PersistentState {
 
     public void init(ServerWorld world) {
         Optional<Registry<Structure>> structureRegistry = world.getRegistryManager().getOptional(RegistryKeys.STRUCTURE);
+
         structureRegistry.ifPresent(structures -> structureTriggers.forEach((pos, info) -> {
             StructureStart structureStart = world.getStructureAccessor().getStructureAt(pos, structures.get(info.structureRef));
             if (structureStart != StructureStart.DEFAULT) {
@@ -101,7 +104,7 @@ public class StructureTriggerManager extends PersistentState {
     }
 
     public record StructureTriggerInfo(RegistryKey<Structure> structureRef, StructureTrigger trigger, BlockState state, int tickRate) {
-        public static final Codec<StructureTriggerInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(RegistryKey.createCodec(RegistryKeys.STRUCTURE).fieldOf("structure_ref").forGetter(info -> info.structureRef), Identifier.CODEC.fieldOf("trigger_id").forGetter(info -> GBWRegistries.STRUCTURE_TRIGGERS.getId(info.trigger)), BlockState.CODEC.fieldOf("state").forGetter(info -> info.state), Codec.INT.fieldOf("tick_rate").forGetter(info -> info.tickRate)).apply(instance, StructureTriggerInfo::new));
+        public static final Codec<StructureTriggerInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(RegistryKey.createCodec(RegistryKeys.STRUCTURE).fieldOf("structure_ref").forGetter(info -> info.structureRef), Identifier.CODEC.fieldOf("trigger_id").forGetter(info -> info.trigger.id()), BlockState.CODEC.fieldOf("state").forGetter(info -> info.state), Codec.INT.fieldOf("tick_rate").forGetter(info -> info.tickRate)).apply(instance, StructureTriggerInfo::new));
 
         public StructureTriggerInfo(RegistryKey<Structure> structureRef, Identifier trigger, BlockState state, int tickRate) {
             this(structureRef, GBWRegistries.STRUCTURE_TRIGGERS.get(trigger), state, tickRate);
