@@ -1,65 +1,45 @@
 package dev.creoii.greatbigworld.world.structuretrigger;
 
-import net.minecraft.util.Identifier;
-import org.apache.commons.lang3.mutable.*;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerData;
+import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerDataType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class StructureTriggerGroup implements StructureTriggerContainer {
-    private final List<StructureTrigger> triggers;
-    private final DataType dataType;
-    private final Mutable<?> data;
+public class StructureTriggerGroup {
+    public static final Codec<StructureTriggerGroup> CODEC = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+                StructureTrigger.Built.CODEC.listOf().fieldOf("triggers").forGetter(group -> group.triggers),
+                StructureTriggerDataType.CODEC.fieldOf("data").forGetter(group -> group.data)
+        ).apply(instance, (triggers, data) -> {
+                StructureTriggerGroup group = new StructureTriggerGroup(data);
+                group.triggers.addAll(triggers);
+                return group;
+        });
+    });
+    private final List<StructureTrigger.Built> triggers;
+    private final StructureTriggerData<?> data;
 
-    public StructureTriggerGroup(DataType dataType) {
+    public StructureTriggerGroup(StructureTriggerData<?> data) {
         triggers = new ArrayList<>();
-        this.dataType = dataType;
-        data = dataType.getData();
+        this.data = data;
     }
 
-    @Override
-    public void gbw$addStructureTrigger(StructureTrigger trigger) {
+    public void addTrigger(StructureTrigger.Built trigger) {
         triggers.add(trigger);
     }
 
-    @Override
-    public void gbw$removeStructureTrigger(StructureTrigger trigger) {
-        triggers.remove(trigger);
-    }
-
-    @Override
-    public List<StructureTrigger> gbw$getStructureTriggers(Identifier group) {
+    public List<StructureTrigger.Built> getTriggers() {
         return triggers;
     }
 
-    public DataType getDataType() {
-        return dataType;
-    }
-
-    public Mutable<?> getData() {
+    public StructureTriggerData<?> getData() {
         return data;
     }
 
     public int size() {
         return triggers.size();
-    }
-
-    public enum DataType {
-        BOOL(MutableBoolean::new),
-        INT(MutableInt::new),
-        FLOAT(MutableFloat::new),
-        STRING(() -> new MutableObject<>("")),
-        LIST(() -> new MutableObject<List<?>>(new ArrayList<>()));
-
-        private final Supplier<Mutable<?>> data;
-
-        DataType(Supplier<Mutable<?>> data) {
-            this.data = data;
-        }
-
-        public Mutable<?> getData() {
-            return data.get();
-        }
     }
 }

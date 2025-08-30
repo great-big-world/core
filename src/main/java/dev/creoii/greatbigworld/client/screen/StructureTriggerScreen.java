@@ -2,7 +2,7 @@ package dev.creoii.greatbigworld.client.screen;
 
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
-import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
+import dev.creoii.greatbigworld.registry.GBWRegistries;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -50,7 +50,7 @@ public class StructureTriggerScreen extends Screen {
     }
 
     private void updateServer() {
-        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(functionBlock.getPos(), groupField.getText(), StructureTriggerGroup.DataType.valueOf(groupDataTypeButton.getMessage().getString().toUpperCase()), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
+        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(functionBlock.getPos(), groupField.getText(), Identifier.tryParse(groupDataTypeButton.getMessage().getString()), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
     }
 
     private void trigger() {
@@ -67,10 +67,10 @@ public class StructureTriggerScreen extends Screen {
         groupField.setText(functionBlock.getGroup() == null ? "" : functionBlock.getGroup().toString());
         groupField.setChangedListener(target -> updateDoneButtonState());
         addSelectableChild(groupField);
-        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(functionBlock.getGroupDataType() == null ? "" : functionBlock.getGroupDataType().name().toLowerCase()), button -> {
-            int dataTypeI = StructureTriggerGroup.DataType.valueOf(button.getMessage().getString().toUpperCase()).ordinal();
-            int nextI = (dataTypeI + 1) % StructureTriggerGroup.DataType.values().length;
-            button.setMessage(Text.literal(StructureTriggerGroup.DataType.values()[nextI].name().toLowerCase()));
+        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(functionBlock.getGroupDataType() == StructureTriggerBlockEntity.DEFAULT_DATA_TYPE ? "" : functionBlock.getGroupDataType().toString()), button -> {
+            int dataTypeI = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getRawId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.get(Identifier.tryParse(button.getMessage().getString())));
+            int nextI = (dataTypeI + 1) % GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.size();
+            button.setMessage(Text.literal(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.get(nextI)).toString()));
         }).dimensions(width - 153, 45, 150, 20).build());
         targetField = new TextFieldWidget(textRenderer, width / 2 - 153, 80, 300, 20, TARGET_TEXT);
         targetField.setMaxLength(128);

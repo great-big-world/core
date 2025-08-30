@@ -3,7 +3,6 @@ package dev.creoii.greatbigworld.block.entity;
 import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.registry.GBWBlockEntityTypes;
-import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -19,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public class StructureTriggerBlockEntity extends BlockEntity {
+    public static final Identifier DEFAULT_DATA_TYPE = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
     public static final Identifier DEFAULT_TARGET = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
     public static final StructureTriggerBlock.TriggerType DEFAULT_TRIGGER_TYPE = StructureTriggerBlock.TriggerType.INIT;
     public static final int DEFAULT_TICK_RATE = 20;
@@ -30,7 +30,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
     public static final String TICK_RATE_KEY = "tick_rate";
     public static final String FINAL_STATE_KEY = "final_state";
     @Nullable private Identifier group;
-    private StructureTriggerGroup.DataType groupDataType;
+    private Identifier groupDataType;
     private Identifier target;
     private StructureTriggerBlock.TriggerType triggerType;
     private int tickRate;
@@ -39,7 +39,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
     public StructureTriggerBlockEntity(BlockPos pos, BlockState state) {
         super(GBWBlockEntityTypes.STRUCTURE_TRIGGER, pos, state);
         group = null;
-        groupDataType = StructureTriggerGroup.DataType.INT;
+        groupDataType = DEFAULT_DATA_TYPE;
         target = DEFAULT_TARGET;
         triggerType = DEFAULT_TRIGGER_TYPE;
         tickRate = DEFAULT_TICK_RATE;
@@ -50,7 +50,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         return group;
     }
 
-    public StructureTriggerGroup.DataType getGroupDataType() {
+    public Identifier getGroupDataType() {
         return groupDataType;
     }
 
@@ -74,7 +74,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         this.group = group;
     }
 
-    public void setGroupDataType(StructureTriggerGroup.DataType groupDataType) {
+    public void setGroupDataType(Identifier groupDataType) {
         this.groupDataType = groupDataType;
     }
 
@@ -98,7 +98,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
     protected void writeData(WriteView view) {
         super.writeData(view);
         view.putString(GROUP_KEY, group == null ? "" : group.toString());
-        view.putString(GROUP_DATA_TYPE_KEY, groupDataType.name().toLowerCase());
+        view.put(GROUP_DATA_TYPE_KEY, Identifier.CODEC, groupDataType);
         view.put(TARGET_KEY, Identifier.CODEC, target);
         view.putString(TRIGGER_TYPE_KEY, triggerType.asString().toLowerCase());
         view.putInt(TICK_RATE_KEY, tickRate);
@@ -110,7 +110,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         super.readData(view);
         String nbtGroup = view.getString(GROUP_KEY, "");
         group = nbtGroup == null || nbtGroup.isEmpty() ? null : Identifier.of(nbtGroup);
-        groupDataType = StructureTriggerGroup.DataType.valueOf(view.getString(GROUP_DATA_TYPE_KEY, "int").toUpperCase());
+        target = view.read(GROUP_DATA_TYPE_KEY, Identifier.CODEC).orElse(DEFAULT_DATA_TYPE);
         target = view.read(TARGET_KEY, Identifier.CODEC).orElse(DEFAULT_TARGET);
         String triggerTypeString = view.getString(TRIGGER_TYPE_KEY, DEFAULT_TRIGGER_TYPE.name());
         triggerType = StructureTriggerBlock.TriggerType.valueOf(triggerTypeString.toUpperCase());
@@ -126,18 +126,18 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         return createComponentlessNbt(registries);
     }
 
-    public record UpdateStructureTriggerC2S(BlockPos pos, @Nullable String group, StructureTriggerGroup.DataType groupDataType, Identifier target, String triggerType, int tickRate, String finalState) implements CustomPayload {
+    public record UpdateStructureTriggerC2S(BlockPos pos, @Nullable String group, Identifier groupDataType, Identifier target, String triggerType, int tickRate, String finalState) implements CustomPayload {
         public static final CustomPayload.Id<UpdateStructureTriggerC2S> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "update_structure_trigger"));
         public static final PacketCodec<RegistryByteBuf, UpdateStructureTriggerC2S> PACKET_CODEC = PacketCodec.of(UpdateStructureTriggerC2S::write, UpdateStructureTriggerC2S::new);
 
         public UpdateStructureTriggerC2S(RegistryByteBuf buf) {
-            this(buf.readBlockPos(), buf.readString(), StructureTriggerGroup.DataType.valueOf(buf.readString().toUpperCase()), buf.readIdentifier(), buf.readString(), buf.readInt(), buf.readString());
+            this(buf.readBlockPos(), buf.readString(), buf.readIdentifier(), buf.readIdentifier(), buf.readString(), buf.readInt(), buf.readString());
         }
 
         public void write(RegistryByteBuf buf) {
             buf.writeBlockPos(pos);
             buf.writeString(group == null ? "" : group);
-            buf.writeString(groupDataType == null ? "" : groupDataType.name().toLowerCase());
+            buf.writeIdentifier(groupDataType);
             buf.writeIdentifier(target);
             buf.writeString(triggerType);
             buf.writeInt(tickRate);

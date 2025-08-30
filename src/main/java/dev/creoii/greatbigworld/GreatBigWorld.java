@@ -5,11 +5,10 @@ import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.*;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
-import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroupContainer;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
+import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerDataType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
@@ -19,6 +18,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.UUID;
 
 public class GreatBigWorld implements ModInitializer {
     public static final String NAMESPACE = "great_big_world";
@@ -37,6 +38,7 @@ public class GreatBigWorld implements ModInitializer {
         GBWTreeDecoratorTypes.register();
         GBWPlacementModifierTypes.register();
         GBWDensityFunctionTypes.register();
+        StructureTriggerDataType.register();
         GBWStructureTriggers.register();
 
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
@@ -65,25 +67,30 @@ public class GreatBigWorld implements ModInitializer {
                     return;
                 BlockEntity blockEntity = context.player().getWorld().getBlockEntity(structureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
-                    StructureTrigger trigger = GBWRegistries.STRUCTURE_TRIGGERS.get(structureTriggerBlockEntity.getTarget());
                     Identifier id = Identifier.tryParse(structureTriggerBlockEntity.getFinalState());
-                    if (trigger != null && id != null) {
-                        BlockState finalState = Registries.BLOCK.get(id).getDefaultState();
-                        if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
-                            StructureTriggerGroup group = ((StructureTriggerGroupContainer) (Object) trigger.structureStart().getValue()).gbw$getStructureTriggerGroup(trigger.group());
-                            trigger.trigger(context.player().getWorld(), structureTriggerC2S.pos(), finalState, group);
-                        } else {
-                            StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().getWorld());
-                            manager.addTrigger(structureTriggerC2S.pos(), new StructureTriggerManager.StructureTriggerInfo(null, trigger, finalState, structureTriggerC2S.tickRate()));
-                        }
+                    if (id == null) {
+                        id = Identifier.of("air");
+                    }
+                    BlockState finalState = Registries.BLOCK.get(id).getDefaultState();
+
+                    StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.get(structureTriggerC2S.target()), structureTriggerC2S.pos(), finalState, structureTriggerC2S.tickRate());
+
+                    UUID uuid = UUID.randomUUID();
+                    StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().getWorld());
+
+                    StructureTriggerGroup group = manager.getGroup(uuid);
+                    if (group == null) {
+                        group = new StructureTriggerGroup(trigger.trigger().dataType().create());
+                        manager.addGroup(uuid, group);
+                    }
+
+                    if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
+                        trigger.trigger().trigger(context.player().getWorld(), structureTriggerC2S.pos(), finalState, group);
+                    } else {
+                        group.addTrigger(trigger);
                     }
                 }
             });
-        });
-
-        ServerWorldEvents.LOAD.register((minecraftServer, serverWorld) -> {
-            StructureTriggerManager manager = StructureTriggerManager.getServerState(serverWorld);
-            manager.init(serverWorld);
         });
 
         ServerTickEvents.END_WORLD_TICK.register(world -> {
