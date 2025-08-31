@@ -15,8 +15,8 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Optional;
 
-public record StructureTrigger(Identifier id, StructureTriggerDataType<?, ?> dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-    public StructureTrigger(Identifier id, StructureTriggerDataType<?, ?> dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+public record StructureTrigger(Identifier id, StructureTriggerDataType<?> dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
+    public StructureTrigger(Identifier id, StructureTriggerDataType<?> dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
         this(id, dataType, new MutableObject<>(), structureTrigger);
     }
 

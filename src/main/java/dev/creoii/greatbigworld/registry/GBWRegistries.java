@@ -16,8 +16,8 @@ public final class GBWRegistries {
     public static final RegistryKey<Registry<StructureTrigger>> STRUCTURE_TRIGGERS_KEY = RegistryKey.ofRegistry(Identifier.of(GreatBigWorld.NAMESPACE, "structure_triggers"));
     public static final Registry<StructureTrigger> STRUCTURE_TRIGGERS = new SimpleDefaultedRegistry<>("great_big_world:empty", STRUCTURE_TRIGGERS_KEY, Lifecycle.stable(), false);
 
-    public static final RegistryKey<Registry<StructureTriggerDataType<?, ?>>> STRUCTURE_TRIGGER_DATA_TYPES_KEY = RegistryKey.ofRegistry(Identifier.of(GreatBigWorld.NAMESPACE, "structure_trigger_data_types"));
-    public static final Registry<StructureTriggerDataType<?, ?>> STRUCTURE_TRIGGER_DATA_TYPES = new SimpleDefaultedRegistry<>("great_big_world:empty", STRUCTURE_TRIGGER_DATA_TYPES_KEY, Lifecycle.stable(), false);
+    public static final RegistryKey<Registry<StructureTriggerDataType<?>>> STRUCTURE_TRIGGER_DATA_TYPES_KEY = RegistryKey.ofRegistry(Identifier.of(GreatBigWorld.NAMESPACE, "structure_trigger_data_types"));
+    public static final Registry<StructureTriggerDataType<?>> STRUCTURE_TRIGGER_DATA_TYPES = new SimpleDefaultedRegistry<>("great_big_world:empty", STRUCTURE_TRIGGER_DATA_TYPES_KEY, Lifecycle.stable(), false);
 
     public static final RegistryKey<Registry<FastNoiseParameters>> FAST_NOISE_PARAMETERS_KEY = RegistryKey.ofRegistry(Identifier.of(GreatBigWorld.NAMESPACE, "worldgen/fast_noise"));
 

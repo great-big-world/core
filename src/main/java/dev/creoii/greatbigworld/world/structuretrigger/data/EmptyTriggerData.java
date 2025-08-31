@@ -2,12 +2,12 @@ package dev.creoii.greatbigworld.world.structuretrigger.data;
 
 import com.mojang.serialization.MapCodec;
 
-public class EmptyTriggerData extends StructureTriggerData {
+public record EmptyTriggerData() implements StructureTriggerData {
     private static final EmptyTriggerData INSTANCE = new EmptyTriggerData();
-    protected static final MapCodec<EmptyTriggerData> CODEC = MapCodec.unit(INSTANCE);
+    public static final MapCodec<EmptyTriggerData> CODEC = MapCodec.unit(INSTANCE);
 
     @Override
-    public StructureTriggerDataType<?, ?> getType() {
+    public StructureTriggerDataType<?> getType() {
         return StructureTriggerDataType.EMPTY;
     }
 }
