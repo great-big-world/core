@@ -7,10 +7,10 @@ import dev.creoii.greatbigworld.registry.GBWRegistries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
-public interface StructureTriggerDataType<D, T extends StructureTriggerData<D>> {
-    Codec<StructureTriggerData<?>> CODEC = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getCodec().dispatch(StructureTriggerData::getType, StructureTriggerDataType::codec);
+public interface StructureTriggerDataType<T extends StructureTriggerData> {
+    Codec<StructureTriggerData> CODEC = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getCodec().dispatch(StructureTriggerData::getType, StructureTriggerDataType::codec);
 
-    StructureTriggerDataType<Object, EmptyTriggerData> EMPTY = new StructureTriggerDataType<>() {
+    StructureTriggerDataType<EmptyTriggerData> EMPTY = new StructureTriggerDataType<>() {
         @Override
         public MapCodec<EmptyTriggerData> codec() {
             return EmptyTriggerData.CODEC;

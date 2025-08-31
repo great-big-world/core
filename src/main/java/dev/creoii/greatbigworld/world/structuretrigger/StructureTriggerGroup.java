@@ -7,7 +7,7 @@ import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerData
 
 import java.util.List;
 
-public record StructureTriggerGroup(List<StructureTrigger.Built> triggers, StructureTriggerData<?> data) {
+public record StructureTriggerGroup(List<StructureTrigger.Built> triggers, StructureTriggerData data) {
     public static final Codec<StructureTriggerGroup> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
                 StructureTrigger.Built.CODEC.listOf().fieldOf("triggers").forGetter(group -> group.triggers),
