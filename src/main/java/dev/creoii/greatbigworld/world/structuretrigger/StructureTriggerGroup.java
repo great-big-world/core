@@ -5,38 +5,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerData;
 import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerDataType;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class StructureTriggerGroup {
+public record StructureTriggerGroup(List<StructureTrigger.Built> triggers, StructureTriggerData<?> data) {
     public static final Codec<StructureTriggerGroup> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
                 StructureTrigger.Built.CODEC.listOf().fieldOf("triggers").forGetter(group -> group.triggers),
                 StructureTriggerDataType.CODEC.fieldOf("data").forGetter(group -> group.data)
-        ).apply(instance, (triggers, data) -> {
-                StructureTriggerGroup group = new StructureTriggerGroup(data);
-                group.triggers.addAll(triggers);
-                return group;
-        });
+        ).apply(instance, StructureTriggerGroup::new);
     });
-    private final List<StructureTrigger.Built> triggers;
-    private final StructureTriggerData<?> data;
-
-    public StructureTriggerGroup(StructureTriggerData<?> data) {
-        triggers = new ArrayList<>();
-        this.data = data;
-    }
 
     public void addTrigger(StructureTrigger.Built trigger) {
         triggers.add(trigger);
-    }
-
-    public List<StructureTrigger.Built> getTriggers() {
-        return triggers;
-    }
-
-    public StructureTriggerData<?> getData() {
-        return data;
     }
 
     public int size() {

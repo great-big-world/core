@@ -39,9 +39,7 @@ public record StructureTrigger(Identifier id, StructureTriggerDataType<?, ?> dat
                     BlockPos.CODEC.fieldOf("pos").forGetter(Built::pos),
                     BlockState.CODEC.fieldOf("state").forGetter(Built::state),
                     Codec.INT.fieldOf("tick_rate").forGetter(Built::tickRate)
-            ).apply(instance, (id, pos, state, tickRate) -> {
-                return new Built(GBWRegistries.STRUCTURE_TRIGGERS.get(id), pos, state, tickRate);
-            });
+            ).apply(instance, (id, pos, state, tickRate) -> new Built(GBWRegistries.STRUCTURE_TRIGGERS.get(id), pos, state, tickRate));
         });
     }
 }

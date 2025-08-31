@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Mixin(StructureTemplate.class)
@@ -45,7 +46,7 @@ public abstract class StructureTemplateMixin implements StructureTriggerStart {
                 finalStateId = Identifier.of("air");
             }
 
-            Identifier targetId = structureBlockInfo.nbt().get("target", Identifier.CODEC).orElse(StructureTriggerBlockEntity.DEFAULT_TARGET);
+            Identifier targetId = structureBlockInfo.nbt().get(StructureTriggerBlockEntity.TARGET_KEY, Identifier.CODEC).orElse(StructureTriggerBlockEntity.DEFAULT_TARGET);
             BlockState finalState = Registries.BLOCK.get(finalStateId).getDefaultState();
             if (GBWRegistries.STRUCTURE_TRIGGERS.containsId(targetId)) {
                 StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.get(targetId), pos, finalState, structureBlockInfo.nbt().getInt("tick_rate", 20));
@@ -58,7 +59,7 @@ public abstract class StructureTemplateMixin implements StructureTriggerStart {
 
                 StructureTriggerGroup group = manager.getGroup(uuid);
                 if (group == null) {
-                    group = new StructureTriggerGroup(trigger.trigger().dataType().create());
+                    group = new StructureTriggerGroup(new ArrayList<>(), trigger.trigger().dataType().create());
                     manager.addGroup(uuid, group);
                 }
 

@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 public class StructureTriggerBlockEntity extends BlockEntity {
     public static final Identifier DEFAULT_DATA_TYPE = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
     public static final Identifier DEFAULT_TARGET = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
-    public static final StructureTriggerBlock.TriggerType DEFAULT_TRIGGER_TYPE = StructureTriggerBlock.TriggerType.INIT;
     public static final int DEFAULT_TICK_RATE = 20;
     public static final String DEFAULT_FINAL_STATE = "minecraft:air";
     public static final String GROUP_KEY = "group";
@@ -41,7 +40,7 @@ public class StructureTriggerBlockEntity extends BlockEntity {
         group = null;
         groupDataType = DEFAULT_DATA_TYPE;
         target = DEFAULT_TARGET;
-        triggerType = DEFAULT_TRIGGER_TYPE;
+        triggerType = StructureTriggerBlock.TriggerType.INIT;
         tickRate = DEFAULT_TICK_RATE;
         finalState = DEFAULT_FINAL_STATE;
     }
@@ -96,7 +95,6 @@ public class StructureTriggerBlockEntity extends BlockEntity {
 
     @Override
     protected void writeData(WriteView view) {
-        super.writeData(view);
         view.putString(GROUP_KEY, group == null ? "" : group.toString());
         view.put(GROUP_DATA_TYPE_KEY, Identifier.CODEC, groupDataType);
         view.put(TARGET_KEY, Identifier.CODEC, target);
@@ -107,13 +105,11 @@ public class StructureTriggerBlockEntity extends BlockEntity {
 
     @Override
     protected void readData(ReadView view) {
-        super.readData(view);
         String nbtGroup = view.getString(GROUP_KEY, "");
-        group = nbtGroup == null || nbtGroup.isEmpty() ? null : Identifier.of(nbtGroup);
-        target = view.read(GROUP_DATA_TYPE_KEY, Identifier.CODEC).orElse(DEFAULT_DATA_TYPE);
+        group = nbtGroup.isEmpty() ? null : Identifier.of(nbtGroup);
+        groupDataType = view.read(GROUP_DATA_TYPE_KEY, Identifier.CODEC).orElse(DEFAULT_DATA_TYPE);
         target = view.read(TARGET_KEY, Identifier.CODEC).orElse(DEFAULT_TARGET);
-        String triggerTypeString = view.getString(TRIGGER_TYPE_KEY, DEFAULT_TRIGGER_TYPE.name());
-        triggerType = StructureTriggerBlock.TriggerType.valueOf(triggerTypeString.toUpperCase());
+        triggerType = StructureTriggerBlock.TriggerType.valueOf(view.getString(TRIGGER_TYPE_KEY, "INIT").toUpperCase());
         tickRate = view.getInt(TICK_RATE_KEY, DEFAULT_TICK_RATE);
         finalState = view.getString(FINAL_STATE_KEY, DEFAULT_FINAL_STATE);
     }
