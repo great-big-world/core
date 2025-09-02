@@ -11,3 +11,4 @@ accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabs Lcom/g
 mutable field net/minecraft/block/AbstractBlock$AbstractBlockState hardness F
 accessible field net/minecraft/client/world/ClientWorld client Lnet/minecraft/client/MinecraftClient;
 accessible field net/minecraft/world/ChunkRegion world Lnet/minecraft/server/world/ServerWorld;
+accessible field net/minecraft/client/gui/screen/Screen selectables Ljava/util/List;

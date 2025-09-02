@@ -59,6 +59,8 @@ public class GreatBigWorld implements ModInitializer {
                     structureTriggerBlockEntity.setTriggerType(StructureTriggerBlock.TriggerType.valueOf(updateStructureTriggerC2S.triggerType().toUpperCase()));
                     structureTriggerBlockEntity.setTickRate(updateStructureTriggerC2S.tickRate());
                     structureTriggerBlockEntity.setFinalState(updateStructureTriggerC2S.finalState());
+
+                    structureTriggerBlockEntity.markDirty();
                 }
             });
         });

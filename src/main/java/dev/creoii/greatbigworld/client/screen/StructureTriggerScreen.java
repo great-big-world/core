@@ -25,7 +25,7 @@ public class StructureTriggerScreen extends Screen {
     private static final Text TRIGGER_TYPE_INIT = Text.translatable("structure_trigger.trigger_type_init");
     private static final Text TRIGGER_TYPE_TICK = Text.translatable("structure_trigger.trigger_type_tick");
     private static final Text TICK_RATE_TEXT = Text.translatable("structure_trigger.tick_rate");
-    private final StructureTriggerBlockEntity functionBlock;
+    private final StructureTriggerBlockEntity triggerBlock;
     private TextFieldWidget groupField;
     private ButtonWidget groupDataTypeButton;
     private TextFieldWidget targetField;
@@ -35,9 +35,9 @@ public class StructureTriggerScreen extends Screen {
     private ButtonWidget triggerButton;
     private ButtonWidget triggerTypeButton;
 
-    public StructureTriggerScreen(StructureTriggerBlockEntity functionBlock) {
+    public StructureTriggerScreen(StructureTriggerBlockEntity triggerBlock) {
         super(NarratorManager.EMPTY);
-        this.functionBlock = functionBlock;
+        this.triggerBlock = triggerBlock;
     }
 
     private void onDone() {
@@ -50,11 +50,11 @@ public class StructureTriggerScreen extends Screen {
     }
 
     private void updateServer() {
-        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(functionBlock.getPos(), groupField.getText(), Identifier.tryParse(groupDataTypeButton.getMessage().getString()), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
+        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(triggerBlock.getPos(), groupField.getText(), Identifier.tryParse(groupDataTypeButton.getMessage().getString()), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
     }
 
     private void trigger() {
-        ClientPlayNetworking.send(new StructureTriggerBlockEntity.StructureTriggerC2S(functionBlock.getPos(), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText())));
+        ClientPlayNetworking.send(new StructureTriggerBlockEntity.StructureTriggerC2S(triggerBlock.getPos(), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText())));
     }
 
     public void close() {
@@ -62,35 +62,41 @@ public class StructureTriggerScreen extends Screen {
     }
 
     protected void init() {
-        groupField = new TextFieldWidget(textRenderer, 3, 45, 150, 20, GROUP_TEXT);
+        groupField = new TextFieldWidget(textRenderer, width / 2 - 4 - 150, 45, 150, 20, GROUP_TEXT);
         groupField.setMaxLength(128);
-        groupField.setText(functionBlock.getGroup() == null ? "" : functionBlock.getGroup().toString());
+        groupField.setText(triggerBlock.getGroup() == null ? "" : triggerBlock.getGroup().toString());
         groupField.setChangedListener(target -> updateDoneButtonState());
         addSelectableChild(groupField);
-        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(functionBlock.getGroupDataType() == StructureTriggerBlockEntity.DEFAULT_DATA_TYPE ? "" : functionBlock.getGroupDataType().toString()), button -> {
+        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(triggerBlock.getGroupDataType() == StructureTriggerBlockEntity.DEFAULT_DATA_TYPE ? "" : triggerBlock.getGroupDataType().toString()), button -> {
             int dataTypeI = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getRawId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.get(Identifier.tryParse(button.getMessage().getString())));
             int nextI = (dataTypeI + 1) % GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.size();
             button.setMessage(Text.literal(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.get(nextI)).toString()));
-        }).dimensions(width - 153, 45, 150, 20).build());
+        }).dimensions(width / 2 + 4, 45, 150, 20).build());
         targetField = new TextFieldWidget(textRenderer, width / 2 - 153, 80, 300, 20, TARGET_TEXT);
         targetField.setMaxLength(128);
-        targetField.setText(functionBlock.getTarget().toString());
+        targetField.setText(triggerBlock.getTarget().toString());
         targetField.setChangedListener(target -> updateDoneButtonState());
         addSelectableChild(targetField);
         finalStateField = new TextFieldWidget(textRenderer, width / 2 - 153, 115, 300, 20, FINAL_STATE_TEXT);
         finalStateField.setMaxLength(256);
-        finalStateField.setText(functionBlock.getFinalState());
+        finalStateField.setText(triggerBlock.getFinalState());
         addSelectableChild(finalStateField);
-        tickRateField = new TextFieldWidget(textRenderer, width - 153, 150, 150, 20, TICK_RATE_TEXT);
+        triggerTypeButton = addDrawableChild(ButtonWidget.builder(triggerBlock.getTriggerType() == StructureTriggerBlock.TriggerType.INIT ? TRIGGER_TYPE_INIT : TRIGGER_TYPE_TICK, button -> {
+            if (button.getMessage() == TRIGGER_TYPE_INIT) {
+                button.setMessage(TRIGGER_TYPE_TICK);
+                tickRateField.visible = true;
+                selectables.add(tickRateField);
+            } else {
+                button.setMessage(TRIGGER_TYPE_INIT);
+                tickRateField.visible = false;
+                selectables.remove(tickRateField);
+            }
+        }).dimensions(width / 2 - 4 - 150, 150, 150, 20).build());
+        tickRateField = new TextFieldWidget(textRenderer, width / 2 + 4, 150, 150, 20, TICK_RATE_TEXT);
         tickRateField.setMaxLength(10);
-        tickRateField.setText(String.valueOf(functionBlock.getTickRate()));
+        tickRateField.setText(String.valueOf(triggerBlock.getTickRate()));
         tickRateField.setChangedListener(target -> updateDoneButtonState());
         addSelectableChild(tickRateField);
-        triggerTypeButton = addDrawableChild(ButtonWidget.builder(functionBlock.getTriggerType() == StructureTriggerBlock.TriggerType.INIT ? TRIGGER_TYPE_INIT : TRIGGER_TYPE_TICK, button -> {
-            if (button.getMessage() == TRIGGER_TYPE_INIT)
-                button.setMessage(TRIGGER_TYPE_TICK);
-            else button.setMessage(TRIGGER_TYPE_INIT);
-        }).dimensions(3, 150, 210, 20).build());
         triggerButton = addDrawableChild(ButtonWidget.builder(TRIGGER_TEXT, button -> {
             onDone();
             trigger();
