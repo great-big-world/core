@@ -35,7 +35,9 @@ public abstract class StructureTemplateMixin implements StructureTriggerStart {
 
     @Inject(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructurePlacementData;getRandomBlockInfos(Ljava/util/List;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/structure/StructureTemplate$PalettedBlockInfoList;"))
     private void gbw$initUUID(ServerWorldAccess world, BlockPos pos, BlockPos pivot, StructurePlacementData placementData, Random random, int flags, CallbackInfoReturnable<Boolean> cir) {
-        uuid = UUID.randomUUID();
+        long most = world.toServerWorld().getSeed() ^ (((long) pos.getX()) << 32 | (pos.getY() & 0xffffffffL));
+        long least = ((long) pos.getZ() << 32) ^ world.toServerWorld().getSeed();
+        uuid = new UUID(most, least);
     }
 
     @WrapOperation(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/ServerWorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z", ordinal = 1))
