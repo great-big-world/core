@@ -31,16 +31,15 @@ public class StructureTriggerManager extends PersistentState {
     }
 
     public void tick(ServerWorld world) {
-        List<Map.Entry<String, StructureTriggerGroup>> entries = new ArrayList<>(structureTriggerGroups.entrySet());
-        for (int i = entries.size() - 1; i >= 0; --i) {
-            Map.Entry<String, StructureTriggerGroup> entry = entries.get(i);
-            String uuid = entry.getKey();
+        Iterator<Map.Entry<String, StructureTriggerGroup>> it = structureTriggerGroups.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, StructureTriggerGroup> entry = it.next();
             StructureTriggerGroup group = entry.getValue();
 
             for (StructureTrigger.Built trigger : group.triggers()) {
                 if (world.getTime() % trigger.tickRate() == 0) {
                     if (!trigger.trigger().trigger(world, trigger.pos(), trigger.state(), group)) {
-                        structureTriggerGroups.remove(uuid);
+                        it.remove();
                         break;
                     }
                 }
