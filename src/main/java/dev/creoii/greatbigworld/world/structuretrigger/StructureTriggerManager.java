@@ -2,6 +2,7 @@ package dev.creoii.greatbigworld.world.structuretrigger;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateType;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +38,8 @@ public class StructureTriggerManager extends PersistentState {
             StructureTriggerGroup group = entry.getValue();
 
             for (StructureTrigger.Built trigger : group.triggers()) {
+                if (!world.isChunkLoaded(ChunkSectionPos.getSectionCoord(trigger.pos().getX()), ChunkSectionPos.getSectionCoord(trigger.pos().getZ())))
+                    continue;
                 if (world.getTime() % trigger.tickRate() == 0) {
                     if (!trigger.trigger().trigger(world, trigger.pos(), trigger.state(), group)) {
                         it.remove();
