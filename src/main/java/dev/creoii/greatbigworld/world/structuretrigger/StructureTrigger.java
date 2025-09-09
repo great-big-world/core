@@ -15,13 +15,13 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Optional;
 
-public record StructureTrigger(Identifier id, StructureTriggerDataType<?> dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-    public StructureTrigger(Identifier id, StructureTriggerDataType<?> dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-        this(id, dataType, new MutableObject<>(), structureTrigger);
+public record StructureTrigger(Identifier id, StructureTriggerDataType<?> dataType, Mutable<StructureStart> structureStart, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> trigger) {
+    public StructureTrigger(Identifier id, StructureTriggerDataType<?> dataType, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> trigger) {
+        this(id, dataType, new MutableObject<>(), trigger);
     }
 
-    public StructureTrigger(Identifier id, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> structureTrigger) {
-        this(id, StructureTriggerDataType.EMPTY, new MutableObject<>(), structureTrigger);
+    public StructureTrigger(Identifier id, Predicate5<ServerWorld, BlockPos, BlockState, Optional<StructureStart>, StructureTriggerGroup> trigger) {
+        this(id, StructureTriggerDataType.EMPTY, new MutableObject<>(), trigger);
     }
 
     public static Built build(StructureTrigger trigger, BlockPos pos, BlockState state, int tickRate) {
@@ -29,7 +29,7 @@ public record StructureTrigger(Identifier id, StructureTriggerDataType<?> dataTy
     }
 
     public boolean trigger(ServerWorld world, BlockPos pos, BlockState state, StructureTriggerGroup group) {
-        return structureTrigger.test(world, pos, state, Optional.ofNullable(structureStart.getValue()), group);
+        return trigger.test(world, pos, state, Optional.ofNullable(structureStart.getValue()), group);
     }
 
     public record Built(StructureTrigger trigger, BlockPos pos, BlockState state, int tickRate) {
