@@ -41,7 +41,9 @@ public class StructureTriggerManager extends PersistentState {
                 if (!world.isChunkLoaded(ChunkSectionPos.getSectionCoord(trigger.pos().getX()), ChunkSectionPos.getSectionCoord(trigger.pos().getZ())))
                     continue;
                 if (world.getTime() % trigger.tickRate() == 0) {
-                    if (!trigger.trigger().trigger(world, trigger.pos(), trigger.state(), group)) {
+                    //System.out.println("trigger @ " + trigger.pos().toShortString());
+                    if (trigger.trigger().trigger(world, trigger.pos(), trigger.state(), group)) {
+                        //System.out.println("success, remove trigger");
                         it.remove();
                         break;
                     }
