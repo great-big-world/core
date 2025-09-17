@@ -34,6 +34,10 @@ public class PreviousDimensionManager extends PersistentState {
         prevDimensions.put(uuid.toString(), group);
     }
 
+    public void remove(UUID uuid) {
+        prevDimensions.remove(uuid.toString());
+    }
+
     public static PreviousDimensionManager getServerState(MinecraftServer server) {
         PreviousDimensionManager manager = server.getWorld(ServerWorld.OVERWORLD).getPersistentStateManager().getOrCreate(STATE_TYPE);
         manager.markDirty();
