@@ -44,9 +44,13 @@ public abstract class EntityMixin {
 
     @Inject(method = "remove", at = @At("HEAD"))
     private void gbw$cleanPreviousDimensions(Entity.RemovalReason reason, CallbackInfo ci) {
-        if (reason.shouldDestroy() && world.getServer() != null && !isPlayer()) {
+        if (world.getServer() != null) {
             PreviousDimensionManager manager = PreviousDimensionManager.getServerState(world.getServer());
-            manager.remove(getUuid());
+            if (reason.shouldDestroy() && !isPlayer()) {
+                manager.remove(getUuid());
+            } else if (reason == Entity.RemovalReason.CHANGED_DIMENSION) {
+                manager.setPrevDimension(getUuid(), world.getRegistryKey());
+            }
         }
     }
 }

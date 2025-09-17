@@ -3,13 +3,11 @@ package dev.creoii.greatbigworld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.*;
-import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
 import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerDataType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -103,11 +101,6 @@ public class GreatBigWorld implements ModInitializer {
                 StructureTriggerManager manager = StructureTriggerManager.getServerState(world);
                 manager.tick(world);
             }
-        });
-
-        ServerEntityEvents.ENTITY_UNLOAD.register((entity, serverWorld) -> {
-            PreviousDimensionManager manager = PreviousDimensionManager.getServerState(serverWorld.getServer());
-            manager.setPrevDimension(entity.getUuid(), serverWorld.getRegistryKey());
         });
     }
 }
