@@ -1,6 +1,7 @@
 package dev.creoii.greatbigworld.mixin.compat;
 
 import dev.creoii.greatbigworld.util.EntityBlockCollisionSpliterator;
+import dev.creoii.greatbigworld.util.compat.LithiumEntityBlockCollisionSpliterator;
 import net.caffeinemc.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
@@ -20,7 +21,20 @@ public class LithiumEntityCollisionsMixin {
         if (entity != null) {
             EntityBlockCollisionSpliterator.INTERACTIONS.forEach((tagKey, predicate) -> {
                 if (entity.getType().isIn(tagKey)) {
-                    cir.setReturnValue(new EntityBlockCollisionSpliterator(world, entity, box, predicate).collectAll());
+                    cir.setReturnValue(new LithiumEntityBlockCollisionSpliterator(world, entity, box, false, predicate).collectAll());
+                }
+            });
+        }
+    }
+
+    @Inject(method = "doesBoxCollideWithBlocks", at = @At("HEAD"), cancellable = true)
+    private static void gbw$lithiumCollisionCompat1(World world, Entity entity, Box box, CallbackInfoReturnable<Boolean> cir) {
+        if (entity != null) {
+            EntityBlockCollisionSpliterator.INTERACTIONS.forEach((tagKey, predicate) -> {
+                if (entity.getType().isIn(tagKey)) {
+                    LithiumEntityBlockCollisionSpliterator spliterator = new LithiumEntityBlockCollisionSpliterator(world, entity, box, false, predicate);
+                    VoxelShape shape = spliterator.computeNext();
+                    cir.setReturnValue(shape != null && !shape.isEmpty());
                 }
             });
         }

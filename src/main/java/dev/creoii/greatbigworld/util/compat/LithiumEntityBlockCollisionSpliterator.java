@@ -1,6 +1,10 @@
-package dev.creoii.greatbigworld.util;
+package dev.creoii.greatbigworld.util.compat;
 
 import com.google.common.collect.AbstractIterator;
+import dev.creoii.greatbigworld.util.EntityBlockCollisionSpliterator;
+import net.caffeinemc.mods.lithium.common.block.BlockCountingSection;
+import net.caffeinemc.mods.lithium.common.block.BlockStateFlags;
+import net.caffeinemc.mods.lithium.common.shapes.VoxelShapeCaster;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
@@ -8,7 +12,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
@@ -23,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape> {
-    public static final Map<TagKey<EntityType<?>>, Predicate<EntityBlockCollisionContext>> INTERACTIONS = new HashMap<>();
+public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape> {
+    public static final Map<TagKey<EntityType<?>>, Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext>> INTERACTIONS = new HashMap<>();
     private final BlockPos.Mutable pos;
     private final Box box;
     private final Entity entity;
@@ -57,9 +64,9 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
     private boolean sectionOversizedBlocks;
     private Chunk cachedChunk;
     private ChunkSection cachedChunkSection;
-    private final Predicate<EntityBlockCollisionContext> contextPredicate;
+    private final Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext> contextPredicate;
 
-    public EntityBlockCollisionSpliterator(World world, @Nullable Entity entity, Box box, boolean hideLastCollision, Predicate<EntityBlockCollisionContext> contextPredicate) {
+    public LithiumEntityBlockCollisionSpliterator(World world, @Nullable Entity entity, Box box, boolean hideLastCollision, Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext> contextPredicate) {
         pos = new BlockPos.Mutable();
         this.entity = entity;
         this.box = box;
@@ -110,7 +117,8 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
             }
 
             if (this.cachedChunk != null && this.cachedChunkSection != null && !this.cachedChunkSection.isEmpty()) {
-                int sizeExtension = 1;
+                this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkYIndex);
+                int sizeExtension = this.sectionOversizedBlocks ? 1 : 0;
                 this.cEndX = Math.min(this.maxX + sizeExtension, 15 + ChunkSectionPos.getBlockCoord(chunkX));
                 int cEndY = Math.min(this.maxY + sizeExtension, 15 + ChunkSectionPos.getBlockCoord(chunkYIndex + world.getBottomSectionCoord()));
                 this.cEndZ = Math.min(this.maxZ + sizeExtension, 15 + ChunkSectionPos.getBlockCoord(chunkZ));
@@ -129,7 +137,7 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
         }
     }
 
-    protected VoxelShape computeNext() {
+    public VoxelShape computeNext() {
         while(this.cIterated < this.cTotalSize || this.nextSection()) {
             ++this.cIterated;
             int x = this.cX;
@@ -152,7 +160,7 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
                 if (canInteractWithBlock(state, edgesHit)) {
                     pos.set(x, y, z);
 
-                    EntityBlockCollisionContext collisionContext = new EntityBlockCollisionContext(world, entity, pos, state);
+                    EntityBlockCollisionSpliterator.EntityBlockCollisionContext collisionContext = new EntityBlockCollisionSpliterator.EntityBlockCollisionContext(world, entity, pos, state);
                     if (!contextPredicate.test(collisionContext))
                         continue;
 
@@ -196,6 +204,8 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
         if (shape == VoxelShapes.fullCube()) {
             return entityBox.intersects(x, y, z, (double)x + (double)1.0F, (double)y + (double)1.0F, (double)z + (double)1.0F) ? shape.offset((double)x, (double)y, (double)z) : null;
+        } else if (shape instanceof VoxelShapeCaster) {
+            return ((VoxelShapeCaster)shape).intersects(entityBox, x, y, z) ? shape.offset(x, y, z) : null;
         } else {
             shape = shape.offset(x, y, z);
             return VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND) ? shape : null;
@@ -210,6 +220,15 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
         return coord + 1;
     }
 
+    private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
+        if (!BlockStateFlags.ENABLED) {
+            return true;
+        } else {
+            ChunkSection section = chunk.getSectionArray()[chunkY];
+            return section != null && ((BlockCountingSection)section).lithium$mayContainAny(BlockStateFlags.OVERSIZED_SHAPE);
+        }
+    }
+
     public List<VoxelShape> collectAll() {
         ArrayList<VoxelShape> collisions = new ArrayList<>();
 
@@ -218,8 +237,5 @@ public class EntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape
         }
 
         return collisions;
-    }
-
-    public record EntityBlockCollisionContext(World world, Entity entity, BlockPos.Mutable pos, BlockState state) {
     }
 }
