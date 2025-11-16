@@ -50,7 +50,7 @@ public class GreatBigWorld implements ModInitializer {
             context.server().execute(() -> {
                 if (!context.player().isCreativeLevelTwoOp())
                     return;
-                BlockEntity blockEntity = context.player().getWorld().getBlockEntity(updateStructureTriggerC2S.pos());
+                BlockEntity blockEntity = context.player().getEntityWorld().getBlockEntity(updateStructureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
                     if (updateStructureTriggerC2S.group() != null)
                         structureTriggerBlockEntity.setGroup(Identifier.of(updateStructureTriggerC2S.group()));
@@ -68,7 +68,7 @@ public class GreatBigWorld implements ModInitializer {
             context.server().execute(() -> {
                 if (!context.player().isCreativeLevelTwoOp())
                     return;
-                BlockEntity blockEntity = context.player().getWorld().getBlockEntity(structureTriggerC2S.pos());
+                BlockEntity blockEntity = context.player().getEntityWorld().getBlockEntity(structureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
                     Identifier id = Identifier.tryParse(structureTriggerBlockEntity.getFinalState());
                     if (id == null) {
@@ -79,7 +79,7 @@ public class GreatBigWorld implements ModInitializer {
                     StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.get(structureTriggerC2S.target()), structureTriggerC2S.pos(), finalState, structureTriggerC2S.tickRate());
 
                     UUID uuid = UUID.randomUUID();
-                    StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().getWorld());
+                    StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().getEntityWorld());
 
                     StructureTriggerGroup group = manager.getGroup(uuid);
                     if (group == null) {
@@ -88,7 +88,7 @@ public class GreatBigWorld implements ModInitializer {
                     }
 
                     if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
-                        trigger.trigger().trigger(context.player().getWorld(), structureTriggerC2S.pos(), finalState, group);
+                        trigger.trigger().trigger(context.player().getEntityWorld(), structureTriggerC2S.pos(), finalState, group);
                     } else {
                         group.addTrigger(trigger);
                     }

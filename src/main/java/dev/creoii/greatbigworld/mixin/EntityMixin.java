@@ -28,14 +28,14 @@ public abstract class EntityMixin {
     private void gbw$collideAdjacentBlock(MovementType movementType, Vec3d movement, CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
         Optional<BlockPos> optionalPos = BlockPos.findClosest(entity.getBlockPos(), (int) (entity.getWidth() + .5f), (int) (entity.getHeight() + .5f), pos -> {
-            return entity.getWorld().getBlockState(pos).getBlock() instanceof AdjacentCollision;
+            return entity.getEntityWorld().getBlockState(pos).getBlock() instanceof AdjacentCollision;
         });
         if (optionalPos.isPresent()) {
             BlockPos pos = optionalPos.get();
-            WorldBorder worldBorder = entity.getWorld().getWorldBorder();
+            WorldBorder worldBorder = entity.getEntityWorld().getWorldBorder();
             if (!worldBorder.contains(pos))
                 return;
-            BlockState state = entity.getWorld().getBlockState(pos);
+            BlockState state = entity.getEntityWorld().getBlockState(pos);
             if (state.getBlock() instanceof AdjacentCollision adjacentCollision) {
                 adjacentCollision.onAdjacentEntityCollision(entity, state, pos);
             }

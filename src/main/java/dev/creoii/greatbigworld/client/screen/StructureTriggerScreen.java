@@ -11,6 +11,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
@@ -134,10 +135,10 @@ public class StructureTriggerScreen extends Screen {
         finalStateField.setText(string4);
     }
 
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+    public boolean keyPressed(KeyInput input) {
+        if (super.keyPressed(input)) {
             return true;
-        } else if (!doneButton.active || keyCode != 257 && keyCode != 335) {
+        } else if (!doneButton.active || input.getKeycode() != 257 && input.getKeycode() != 335) {
             return false;
         } else {
             onDone();

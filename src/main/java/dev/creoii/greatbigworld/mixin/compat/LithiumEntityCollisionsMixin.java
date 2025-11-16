@@ -28,7 +28,7 @@ public class LithiumEntityCollisionsMixin {
     }
 
     @Inject(method = "doesBoxCollideWithBlocks", at = @At("HEAD"), cancellable = true)
-    private static void gbw$lithiumCollisionCompat1(World world, Entity entity, Box box, CallbackInfoReturnable<Boolean> cir) {
+    private static void gbw$lithiumCollideWithBlocksCompat(World world, Entity entity, Box box, CallbackInfoReturnable<Boolean> cir) {
         if (entity != null) {
             EntityBlockCollisionSpliterator.INTERACTIONS.forEach((tagKey, predicate) -> {
                 if (entity.getType().isIn(tagKey)) {

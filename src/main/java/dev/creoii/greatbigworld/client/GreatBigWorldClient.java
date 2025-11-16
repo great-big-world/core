@@ -12,7 +12,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_ID, (openStructureTriggerScreenS2C, context) -> {
             context.client().execute(() -> {
-                BlockEntity blockEntity = context.player().clientWorld.getBlockEntity(openStructureTriggerScreenS2C.pos());
+                BlockEntity blockEntity = context.player().getEntityWorld().getBlockEntity(openStructureTriggerScreenS2C.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
                     context.client().setScreen(new StructureTriggerScreen(structureTriggerBlockEntity));
                 }
