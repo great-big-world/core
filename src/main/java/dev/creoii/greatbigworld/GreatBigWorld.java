@@ -3,12 +3,14 @@ package dev.creoii.greatbigworld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.*;
+import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerManager;
 import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerDataType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
@@ -45,6 +47,7 @@ public class GreatBigWorld implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_ID, StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(PreviousDimensionManager.PreviousDimensionS2C.PACKET_ID, PreviousDimensionManager.PreviousDimensionS2C.PACKET_CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {
@@ -94,6 +97,13 @@ public class GreatBigWorld implements ModInitializer {
                     }
                 }
             });
+        });
+
+        ServerWorldEvents.LOAD.register((server, world) -> {
+            if (world.getDimensionEntry() == World.OVERWORLD) {
+                PreviousDimensionManager manager = PreviousDimensionManager.getServerState(server);
+                manager.init(server);
+            }
         });
 
         ServerTickEvents.END_WORLD_TICK.register(world -> {

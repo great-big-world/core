@@ -5,8 +5,10 @@ import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -47,10 +50,16 @@ public abstract class EntityMixin {
         if (world.getServer() != null) {
             PreviousDimensionManager manager = PreviousDimensionManager.getServerState(world.getServer());
             if (reason.shouldDestroy() && !isPlayer()) {
-                manager.remove(getUuid());
-            } else if (reason == Entity.RemovalReason.CHANGED_DIMENSION) {
-                manager.setPrevDimension(getUuid(), world.getRegistryKey());
+                manager.removePrev(getUuid());
+                manager.removeTo(getUuid());
             }
         }
+    }
+
+    @Inject(method = "teleportCrossDimension", at = @At("HEAD"))
+    private void gbw$updatePrevDimensionManager(ServerWorld from, ServerWorld to, TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir) {
+        PreviousDimensionManager manager = PreviousDimensionManager.getServerState(to.getServer());
+        manager.setPrevDimension(getUuid(), from.getRegistryKey());
+        manager.setToDimension(getUuid(), to.getRegistryKey());
     }
 }
