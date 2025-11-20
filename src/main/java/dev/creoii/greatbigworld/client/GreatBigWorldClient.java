@@ -45,11 +45,9 @@ public class GreatBigWorldClient implements ClientModInitializer {
 
     public static void setPreviousDimension(@Nullable Identifier previousDimension) {
         GreatBigWorldClient.previousDimension = previousDimension;
-        System.out.println("setPrevDimension: " + previousDimension.toString());
     }
 
     public static void setToDimension(@Nullable Identifier toDimension) {
         GreatBigWorldClient.toDimension = toDimension;
-        System.out.println("setToDimension: " + toDimension.toString());
     }
 }
