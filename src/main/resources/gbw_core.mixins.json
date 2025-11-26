@@ -6,9 +6,10 @@
   "plugin": "dev.creoii.greatbigworld.GBWCoreMixinPlugin",
   "mixins": [
     "AbstractBlockStateAccessor",
-    "EntityMixin",
     "NetherPortalBlockMixin",
     "compat.LithiumEntityCollisionsMixin",
+    "entity.EntityMixin",
+    "entity.ItemEntityMixin",
     "world.CollisionViewMixin",
     "world.HeightmapTypeMixin",
     "world.LevelStorageMixin",
@@ -21,7 +22,8 @@
     "world.structure.StructureTemplateMixin"
   ],
   "client": [
-    "client.CreateWorldScreenGameTabMixin",
+    "client.screen.CreateWorldScreenGameTabMixin",
+    "client.screen.GameMenuScreenMixin",
     "client.MinecraftClientMixin",
     "client.SectionBuilderMixin",
     "client.WeatherRenderingMixin",

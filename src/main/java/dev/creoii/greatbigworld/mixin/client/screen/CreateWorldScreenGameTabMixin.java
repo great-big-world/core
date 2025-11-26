@@ -1,4 +1,4 @@
-package dev.creoii.greatbigworld.mixin.client;
+package dev.creoii.greatbigworld.mixin.client.screen;
 
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.screen.world.WorldCreator;

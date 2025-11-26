@@ -1,4 +1,4 @@
-package dev.creoii.greatbigworld.mixin;
+package dev.creoii.greatbigworld.mixin.entity;
 
 import dev.creoii.greatbigworld.block.AdjacentCollision;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;

@@ -2,7 +2,12 @@ package dev.creoii.greatbigworld;
 
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
+import dev.creoii.greatbigworld.knowledge.Knowledge;
+import dev.creoii.greatbigworld.knowledge.KnowledgeManager;
 import dev.creoii.greatbigworld.registry.*;
+import dev.creoii.greatbigworld.util.network.LearnKnowledgeS2C;
+import dev.creoii.greatbigworld.util.network.RequestKnowledgeC2S;
+import dev.creoii.greatbigworld.util.network.SyncKnowledgeS2C;
 import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
@@ -23,6 +28,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class GreatBigWorld implements ModInitializer {
@@ -47,9 +54,12 @@ public class GreatBigWorld implements ModInitializer {
 
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestKnowledgeC2S.PACKET_ID, RequestKnowledgeC2S.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_ID, StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(PreviousDimensionManager.PreviousDimensionS2C.PACKET_ID, PreviousDimensionManager.PreviousDimensionS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(SyncWorldEventS2C.PACKET_ID, SyncWorldEventS2C.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncKnowledgeS2C.PACKET_ID, SyncKnowledgeS2C.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(LearnKnowledgeS2C.PACKET_ID, LearnKnowledgeS2C.PACKET_CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {
@@ -98,6 +108,14 @@ public class GreatBigWorld implements ModInitializer {
                         group.addTrigger(trigger);
                     }
                 }
+            });
+        });
+        ServerPlayNetworking.registerGlobalReceiver(RequestKnowledgeC2S.PACKET_ID, (requestKnowledgeC2S, context) -> {
+            context.server().execute(() -> {
+                Map<Knowledge.Type, Set<Knowledge>> knowledge = KnowledgeManager.getInstance().getPlayerKnowledge(context.player());
+                if (knowledge == null || knowledge.isEmpty())
+                    return;
+                ServerPlayNetworking.send(context.player(), new SyncKnowledgeS2C(knowledge));
             });
         });
 

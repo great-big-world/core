@@ -2,7 +2,11 @@ package dev.creoii.greatbigworld.client;
 
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
+import dev.creoii.greatbigworld.client.screen.KnowledgeScreen;
 import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
+import dev.creoii.greatbigworld.knowledge.Knowledge;
+import dev.creoii.greatbigworld.util.network.LearnKnowledgeS2C;
+import dev.creoii.greatbigworld.util.network.SyncKnowledgeS2C;
 import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.fabricmc.api.ClientModInitializer;
@@ -11,11 +15,17 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 public class GreatBigWorldClient implements ClientModInitializer {
     @Nullable
     private static Identifier previousDimension;
     @Nullable
     private static Identifier toDimension;
+    private static Map<Knowledge.Type, Set<Knowledge>> knowledge = new HashMap<>();
 
     @Override
     public void onInitializeClient() {
@@ -39,6 +49,28 @@ public class GreatBigWorldClient implements ClientModInitializer {
                 context.client().world.syncWorldEvent(context.player(), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
             });
         });
+            context.client().execute(() -> {
+                knowledge = syncKnowledgeS2C.knowledge();
+
+                if (context.client().currentScreen instanceof KnowledgeScreen knowledgeScreen) {
+
+                }
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(LearnKnowledgeS2C.PACKET_ID, (learnKnowledgeS2C, context) -> {
+            context.client().execute(() -> {
+                learnKnowledgeS2C.knowledge().forEach(knowledge -> {
+                    Knowledge.Type type = learnKnowledgeS2C.type();
+                    if (GreatBigWorldClient.knowledge.containsKey(type)) {
+                        GreatBigWorldClient.knowledge.get(type).add(new Knowledge(type, knowledge.data()));
+                    } else {
+                        Set<Knowledge> newKnowledge = new HashSet<>();
+                        newKnowledge.add(new Knowledge(type, knowledge.data()));
+                        GreatBigWorldClient.knowledge.put(type, newKnowledge);
+                    }
+                });
+            });
+        });
     }
 
     public static @Nullable Identifier getPreviousDimension() {
@@ -55,5 +87,9 @@ public class GreatBigWorldClient implements ClientModInitializer {
 
     public static void setToDimension(@Nullable Identifier toDimension) {
         GreatBigWorldClient.toDimension = toDimension;
+    }
+
+    public static Map<Knowledge.Type, Set<Knowledge>> getKnowledge() {
+        return knowledge;
     }
 }
