@@ -36,7 +36,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncWorldEventS2C.PACKET_ID, (syncWorldEventS2C, context) -> {
             context.client().execute(() -> {
-                context.client().world.syncWorldEvent(syncWorldEventS2C.entityId() == -1 ? null : context.client().world.getEntityById(syncWorldEventS2C.entityId()), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
+                context.client().world.syncWorldEvent(context.player(), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
             });
         });
     }
