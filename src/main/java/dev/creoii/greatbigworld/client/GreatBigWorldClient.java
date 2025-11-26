@@ -49,6 +49,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
                 context.client().world.syncWorldEvent(context.player(), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
             });
         });
+        ClientPlayNetworking.registerGlobalReceiver(SyncKnowledgeS2C.PACKET_ID, (syncKnowledgeS2C, context) -> {
             context.client().execute(() -> {
                 knowledge = syncKnowledgeS2C.knowledge();
 
