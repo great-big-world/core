@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.DecoratedPotPattern;
 import net.minecraft.item.Item;
-import net.minecraft.item.equipment.trim.ArmorTrimPattern;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;

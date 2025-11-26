@@ -49,6 +49,7 @@ public class GreatBigWorld implements ModInitializer {
         GBWTreeDecoratorTypes.register();
         GBWPlacementModifierTypes.register();
         GBWDensityFunctionTypes.register();
+        GBWCommands.register();
         StructureTriggerDataType.register();
         GBWStructureTriggers.register();
 
