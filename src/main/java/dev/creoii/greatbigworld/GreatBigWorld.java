@@ -3,6 +3,7 @@ package dev.creoii.greatbigworld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.*;
+import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
@@ -48,6 +49,7 @@ public class GreatBigWorld implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_ID, StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(PreviousDimensionManager.PreviousDimensionS2C.PACKET_ID, PreviousDimensionManager.PreviousDimensionS2C.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncWorldEventS2C.PACKET_ID, SyncWorldEventS2C.PACKET_CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {

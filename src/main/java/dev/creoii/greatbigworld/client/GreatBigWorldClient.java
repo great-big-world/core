@@ -3,6 +3,7 @@ package dev.creoii.greatbigworld.client;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
+import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -27,11 +28,16 @@ public class GreatBigWorldClient implements ClientModInitializer {
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(PreviousDimensionManager.PreviousDimensionS2C.PACKET_ID, (previousDimensionS2C, context) -> {
-           context.client().execute(() -> {
-               if (previousDimensionS2C.prev())
-                   setPreviousDimension(previousDimensionS2C.id());
-               else setToDimension(previousDimensionS2C.id());
-           });
+            context.client().execute(() -> {
+                if (previousDimensionS2C.prev())
+                    setPreviousDimension(previousDimensionS2C.id());
+                else setToDimension(previousDimensionS2C.id());
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(SyncWorldEventS2C.PACKET_ID, (syncWorldEventS2C, context) -> {
+            context.client().execute(() -> {
+                context.client().world.syncWorldEvent(syncWorldEventS2C.entityId() == -1 ? null : context.client().world.getEntityById(syncWorldEventS2C.entityId()), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
+            });
         });
     }
 
