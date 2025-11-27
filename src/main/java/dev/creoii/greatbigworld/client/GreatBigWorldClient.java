@@ -12,6 +12,7 @@ import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,10 +53,6 @@ public class GreatBigWorldClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(SyncKnowledgeS2C.PACKET_ID, (syncKnowledgeS2C, context) -> {
             context.client().execute(() -> {
                 knowledge = syncKnowledgeS2C.knowledge();
-
-                if (context.client().currentScreen instanceof KnowledgeScreen knowledgeScreen) {
-
-                }
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(LearnKnowledgeS2C.PACKET_ID, (learnKnowledgeS2C, context) -> {
@@ -69,6 +66,8 @@ public class GreatBigWorldClient implements ClientModInitializer {
                         newKnowledge.add(new Knowledge(type, knowledge.data()));
                         GreatBigWorldClient.knowledge.put(type, newKnowledge);
                     }
+
+                    context.client().player.sendMessage(Text.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
                 });
             });
         });
