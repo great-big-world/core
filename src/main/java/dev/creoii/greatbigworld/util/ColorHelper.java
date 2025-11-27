@@ -22,6 +22,32 @@ public final class ColorHelper {
         return Math.max(Math.min(red, 255), 0) << 16 | Math.max(Math.min(green, 255), 0) << 8 | Math.max(Math.min(blue, 255), 0);
     }
 
+    public static int multiply(int color1, int color2) {
+        int r = red(color1) * red(color2) / 255;
+        int g = green(color1) * green(color2) / 255;
+        int b = blue(color1) * blue(color2) / 255;
+
+        return (r << 16) | (g << 8) | b;
+    }
+
+    public static int multiply(int color1, int color2, double delta) {
+        delta = Math.max(0, Math.min(delta, 1));
+
+        int rBase = red(color1);
+        int gBase = green(color1);
+        int bBase = blue(color1);
+
+        int rMul = rBase * red(color2) / 255;
+        int gMul = gBase * green(color2) / 255;
+        int bMul = bBase * blue(color2) / 255;
+
+        int r = (int)(rBase + (rMul - rBase) * delta);
+        int g = (int)(gBase + (gMul - gBase) * delta);
+        int b = (int)(bBase + (bMul - bBase) * delta);
+
+        return (r << 16) | (g << 8) | b;
+    }
+
     public static int alpha(int color) {
         return color >> 24 & 0xff;
     }

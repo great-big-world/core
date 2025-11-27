@@ -24,6 +24,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.registry.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +38,7 @@ public class GreatBigWorld implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(GreatBigWorld.class);
 
     public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));
+    public static final RegistryKey<DimensionOptions> ALTERWORLD_OPTIONS = RegistryKey.of(RegistryKeys.DIMENSION, Identifier.of(NAMESPACE, "the_alterworld"));
 
     @Override
     public void onInitialize() {

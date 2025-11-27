@@ -24,6 +24,10 @@ public record Knowledge(Type type, Identifier data) {
         ).apply(instance, Knowledge::new);
     });
 
+    public Knowledge(Type type, RegistryKey<?> data) {
+        this(type, data.getValue());
+    }
+
     public enum Type implements StringIdentifiable {
         ENCHANTMENT(Text.translatable("knowledge.type.enchantment"), true, id -> Identifier.ofVanilla("textures/item/book.png"), (registryManager, id) -> registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).get(id).description()),
         ARMOR_TRIM(Text.translatable("knowledge.type.armor_trim"), false, id -> {
