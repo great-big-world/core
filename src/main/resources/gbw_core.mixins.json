@@ -22,12 +22,12 @@
     "world.structure.StructureTemplateMixin"
   ],
   "client": [
-    "client.screen.CreateWorldScreenGameTabMixin",
-    "client.screen.GameMenuScreenMixin",
     "client.MinecraftClientMixin",
     "client.SectionBuilderMixin",
     "client.WeatherRenderingMixin",
-    "client.compat.ChunkBuilderMeshingTaskMixin"
+    "client.compat.ChunkBuilderMeshingTaskMixin",
+    "client.screen.CreateWorldScreenGameTabMixin",
+    "client.screen.GameMenuScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
