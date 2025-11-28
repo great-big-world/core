@@ -26,8 +26,9 @@ public final class ColorHelper {
         int r = red(color1) * red(color2) / 255;
         int g = green(color1) * green(color2) / 255;
         int b = blue(color1) * blue(color2) / 255;
+        int a = alpha(color1) * alpha(color2) / 255;
 
-        return (r << 16) | (g << 8) | b;
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     public static int multiply(int color1, int color2, double delta) {
@@ -36,16 +37,19 @@ public final class ColorHelper {
         int rBase = red(color1);
         int gBase = green(color1);
         int bBase = blue(color1);
+        int aBase = alpha(color1);
 
         int rMul = rBase * red(color2) / 255;
         int gMul = gBase * green(color2) / 255;
         int bMul = bBase * blue(color2) / 255;
+        int aMul = aBase * alpha(color2) / 255;
 
         int r = (int)(rBase + (rMul - rBase) * delta);
         int g = (int)(gBase + (gMul - gBase) * delta);
         int b = (int)(bBase + (bMul - bBase) * delta);
+        int a = (int)(aBase + (aMul - aBase) * delta);
 
-        return (r << 16) | (g << 8) | b;
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     public static int alpha(int color) {
