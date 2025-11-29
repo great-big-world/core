@@ -54,6 +54,7 @@ public class GreatBigWorld implements ModInitializer {
         GBWCommands.register();
         StructureTriggerDataType.register();
         GBWStructureTriggers.register();
+        GBWDataComponentTypes.register();
 
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_CODEC);
         PayloadTypeRegistry.playC2S().register(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_CODEC);

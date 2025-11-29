@@ -29,13 +29,13 @@ public record Knowledge(Type type, Identifier data) {
     }
 
     public enum Type implements StringIdentifiable {
-        ENCHANTMENT(Text.translatable("knowledge.type.enchantment"), true, id -> Identifier.ofVanilla("textures/item/book.png"), (registryManager, id) -> registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).get(id).description()),
-        ARMOR_TRIM(Text.translatable("knowledge.type.armor_trim"), false, id -> {
+        ENCHANTMENT("knowledge.type.enchantment", true, id -> Identifier.ofVanilla("textures/item/book.png"), (registryManager, id) -> registryManager.getOrThrow(RegistryKeys.ENCHANTMENT).get(id).description()),
+        ARMOR_TRIM("knowledge.type.armor_trim", false, id -> {
             Item armorTrim = KnowledgeUtil.getStackFromArmorTrimPattern(RegistryKey.of(RegistryKeys.TRIM_PATTERN, id));
             Identifier itemId = Registries.ITEM.getId(armorTrim);
             return Identifier.of(itemId.getNamespace(), "textures/item/" + itemId.getPath() + ".png");
         }, (registryManager, id) -> registryManager.getOrThrow(RegistryKeys.TRIM_PATTERN).get(id).description()),
-        POTTERY_SHERD(Text.translatable("knowledge.type.pottery_sherd"), false, id -> Identifier.of(id.getNamespace(), "textures/item/" + id.getPath() + ".png"), (registryManager, id) -> {
+        POTTERY_SHERD("knowledge.type.pottery_sherd", false, id -> Identifier.of(id.getNamespace(), "textures/item/" + id.getPath() + ".png"), (registryManager, id) -> {
             Item bannerPattern = registryManager.getOrThrow(RegistryKeys.ITEM).get(id);
             RegistryKey<DecoratedPotPattern> key = KnowledgeUtil.getDecoratedPotPatternFromItem(bannerPattern);
             if (key != null) {
@@ -44,7 +44,7 @@ public record Knowledge(Type type, Identifier data) {
             }
             return ScreenTexts.EMPTY;
         }),
-        BANNER_PATTERN(Text.translatable("knowledge.type.banner_pattern"), false, id -> {
+        BANNER_PATTERN("knowledge.type.banner_pattern", false, id -> {
             Item bannerPattern = KnowledgeUtil.getItemFromBannerPattern(RegistryKey.of(RegistryKeys.BANNER_PATTERN, id));
             Identifier itemId = Registries.ITEM.getId(bannerPattern);
             return Identifier.of(itemId.getNamespace(), "textures/item/" + itemId.getPath() + ".png");
@@ -52,12 +52,14 @@ public record Knowledge(Type type, Identifier data) {
 
         public static final Codec<Knowledge.Type> CODEC = StringIdentifiable.createCodec(Knowledge.Type::values);
         private final Text translated;
+        private final Text translatedPlural;
         private final boolean glint;
         private final Function<Identifier, Identifier> spriteIdentifier;
         private final BiFunction<DynamicRegistryManager, Identifier, Text> displayName;
 
-        Type(Text translated, boolean glint, Function<Identifier, Identifier> spriteIdentifier, BiFunction<DynamicRegistryManager, Identifier, Text> displayName) {
-            this.translated = translated;
+        Type(String translationKey, boolean glint, Function<Identifier, Identifier> spriteIdentifier, BiFunction<DynamicRegistryManager, Identifier, Text> displayName) {
+            this.translated = Text.translatable(translationKey);
+            this.translatedPlural = Text.translatable(translationKey + ".plural");
             this.glint = glint;
             this.spriteIdentifier = spriteIdentifier;
             this.displayName = displayName;
@@ -65,6 +67,10 @@ public record Knowledge(Type type, Identifier data) {
 
         public Text getTranslated() {
             return translated;
+        }
+
+        public Text getTranslatedPlural() {
+            return translatedPlural;
         }
 
         public boolean hasGlint() {
@@ -81,7 +87,7 @@ public record Knowledge(Type type, Identifier data) {
 
         @Override
         public String asString() {
-            return String.valueOf(ordinal());
+            return name().toLowerCase();
         }
     }
 }

@@ -96,7 +96,7 @@ public class KnowledgeScreen extends Screen {
     }
 
     private Tab getFromType(Knowledge.Type type) {
-        return new KnowledgeTab(type, type.getTranslated(), new KnowledgeListWidget(client, type));
+        return new KnowledgeTab(type, type.getTranslatedPlural(), new KnowledgeListWidget(client, type));
     }
 
     @Environment(EnvType.CLIENT)
