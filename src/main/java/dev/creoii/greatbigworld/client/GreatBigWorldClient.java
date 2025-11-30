@@ -6,10 +6,12 @@ import dev.creoii.greatbigworld.client.screen.KnowledgeScreen;
 import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
 import dev.creoii.greatbigworld.util.network.LearnKnowledgeS2C;
+import dev.creoii.greatbigworld.util.network.RequestKnowledgeC2S;
 import dev.creoii.greatbigworld.util.network.SyncKnowledgeS2C;
 import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.text.Text;
@@ -70,6 +72,10 @@ public class GreatBigWorldClient implements ClientModInitializer {
                     context.client().player.sendMessage(Text.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
                 });
             });
+        });
+
+        ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, client) -> {
+            ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE);
         });
     }
 

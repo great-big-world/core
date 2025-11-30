@@ -61,7 +61,7 @@ public class KnowledgeScreen extends Screen {
             tabNavigationWidget.selectTab(0, false);
         }
         refreshWidgetPositions();
-        ClientPlayNetworking.send(new RequestKnowledgeC2S());
+        ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE);
     }
 
     protected void refreshWidgetPositions() {
