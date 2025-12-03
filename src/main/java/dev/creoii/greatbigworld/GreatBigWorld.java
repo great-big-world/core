@@ -5,10 +5,7 @@ import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
 import dev.creoii.greatbigworld.knowledge.KnowledgeManager;
 import dev.creoii.greatbigworld.registry.*;
-import dev.creoii.greatbigworld.util.network.LearnKnowledgeS2C;
-import dev.creoii.greatbigworld.util.network.RequestKnowledgeC2S;
-import dev.creoii.greatbigworld.util.network.SyncKnowledgeS2C;
-import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
+import dev.creoii.greatbigworld.util.network.*;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTrigger;
 import dev.creoii.greatbigworld.world.structuretrigger.StructureTriggerGroup;
@@ -64,6 +61,7 @@ public class GreatBigWorld implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(SyncWorldEventS2C.PACKET_ID, SyncWorldEventS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(SyncKnowledgeS2C.PACKET_ID, SyncKnowledgeS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(LearnKnowledgeS2C.PACKET_ID, LearnKnowledgeS2C.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(ScreenShakeS2C.PACKET_ID, ScreenShakeS2C.PACKET_CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {

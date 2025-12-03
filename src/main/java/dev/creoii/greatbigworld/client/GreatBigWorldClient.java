@@ -2,18 +2,16 @@ package dev.creoii.greatbigworld.client;
 
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
-import dev.creoii.greatbigworld.client.screen.KnowledgeScreen;
 import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
-import dev.creoii.greatbigworld.util.network.LearnKnowledgeS2C;
-import dev.creoii.greatbigworld.util.network.RequestKnowledgeC2S;
-import dev.creoii.greatbigworld.util.network.SyncKnowledgeS2C;
-import dev.creoii.greatbigworld.util.network.SyncWorldEventS2C;
+import dev.creoii.greatbigworld.util.network.*;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -74,9 +72,22 @@ public class GreatBigWorldClient implements ClientModInitializer {
             });
         });
 
-        ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, client) -> {
-            ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE);
+        ClientPlayNetworking.registerGlobalReceiver(ScreenShakeS2C.PACKET_ID, (screenShakeS2C, context) -> {
+            float intensity = screenShakeS2C.intensity();
+            int duration = screenShakeS2C.duration();
+            ScreenShakeManager.Easing easing = screenShakeS2C.easing();
+            context.client().execute(() -> ScreenShakeManager.addShake(intensity, duration, easing));
         });
+
+
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
+            ScreenShakeManager.tick();
+
+            CameraRenderState cameraRenderState = context.worldState().cameraRenderState;
+            cameraRenderState.pos = cameraRenderState.pos.add(ScreenShakeManager.getXOffset(), ScreenShakeManager.getYOffset(), 0);
+        });
+
+        ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, client) -> ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE));
     }
 
     public static @Nullable Identifier getPreviousDimension() {

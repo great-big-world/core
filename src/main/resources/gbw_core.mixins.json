@@ -22,6 +22,7 @@
     "world.structure.StructureTemplateMixin"
   ],
   "client": [
+    "client.GameRendererMixin",
     "client.MinecraftClientMixin",
     "client.SectionBuilderMixin",
     "client.WeatherRenderingMixin",
