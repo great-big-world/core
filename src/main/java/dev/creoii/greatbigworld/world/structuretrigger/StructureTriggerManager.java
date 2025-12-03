@@ -37,11 +37,11 @@ public class StructureTriggerManager extends PersistentState {
             Map.Entry<String, StructureTriggerGroup> entry = it.next();
             StructureTriggerGroup group = entry.getValue();
 
-            for (StructureTrigger.Built trigger : group.triggers()) {
-                if (!world.isChunkLoaded(ChunkSectionPos.getSectionCoord(trigger.pos().getX()), ChunkSectionPos.getSectionCoord(trigger.pos().getZ())))
+            for (StructureTrigger.Built built : group.triggers()) {
+                if (!world.isChunkLoaded(ChunkSectionPos.getSectionCoord(built.pos().getX()), ChunkSectionPos.getSectionCoord(built.pos().getZ())))
                     continue;
-                if (world.getTime() % trigger.tickRate() == 0) {
-                    if (trigger.trigger().trigger(world, trigger.pos(), trigger.state(), group)) {
+                if (world.getTime() % built.tickRate() == 0) {
+                    if (built.trigger().trigger(world, built.pos(), built.state(), group)) {
                         it.remove();
                         break;
                     }
