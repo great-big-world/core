@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerData;
 import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerDataType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record StructureTriggerGroup(List<StructureTrigger.Built> triggers, StructureTriggerData data) {
@@ -12,7 +13,7 @@ public record StructureTriggerGroup(List<StructureTrigger.Built> triggers, Struc
         return instance.group(
                 StructureTrigger.Built.CODEC.listOf().fieldOf("triggers").forGetter(group -> group.triggers),
                 StructureTriggerDataType.CODEC.fieldOf("data").forGetter(group -> group.data)
-        ).apply(instance, StructureTriggerGroup::new);
+        ).apply(instance, (builts, structureTriggerData) -> new StructureTriggerGroup(new ArrayList<>(builts), structureTriggerData));
     });
 
     public void addTrigger(StructureTrigger.Built trigger) {

@@ -14,10 +14,12 @@ import dev.creoii.greatbigworld.world.structuretrigger.data.StructureTriggerData
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.registry.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -62,6 +64,8 @@ public class GreatBigWorld implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(SyncKnowledgeS2C.PACKET_ID, SyncKnowledgeS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(LearnKnowledgeS2C.PACKET_ID, LearnKnowledgeS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(ScreenShakeS2C.PACKET_ID, ScreenShakeS2C.PACKET_CODEC);
+
+        ComponentTooltipAppenderRegistry.addBefore(DataComponentTypes.MAP_ID, GBWDataComponentTypes.KNOWLEDGE);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {
