@@ -5,23 +5,23 @@ import dev.creoii.greatbigworld.util.EntityBlockCollisionSpliterator;
 import net.caffeinemc.mods.lithium.common.block.BlockCountingSection;
 import net.caffeinemc.mods.lithium.common.block.BlockStateFlags;
 import net.caffeinemc.mods.lithium.common.shapes.VoxelShapeCaster;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -32,12 +32,12 @@ import java.util.function.Predicate;
 
 public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<VoxelShape> {
     public static final Map<TagKey<EntityType<?>>, Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext>> INTERACTIONS = new HashMap<>();
-    private final BlockPos.Mutable pos;
-    private final Box box;
+    private final BlockPos.MutableBlockPos pos;
+    private final AABB box;
     private final Entity entity;
     private final VoxelShape shape;
-    private final World world;
-    private final ShapeContext context;
+    private final Level world;
+    private final CollisionContext context;
     private final int minX;
     private final int minY;
     private final int minZ;
@@ -62,25 +62,25 @@ public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<Vox
     private int cTotalSize;
     private int cIterated;
     private boolean sectionOversizedBlocks;
-    private Chunk cachedChunk;
-    private ChunkSection cachedChunkSection;
+    private ChunkAccess cachedChunk;
+    private LevelChunkSection cachedChunkSection;
     private final Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext> contextPredicate;
 
-    public LithiumEntityBlockCollisionSpliterator(World world, @Nullable Entity entity, Box box, boolean hideLastCollision, Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext> contextPredicate) {
-        pos = new BlockPos.Mutable();
+    public LithiumEntityBlockCollisionSpliterator(Level world, @Nullable Entity entity, AABB box, boolean hideLastCollision, Predicate<EntityBlockCollisionSpliterator.EntityBlockCollisionContext> contextPredicate) {
+        pos = new BlockPos.MutableBlockPos();
         this.entity = entity;
         this.box = box;
-        shape = VoxelShapes.cuboid(box);
-        context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
+        shape = Shapes.create(box);
+        context = entity == null ? CollisionContext.empty() : CollisionContext.of(entity);
         this.world = world;
-        minX = MathHelper.floor(box.minX - 1e-7);
-        maxX = MathHelper.floor(box.maxX + 1e-7);
-        minY = MathHelper.clamp(MathHelper.floor(box.minY - 1e-7), world.getBottomY(), world.getTopYInclusive());
-        maxY = MathHelper.clamp(MathHelper.floor(box.maxY + 1e-7), world.getBottomY(), world.getTopYInclusive());
-        minZ = MathHelper.floor(box.minZ - 1e-7);
-        maxZ = MathHelper.floor(box.maxZ + 1e-7);
-        chunkX = ChunkSectionPos.getSectionCoord(expandMin(minX));
-        chunkZ = ChunkSectionPos.getSectionCoord(expandMin(minZ));
+        minX = Mth.floor(box.minX - 1e-7);
+        maxX = Mth.floor(box.maxX + 1e-7);
+        minY = Mth.clamp(Mth.floor(box.minY - 1e-7), world.getMinY(), world.getMaxY());
+        maxY = Mth.clamp(Mth.floor(box.maxY + 1e-7), world.getMinY(), world.getMaxY());
+        minZ = Mth.floor(box.minZ - 1e-7);
+        maxZ = Mth.floor(box.maxZ + 1e-7);
+        chunkX = SectionPos.blockToSectionCoord(expandMin(minX));
+        chunkZ = SectionPos.blockToSectionCoord(expandMin(minZ));
         cIterated = 0;
         cTotalSize = 0;
         maxHitX = Integer.MIN_VALUE;
@@ -94,37 +94,37 @@ public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<Vox
 
     private boolean nextSection() {
         while(true) {
-            if (this.cachedChunk != null && this.chunkYIndex < world.countVerticalSections() - 1 && this.chunkYIndex < ChunkSectionPos.getSectionCoord(expandMax(this.maxY)) - world.getBottomSectionCoord()) {
+            if (this.cachedChunk != null && this.chunkYIndex < world.getSectionsCount() - 1 && this.chunkYIndex < SectionPos.blockToSectionCoord(expandMax(this.maxY)) - world.getMinSectionY()) {
                 ++this.chunkYIndex;
-                this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
+                this.cachedChunkSection = this.cachedChunk.getSections()[this.chunkYIndex];
             } else {
-                if (this.chunkX < ChunkSectionPos.getSectionCoord(expandMax(this.maxX))) {
+                if (this.chunkX < SectionPos.blockToSectionCoord(expandMax(this.maxX))) {
                     ++this.chunkX;
                 } else {
-                    if (this.chunkZ >= ChunkSectionPos.getSectionCoord(expandMax(this.maxZ))) {
+                    if (this.chunkZ >= SectionPos.blockToSectionCoord(expandMax(this.maxZ))) {
                         return false;
                     }
 
-                    this.chunkX = ChunkSectionPos.getSectionCoord(expandMin(this.minX));
+                    this.chunkX = SectionPos.blockToSectionCoord(expandMin(this.minX));
                     ++this.chunkZ;
                 }
 
                 this.cachedChunk = this.world.getChunk(this.chunkX, this.chunkZ, ChunkStatus.FULL, false);
                 if (this.cachedChunk != null) {
-                    this.chunkYIndex = MathHelper.clamp(ChunkSectionPos.getSectionCoord(expandMin(minY)) - world.getBottomSectionCoord(), 0, world.countVerticalSections() - 1);
-                    this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
+                    this.chunkYIndex = Mth.clamp(SectionPos.blockToSectionCoord(expandMin(minY)) - world.getMinSectionY(), 0, world.getSectionsCount() - 1);
+                    this.cachedChunkSection = this.cachedChunk.getSections()[this.chunkYIndex];
                 }
             }
 
-            if (this.cachedChunk != null && this.cachedChunkSection != null && !this.cachedChunkSection.isEmpty()) {
+            if (this.cachedChunk != null && this.cachedChunkSection != null && !this.cachedChunkSection.hasOnlyAir()) {
                 this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkYIndex);
                 int sizeExtension = this.sectionOversizedBlocks ? 1 : 0;
-                this.cEndX = Math.min(this.maxX + sizeExtension, 15 + ChunkSectionPos.getBlockCoord(chunkX));
-                int cEndY = Math.min(this.maxY + sizeExtension, 15 + ChunkSectionPos.getBlockCoord(chunkYIndex + world.getBottomSectionCoord()));
-                this.cEndZ = Math.min(this.maxZ + sizeExtension, 15 + ChunkSectionPos.getBlockCoord(chunkZ));
-                this.cStartX = Math.max(this.minX - sizeExtension, ChunkSectionPos.getBlockCoord(chunkX));
-                int cStartY = Math.max(this.minY - sizeExtension, ChunkSectionPos.getBlockCoord(chunkYIndex + world.getBottomSectionCoord()));
-                this.cStartZ = Math.max(this.minZ - sizeExtension, ChunkSectionPos.getBlockCoord(chunkZ));
+                this.cEndX = Math.min(this.maxX + sizeExtension, 15 + SectionPos.sectionToBlockCoord(chunkX));
+                int cEndY = Math.min(this.maxY + sizeExtension, 15 + SectionPos.sectionToBlockCoord(chunkYIndex + world.getMinSectionY()));
+                this.cEndZ = Math.min(this.maxZ + sizeExtension, 15 + SectionPos.sectionToBlockCoord(chunkZ));
+                this.cStartX = Math.max(this.minX - sizeExtension, SectionPos.sectionToBlockCoord(chunkX));
+                int cStartY = Math.max(this.minY - sizeExtension, SectionPos.sectionToBlockCoord(chunkYIndex + world.getMinSectionY()));
+                this.cStartZ = Math.max(this.minZ - sizeExtension, SectionPos.sectionToBlockCoord(chunkZ));
                 this.cX = this.cStartX;
                 this.cY = cStartY;
                 this.cZ = this.cStartZ;
@@ -165,7 +165,7 @@ public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<Vox
                         continue;
 
                     VoxelShape collisionShape = this.context.getCollisionShape(state, this.world, this.pos);
-                    if (collisionShape != VoxelShapes.empty() && collisionShape != null) {
+                    if (collisionShape != Shapes.empty() && collisionShape != null) {
                         VoxelShape collidedShape = getCollidedShape(this.box, this.shape, collisionShape, x, y, z);
                         if (collidedShape != null) {
                             if (z >= this.maxHitZ && (z > this.maxHitZ || y >= this.maxHitY && (y > this.maxHitY || x > this.maxHitX))) {
@@ -198,17 +198,17 @@ public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<Vox
     }
 
     private static boolean canInteractWithBlock(BlockState state, int edgesHit) {
-        return (edgesHit != 1 || state.exceedsCube()) && (edgesHit != 2 || state.getBlock() == Blocks.MOVING_PISTON);
+        return (edgesHit != 1 || state.hasLargeCollisionShape()) && (edgesHit != 2 || state.getBlock() == Blocks.MOVING_PISTON);
     }
 
-    private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
-        if (shape == VoxelShapes.fullCube()) {
-            return entityBox.intersects(x, y, z, (double)x + (double)1.0F, (double)y + (double)1.0F, (double)z + (double)1.0F) ? shape.offset((double)x, (double)y, (double)z) : null;
+    private static VoxelShape getCollidedShape(AABB entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
+        if (shape == Shapes.block()) {
+            return entityBox.intersects(x, y, z, (double)x + (double)1.0F, (double)y + (double)1.0F, (double)z + (double)1.0F) ? shape.move((double)x, (double)y, (double)z) : null;
         } else if (shape instanceof VoxelShapeCaster) {
-            return ((VoxelShapeCaster)shape).intersects(entityBox, x, y, z) ? shape.offset(x, y, z) : null;
+            return ((VoxelShapeCaster)shape).intersects(entityBox, x, y, z) ? shape.move(x, y, z) : null;
         } else {
-            shape = shape.offset(x, y, z);
-            return VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND) ? shape : null;
+            shape = shape.move(x, y, z);
+            return Shapes.joinIsNotEmpty(shape, entityShape, BooleanOp.AND) ? shape : null;
         }
     }
 
@@ -220,11 +220,11 @@ public class LithiumEntityBlockCollisionSpliterator extends AbstractIterator<Vox
         return coord + 1;
     }
 
-    private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
+    private static boolean hasChunkSectionOversizedBlocks(ChunkAccess chunk, int chunkY) {
         if (!BlockStateFlags.ENABLED) {
             return true;
         } else {
-            ChunkSection section = chunk.getSectionArray()[chunkY];
+            LevelChunkSection section = chunk.getSections()[chunkY];
             return section != null && ((BlockCountingSection)section).lithium$mayContainAny(BlockStateFlags.OVERSIZED_SHAPE);
         }
     }

@@ -1,28 +1,28 @@
 package dev.creoii.greatbigworld.util.network;
 
 import dev.creoii.greatbigworld.GreatBigWorld;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record SyncWorldEventS2C(int eventId, BlockPos pos, int data) implements CustomPayload {
-    public static final CustomPayload.Id<SyncWorldEventS2C> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "sync_world_event"));
-    public static final PacketCodec<RegistryByteBuf, SyncWorldEventS2C> PACKET_CODEC = PacketCodec.of(SyncWorldEventS2C::write, SyncWorldEventS2C::new);
+public record SyncWorldEventS2C(int eventId, BlockPos pos, int data) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<SyncWorldEventS2C> PACKET_ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "sync_world_event"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncWorldEventS2C> PACKET_CODEC = StreamCodec.ofMember(SyncWorldEventS2C::write, SyncWorldEventS2C::new);
 
-    public SyncWorldEventS2C(RegistryByteBuf buf) {
+    public SyncWorldEventS2C(RegistryFriendlyByteBuf buf) {
         this(buf.readInt(), buf.readBlockPos(), buf.readInt());
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeInt(eventId);
         buf.writeBlockPos(pos);
         buf.writeInt(data);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return PACKET_ID;
     }
 }

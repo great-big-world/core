@@ -1,24 +1,24 @@
 package dev.creoii.greatbigworld.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 public class TranslucentSlabBlock extends SlabBlock {
-    public TranslucentSlabBlock(Settings settings) {
+    public TranslucentSlabBlock(Properties settings) {
         super(settings);
     }
 
-    protected boolean isSideInvisible(BlockState state, BlockState other, Direction direction) {
-        if (other.isOf(this)) {
-            if (state.get(SlabBlock.TYPE) == SlabType.DOUBLE && direction == Direction.UP && other.get(SlabBlock.TYPE) == SlabType.BOTTOM)
+    protected boolean skipRendering(BlockState state, BlockState other, Direction direction) {
+        if (other.is(this)) {
+            if (state.getValue(SlabBlock.TYPE) == SlabType.DOUBLE && direction == Direction.UP && other.getValue(SlabBlock.TYPE) == SlabType.BOTTOM)
                 return true;
-            else if (state.get(SlabBlock.TYPE) == SlabType.DOUBLE && direction == Direction.DOWN && other.get(SlabBlock.TYPE) == SlabType.TOP)
+            else if (state.getValue(SlabBlock.TYPE) == SlabType.DOUBLE && direction == Direction.DOWN && other.getValue(SlabBlock.TYPE) == SlabType.TOP)
                 return true;
 
-            return other.get(SlabBlock.TYPE) == state.get(SlabBlock.TYPE) || other.get(SlabBlock.TYPE) == SlabType.DOUBLE;
+            return other.getValue(SlabBlock.TYPE) == state.getValue(SlabBlock.TYPE) || other.getValue(SlabBlock.TYPE) == SlabType.DOUBLE;
         }
-        return super.isSideInvisible(state, other, direction);
+        return super.skipRendering(state, other, direction);
     }
 }

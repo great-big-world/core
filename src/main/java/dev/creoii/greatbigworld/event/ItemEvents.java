@@ -2,8 +2,8 @@ package dev.creoii.greatbigworld.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 
 public class ItemEvents {
     public static final Event<Pickup> PICKUP = EventFactory.createArrayBacked(Pickup.class, (callbacks) -> (playerEntity, itemEntity) -> {
@@ -14,6 +14,6 @@ public class ItemEvents {
 
     @FunctionalInterface
     public interface Pickup {
-        void pickup(PlayerEntity player, ItemEntity itemEntity);
+        void pickup(Player player, ItemEntity itemEntity);
     }
 }

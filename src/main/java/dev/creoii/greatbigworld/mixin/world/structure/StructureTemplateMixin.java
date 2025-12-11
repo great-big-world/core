@@ -8,17 +8,6 @@ import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.GBWBlocks;
 import dev.creoii.greatbigworld.registry.GBWRegistries;
 import dev.creoii.greatbigworld.world.structuretrigger.*;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.StructureStart;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.ServerWorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,36 +16,47 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 @Mixin(StructureTemplate.class)
 public abstract class StructureTemplateMixin implements StructureTriggerStart {
     @Unique private StructureStart structureStart;
     @Unique private UUID uuid;
 
-    @Inject(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructurePlacementData;getRandomBlockInfos(Ljava/util/List;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/structure/StructureTemplate$PalettedBlockInfoList;"))
-    private void gbw$initUUID(ServerWorldAccess world, BlockPos pos, BlockPos pivot, StructurePlacementData placementData, Random random, int flags, CallbackInfoReturnable<Boolean> cir) {
-        long most = world.toServerWorld().getSeed() ^ (((long) pos.getX()) << 32 | (pos.getY() & 0xffffffffL));
-        long least = ((long) pos.getZ() << 32) ^ world.toServerWorld().getSeed();
+    @Inject(method = "placeInWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructurePlaceSettings;getRandomPalette(Ljava/util/List;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate$Palette;"))
+    private void gbw$initUUID(ServerLevelAccessor world, BlockPos pos, BlockPos pivot, StructurePlaceSettings placementData, RandomSource random, int flags, CallbackInfoReturnable<Boolean> cir) {
+        long most = world.getLevel().getSeed() ^ (((long) pos.getX()) << 32 | (pos.getY() & 0xffffffffL));
+        long least = ((long) pos.getZ() << 32) ^ world.getLevel().getSeed();
         uuid = new UUID(most, least);
     }
 
-    @WrapOperation(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/ServerWorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z", ordinal = 1))
-    private boolean gbw$triggerStructureTriggersOnPlace(ServerWorldAccess instance, BlockPos pos, BlockState blockState, int i, Operation<Boolean> original, @Local StructureTemplate.StructureBlockInfo structureBlockInfo) {
-        if (structureBlockInfo.state().isOf(GBWBlocks.STRUCTURE_TRIGGER) && structureBlockInfo.nbt() != null) {
-            Identifier finalStateId = Identifier.tryParse(structureBlockInfo.nbt().getString("final_state", "minecraft:air"));
+    @WrapOperation(method = "placeInWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ServerLevelAccessor;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", ordinal = 1))
+    private boolean gbw$triggerStructureTriggersOnPlace(ServerLevelAccessor instance, BlockPos pos, BlockState blockState, int i, Operation<Boolean> original, @Local StructureTemplate.StructureBlockInfo structureBlockInfo) {
+        if (structureBlockInfo.state().is(GBWBlocks.STRUCTURE_TRIGGER) && structureBlockInfo.nbt() != null) {
+            Identifier finalStateId = Identifier.tryParse(structureBlockInfo.nbt().getStringOr("final_state", "minecraft:air"));
             if (finalStateId == null) {
-                finalStateId = Identifier.of("air");
+                finalStateId = Identifier.parse("air");
             }
 
-            Identifier targetId = structureBlockInfo.nbt().get(StructureTriggerBlockEntity.TARGET_KEY, Identifier.CODEC).orElse(StructureTriggerBlockEntity.DEFAULT_TARGET);
-            BlockState finalState = Registries.BLOCK.get(finalStateId).getDefaultState();
-            if (GBWRegistries.STRUCTURE_TRIGGERS.containsId(targetId)) {
-                StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.get(targetId), pos, finalState, structureBlockInfo.nbt().getInt("tick_rate", 20));
-                instance.setBlockState(pos, finalState, i);
+            Identifier targetId = structureBlockInfo.nbt().read(StructureTriggerBlockEntity.TARGET_KEY, Identifier.CODEC).orElse(StructureTriggerBlockEntity.DEFAULT_TARGET);
+            BlockState finalState = BuiltInRegistries.BLOCK.getValue(finalStateId).defaultBlockState();
+            if (GBWRegistries.STRUCTURE_TRIGGERS.containsKey(targetId)) {
+                StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.getValue(targetId), pos, finalState, structureBlockInfo.nbt().getIntOr("tick_rate", 20));
+                instance.setBlock(pos, finalState, i);
                 trigger.trigger().structureStart().setValue(structureStart);
-                StructureTriggerBlock.TriggerType triggerType = StructureTriggerBlock.TriggerType.valueOf(structureBlockInfo.nbt().getString("trigger_type", "init").toUpperCase());
+                StructureTriggerBlock.TriggerType triggerType = StructureTriggerBlock.TriggerType.valueOf(structureBlockInfo.nbt().getStringOr("trigger_type", "init").toUpperCase());
 
-                ServerWorld serverWorld = instance instanceof ChunkRegion chunkRegion ? chunkRegion.world : (ServerWorld) instance;
+                ServerLevel serverWorld = instance instanceof WorldGenRegion chunkRegion ? chunkRegion.getLevel() : (ServerLevel) instance;
                 StructureTriggerManager manager = StructureTriggerManager.getServerState(serverWorld);
 
                 StructureTriggerGroup group = manager.getGroup(uuid);

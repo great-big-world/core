@@ -4,11 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.registry.GBWRegistries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 
 public interface StructureTriggerDataType<T extends StructureTriggerData> {
-    Codec<StructureTriggerData> CODEC = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getCodec().dispatch(StructureTriggerData::getType, StructureTriggerDataType::codec);
+    Codec<StructureTriggerData> CODEC = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.byNameCodec().dispatch(StructureTriggerData::getType, StructureTriggerDataType::codec);
 
     StructureTriggerDataType<EmptyTriggerData> EMPTY = new StructureTriggerDataType<>() {
         @Override
@@ -27,6 +27,6 @@ public interface StructureTriggerDataType<T extends StructureTriggerData> {
     T create();
 
     static void register() {
-        Registry.register(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES, Identifier.of(GreatBigWorld.NAMESPACE, "empty"), EMPTY);
+        Registry.register(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "empty"), EMPTY);
     }
 }

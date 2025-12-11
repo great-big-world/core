@@ -2,23 +2,22 @@ package dev.creoii.greatbigworld.util.network;
 
 import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-
 import java.util.HashSet;
 import java.util.Set;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record LearnKnowledgeS2C(Knowledge.Type type, Set<Knowledge> knowledge) implements CustomPayload {
-    public static final Id<LearnKnowledgeS2C> PACKET_ID = new Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "learn_knowledge"));
-    public static final PacketCodec<RegistryByteBuf, LearnKnowledgeS2C> PACKET_CODEC = PacketCodec.of(LearnKnowledgeS2C::write, LearnKnowledgeS2C::new);
+public record LearnKnowledgeS2C(Knowledge.Type knowledgeType, Set<Knowledge> knowledge) implements CustomPacketPayload {
+    public static final Type<LearnKnowledgeS2C> PACKET_ID = new Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "learn_knowledge"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, LearnKnowledgeS2C> PACKET_CODEC = StreamCodec.ofMember(LearnKnowledgeS2C::write, LearnKnowledgeS2C::new);
 
-    public LearnKnowledgeS2C(RegistryByteBuf buf) {
+    public LearnKnowledgeS2C(RegistryFriendlyByteBuf buf) {
         this(Knowledge.Type.values()[buf.readInt()], readKnowledge(buf));
     }
 
-    private static Set<Knowledge> readKnowledge(RegistryByteBuf buf) {
+    private static Set<Knowledge> readKnowledge(RegistryFriendlyByteBuf buf) {
         int count = buf.readVarInt();
         Set<Knowledge> set = new HashSet<>();
 
@@ -29,8 +28,8 @@ public record LearnKnowledgeS2C(Knowledge.Type type, Set<Knowledge> knowledge) i
         return set;
     }
 
-    public void write(RegistryByteBuf buf) {
-        buf.writeInt(type.ordinal());
+    public void write(RegistryFriendlyByteBuf buf) {
+        buf.writeInt(knowledgeType.ordinal());
         buf.writeVarInt(knowledge.size());
 
         for (Knowledge knowledge : knowledge) {
@@ -39,7 +38,7 @@ public record LearnKnowledgeS2C(Knowledge.Type type, Set<Knowledge> knowledge) i
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return PACKET_ID;
     }
 }

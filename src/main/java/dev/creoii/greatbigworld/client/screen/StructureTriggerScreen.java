@@ -6,104 +6,103 @@ import dev.creoii.greatbigworld.registry.GBWRegistries;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.util.NarratorManager;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class StructureTriggerScreen extends Screen {
-    private static final Text GROUP_TEXT = Text.translatable("structure_trigger.group");
-    private static final Text TARGET_TEXT = Text.translatable("structure_trigger.target");
-    private static final Text FINAL_STATE_TEXT = Text.translatable("structure_trigger.final_state");
-    private static final Text TRIGGER_TEXT = Text.translatable("structure_trigger.trigger");
-    private static final Text TRIGGER_TYPE_INIT = Text.translatable("structure_trigger.trigger_type_init");
-    private static final Text TRIGGER_TYPE_TICK = Text.translatable("structure_trigger.trigger_type_tick");
-    private static final Text TICK_RATE_TEXT = Text.translatable("structure_trigger.tick_rate");
+    private static final Component GROUP_TEXT = Component.translatable("structure_trigger.group");
+    private static final Component TARGET_TEXT = Component.translatable("structure_trigger.target");
+    private static final Component FINAL_STATE_TEXT = Component.translatable("structure_trigger.final_state");
+    private static final Component TRIGGER_TEXT = Component.translatable("structure_trigger.trigger");
+    private static final Component TRIGGER_TYPE_INIT = Component.translatable("structure_trigger.trigger_type_init");
+    private static final Component TRIGGER_TYPE_TICK = Component.translatable("structure_trigger.trigger_type_tick");
+    private static final Component TICK_RATE_TEXT = Component.translatable("structure_trigger.tick_rate");
     private final StructureTriggerBlockEntity triggerBlock;
-    private TextFieldWidget groupField;
-    private ButtonWidget groupDataTypeButton;
-    private TextFieldWidget targetField;
-    private TextFieldWidget tickRateField;
-    private TextFieldWidget finalStateField;
-    private ButtonWidget doneButton;
-    private ButtonWidget triggerButton;
-    private ButtonWidget triggerTypeButton;
+    private EditBox groupField;
+    private Button groupDataTypeButton;
+    private EditBox targetField;
+    private EditBox tickRateField;
+    private EditBox finalStateField;
+    private Button doneButton;
+    private Button triggerButton;
+    private Button triggerTypeButton;
 
     public StructureTriggerScreen(StructureTriggerBlockEntity triggerBlock) {
-        super(NarratorManager.EMPTY);
+        super(GameNarrator.NO_TITLE);
         this.triggerBlock = triggerBlock;
     }
 
     private void onDone() {
         updateServer();
-        client.setScreen(null);
+        minecraft.setScreen(null);
     }
 
     private void onCancel() {
-        client.setScreen(null);
+        minecraft.setScreen(null);
     }
 
     private void updateServer() {
-        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(triggerBlock.getPos(), groupField.getText(), Identifier.tryParse(groupDataTypeButton.getMessage().getString()), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText()), finalStateField.getText()));
+        ClientPlayNetworking.send(new StructureTriggerBlockEntity.UpdateStructureTriggerC2S(triggerBlock.getBlockPos(), groupField.getValue(), Identifier.tryParse(groupDataTypeButton.getMessage().getString()), Identifier.parse(targetField.getValue()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getValue()), finalStateField.getValue()));
     }
 
     private void trigger() {
-        ClientPlayNetworking.send(new StructureTriggerBlockEntity.StructureTriggerC2S(triggerBlock.getPos(), Identifier.of(targetField.getText()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getText())));
+        ClientPlayNetworking.send(new StructureTriggerBlockEntity.StructureTriggerC2S(triggerBlock.getBlockPos(), Identifier.parse(targetField.getValue()), triggerTypeButton.getMessage().getString().toUpperCase(), Integer.parseInt(tickRateField.getValue())));
     }
 
-    public void close() {
+    public void onClose() {
         onCancel();
     }
 
     protected void init() {
-        groupField = new TextFieldWidget(textRenderer, width / 2 - 4 - 150, 45, 150, 20, GROUP_TEXT);
+        groupField = new EditBox(font, width / 2 - 4 - 150, 45, 150, 20, GROUP_TEXT);
         groupField.setMaxLength(128);
-        groupField.setText(triggerBlock.getGroup() == null ? "" : triggerBlock.getGroup().toString());
-        groupField.setChangedListener(target -> updateDoneButtonState());
-        addSelectableChild(groupField);
-        groupDataTypeButton = addDrawableChild(ButtonWidget.builder(Text.literal(triggerBlock.getGroupDataType() == StructureTriggerBlockEntity.DEFAULT_DATA_TYPE ? "" : triggerBlock.getGroupDataType().toString()), button -> {
-            int dataTypeI = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getRawId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.get(Identifier.tryParse(button.getMessage().getString())));
+        groupField.setValue(triggerBlock.getGroup() == null ? "" : triggerBlock.getGroup().toString());
+        groupField.setResponder(target -> updateDoneButtonState());
+        addWidget(groupField);
+        groupDataTypeButton = addRenderableWidget(Button.builder(Component.literal(triggerBlock.getGroupDataType() == StructureTriggerBlockEntity.DEFAULT_DATA_TYPE ? "" : triggerBlock.getGroupDataType().toString()), button -> {
+            int dataTypeI = GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getValue(Identifier.tryParse(button.getMessage().getString())));
             int nextI = (dataTypeI + 1) % GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.size();
-            button.setMessage(Text.literal(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getId(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.get(nextI)).toString()));
-        }).dimensions(width / 2 + 4, 45, 150, 20).build());
-        targetField = new TextFieldWidget(textRenderer, width / 2 - 153, 80, 300, 20, TARGET_TEXT);
+            button.setMessage(Component.literal(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.getKey(GBWRegistries.STRUCTURE_TRIGGER_DATA_TYPES.byId(nextI)).toString()));
+        }).bounds(width / 2 + 4, 45, 150, 20).build());
+        targetField = new EditBox(font, width / 2 - 153, 80, 300, 20, TARGET_TEXT);
         targetField.setMaxLength(128);
-        targetField.setText(triggerBlock.getTarget().toString());
-        targetField.setChangedListener(target -> updateDoneButtonState());
-        addSelectableChild(targetField);
-        finalStateField = new TextFieldWidget(textRenderer, width / 2 - 153, 115, 300, 20, FINAL_STATE_TEXT);
+        targetField.setValue(triggerBlock.getTarget().toString());
+        targetField.setResponder(target -> updateDoneButtonState());
+        addWidget(targetField);
+        finalStateField = new EditBox(font, width / 2 - 153, 115, 300, 20, FINAL_STATE_TEXT);
         finalStateField.setMaxLength(256);
-        finalStateField.setText(triggerBlock.getFinalState());
-        addSelectableChild(finalStateField);
-        triggerTypeButton = addDrawableChild(ButtonWidget.builder(triggerBlock.getTriggerType() == StructureTriggerBlock.TriggerType.INIT ? TRIGGER_TYPE_INIT : TRIGGER_TYPE_TICK, button -> {
+        finalStateField.setValue(triggerBlock.getFinalState());
+        addWidget(finalStateField);
+        triggerTypeButton = addRenderableWidget(Button.builder(triggerBlock.getTriggerType() == StructureTriggerBlock.TriggerType.INIT ? TRIGGER_TYPE_INIT : TRIGGER_TYPE_TICK, button -> {
             if (button.getMessage() == TRIGGER_TYPE_INIT) {
                 button.setMessage(TRIGGER_TYPE_TICK);
                 tickRateField.visible = true;
-                selectables.add(tickRateField);
+                narratables.add(tickRateField);
             } else {
                 button.setMessage(TRIGGER_TYPE_INIT);
                 tickRateField.visible = false;
-                selectables.remove(tickRateField);
+                narratables.remove(tickRateField);
             }
-        }).dimensions(width / 2 - 4 - 150, 150, 150, 20).build());
-        tickRateField = new TextFieldWidget(textRenderer, width / 2 + 4, 150, 150, 20, TICK_RATE_TEXT);
+        }).bounds(width / 2 - 4 - 150, 150, 150, 20).build());
+        tickRateField = new EditBox(font, width / 2 + 4, 150, 150, 20, TICK_RATE_TEXT);
         tickRateField.setMaxLength(10);
-        tickRateField.setText(String.valueOf(triggerBlock.getTickRate()));
-        tickRateField.setChangedListener(target -> updateDoneButtonState());
-        addSelectableChild(tickRateField);
-        triggerButton = addDrawableChild(ButtonWidget.builder(TRIGGER_TEXT, button -> {
+        tickRateField.setValue(String.valueOf(triggerBlock.getTickRate()));
+        tickRateField.setResponder(target -> updateDoneButtonState());
+        addWidget(tickRateField);
+        triggerButton = addRenderableWidget(Button.builder(TRIGGER_TEXT, button -> {
             onDone();
             trigger();
-        }).dimensions(width / 2 - 105, 185, 210, 20).build());
-        doneButton = addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> onDone()).dimensions(width / 2 - 4 - 150, 210, 150, 20).build());
-        addDrawableChild(ButtonWidget.builder(ScreenTexts.CANCEL, button -> onCancel()).dimensions(width / 2 + 4, 210, 150, 20).build());
+        }).bounds(width / 2 - 105, 185, 210, 20).build());
+        doneButton = addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, button -> onDone()).bounds(width / 2 - 4 - 150, 210, 150, 20).build());
+        addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> onCancel()).bounds(width / 2 + 4, 210, 150, 20).build());
         updateDoneButtonState();
     }
 
@@ -111,8 +110,8 @@ public class StructureTriggerScreen extends Screen {
         setInitialFocus(targetField);
     }
 
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-        renderInGameBackground(context);
+    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
+        renderTransparentBackground(context);
     }
 
     public static boolean isValidId(String id) {
@@ -120,25 +119,25 @@ public class StructureTriggerScreen extends Screen {
     }
 
     private void updateDoneButtonState() {
-        boolean flag = isValidId(targetField.getText());
+        boolean flag = isValidId(targetField.getValue());
         doneButton.active = flag;
         triggerButton.active = flag;
     }
 
-    public void resize(MinecraftClient client, int width, int height) {
-        String string2 = targetField.getText();
-        String string3 = tickRateField.getText();
-        String string4 = finalStateField.getText();
-        init(client, width, height);
-        targetField.setText(string2);
-        tickRateField.setText(string3);
-        finalStateField.setText(string4);
+    public void resize(int width, int height) {
+        String string2 = targetField.getValue();
+        String string3 = tickRateField.getValue();
+        String string4 = finalStateField.getValue();
+        init(width, height);
+        targetField.setValue(string2);
+        tickRateField.setValue(string3);
+        finalStateField.setValue(string4);
     }
 
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         if (super.keyPressed(input)) {
             return true;
-        } else if (!doneButton.active || input.getKeycode() != 257 && input.getKeycode() != 335) {
+        } else if (!doneButton.active || input.input() != 257 && input.input() != 335) {
             return false;
         } else {
             onDone();
@@ -146,19 +145,19 @@ public class StructureTriggerScreen extends Screen {
         }
     }
 
-    public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
-        context.drawTextWithShadow(textRenderer, GROUP_TEXT, width / 2 - 153, 35, 10526880);
+        context.drawString(font, GROUP_TEXT, width / 2 - 153, 35, 10526880);
         groupField.render(context, mouseX, mouseY, deltaTicks);
-        context.drawTextWithShadow(textRenderer, TARGET_TEXT, width / 2 - 153, 70, 10526880);
+        context.drawString(font, TARGET_TEXT, width / 2 - 153, 70, 10526880);
         targetField.render(context, mouseX, mouseY, deltaTicks);
 
         if (triggerTypeButton.getMessage() == TRIGGER_TYPE_TICK) {
-            context.drawTextWithShadow(textRenderer, TICK_RATE_TEXT, width - 150, 140, 10526880);
+            context.drawString(font, TICK_RATE_TEXT, width - 150, 140, 10526880);
             tickRateField.render(context, mouseX, mouseY, deltaTicks);
         }
 
-        context.drawTextWithShadow(textRenderer, FINAL_STATE_TEXT, width / 2 - 153, 105, 10526880);
+        context.drawString(font, FINAL_STATE_TEXT, width / 2 - 153, 105, 10526880);
         finalStateField.render(context, mouseX, mouseY, deltaTicks);
     }
 }

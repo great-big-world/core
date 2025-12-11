@@ -10,10 +10,10 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(StructureTriggerBlock.OpenStructureTriggerScreenS2C.PACKET_ID, (openStructureTriggerScreenS2C, context) -> {
             context.client().execute(() -> {
-                BlockEntity blockEntity = context.player().getEntityWorld().getBlockEntity(openStructureTriggerScreenS2C.pos());
+                BlockEntity blockEntity = context.player().level().getBlockEntity(openStructureTriggerScreenS2C.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
                     context.client().setScreen(new StructureTriggerScreen(structureTriggerBlockEntity));
                 }
@@ -47,7 +47,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncWorldEventS2C.PACKET_ID, (syncWorldEventS2C, context) -> {
             context.client().execute(() -> {
-                context.client().world.syncWorldEvent(context.player(), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
+                context.client().level.levelEvent(context.player(), syncWorldEventS2C.eventId(), syncWorldEventS2C.pos(), syncWorldEventS2C.data());
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncKnowledgeS2C.PACKET_ID, (syncKnowledgeS2C, context) -> {
@@ -58,7 +58,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(LearnKnowledgeS2C.PACKET_ID, (learnKnowledgeS2C, context) -> {
             context.client().execute(() -> {
                 learnKnowledgeS2C.knowledge().forEach(knowledge -> {
-                    Knowledge.Type type = learnKnowledgeS2C.type();
+                    Knowledge.Type type = learnKnowledgeS2C.knowledgeType();
                     if (GreatBigWorldClient.knowledge.containsKey(type)) {
                         GreatBigWorldClient.knowledge.get(type).add(new Knowledge(type, knowledge.data()));
                     } else {
@@ -67,7 +67,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
                         GreatBigWorldClient.knowledge.put(type, newKnowledge);
                     }
 
-                    context.client().player.sendMessage(Text.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
+                    context.client().player.displayClientMessage(Component.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
                 });
             });
         });
@@ -81,6 +81,9 @@ public class GreatBigWorldClient implements ClientModInitializer {
 
 
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
+            if (context.worldState() == null) // don't listen to Intellij, this can be null!
+                return;
+
             ScreenShakeManager.tick();
 
             CameraRenderState cameraRenderState = context.worldState().cameraRenderState;

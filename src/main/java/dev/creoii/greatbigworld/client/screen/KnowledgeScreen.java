@@ -7,34 +7,38 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.gui.tab.GridScreenTab;
-import net.minecraft.client.gui.tab.Tab;
-import net.minecraft.client.gui.tab.TabManager;
-import net.minecraft.client.gui.widget.*;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSelectionList;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.tabs.GridLayoutTab;
+import net.minecraft.client.gui.components.tabs.Tab;
+import net.minecraft.client.gui.components.tabs.TabManager;
+import net.minecraft.client.gui.components.tabs.TabNavigationBar;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 @Environment(EnvType.CLIENT)
 public class KnowledgeScreen extends Screen {
-    private static final Text TITLE_TEXT = Text.translatable("gui.knowledge");
+    private static final Component TITLE_TEXT = Component.translatable("gui.knowledge");
     protected final Screen parent;
-    final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this);
-    private final TabManager tabManager = new TabManager(this::addDrawableChild, this::remove);
+    final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
+    private final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
     @Nullable
-    private TabNavigationWidget tabNavigationWidget;
+    private TabNavigationBar tabNavigationWidget;
 
     public KnowledgeScreen(Screen parent) {
         super(TITLE_TEXT);
@@ -46,65 +50,65 @@ public class KnowledgeScreen extends Screen {
     }
 
     protected void init() {
-        tabNavigationWidget = TabNavigationWidget.builder(tabManager, width).tabs(Arrays.stream(Knowledge.Type.values()).map(this::getFromType).toArray(Tab[]::new)).build();
-        addDrawableChild(tabNavigationWidget);
-        layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, button -> close()).width(200).build());
+        tabNavigationWidget = TabNavigationBar.builder(tabManager, width).addTabs(Arrays.stream(Knowledge.Type.values()).map(this::getFromType).toArray(Tab[]::new)).build();
+        addRenderableWidget(tabNavigationWidget);
+        layout.addToFooter(Button.builder(CommonComponents.GUI_DONE, button -> onClose()).width(200).build());
 
         if (!tabNavigationWidget.getTabs().isEmpty()) {
             for (int i = 0; i < tabNavigationWidget.getTabs().size(); ++i) {
-                tabNavigationWidget.setTabActive(i, true);
+                tabNavigationWidget.setTabActiveState(i, true);
             }
-            layout.forEachChild((child) -> {
-                child.setNavigationOrder(1);
-                addDrawableChild(child);
+            layout.visitWidgets((child) -> {
+                child.setTabOrderGroup(1);
+                addRenderableWidget(child);
             });
             tabNavigationWidget.selectTab(0, false);
         }
-        refreshWidgetPositions();
+        repositionElements();
         ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE);
     }
 
-    protected void refreshWidgetPositions() {
+    protected void repositionElements() {
         if (tabNavigationWidget != null) {
             tabNavigationWidget.setWidth(width);
-            tabNavigationWidget.init();
-            int i = tabNavigationWidget.getNavigationFocus().getBottom();
-            ScreenRect screenRect = new ScreenRect(0, i, width, height - layout.getFooterHeight() - i);
-            tabNavigationWidget.getTabs().forEach(tab -> tab.forEachChild(child -> child.setHeight(screenRect.height())));
+            tabNavigationWidget.arrangeElements();
+            int i = tabNavigationWidget.getRectangle().bottom();
+            ScreenRectangle screenRect = new ScreenRectangle(0, i, width, height - layout.getFooterHeight() - i);
+            tabNavigationWidget.getTabs().forEach(tab -> tab.visitChildren(child -> child.setHeight(screenRect.height())));
             tabManager.setTabArea(screenRect);
             layout.setHeaderHeight(i);
-            layout.refreshPositions();
+            layout.arrangeElements();
         }
     }
 
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         return tabNavigationWidget != null && tabNavigationWidget.keyPressed(input) || super.keyPressed(input);
     }
 
-    public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, Screen.FOOTER_SEPARATOR_TEXTURE, 0, height - layout.getFooterHeight(), 0.0F, 0.0F, width, 2, 32, 2);
+        context.blit(RenderPipelines.GUI_TEXTURED, Screen.FOOTER_SEPARATOR, 0, height - layout.getFooterHeight(), 0.0F, 0.0F, width, 2, 32, 2);
     }
 
-    protected void renderDarkening(DrawContext context) {
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, CreateWorldScreen.TAB_HEADER_BACKGROUND_TEXTURE, 0, 0, 0.0F, 0.0F, width, layout.getHeaderHeight(), 16, 16);
-        renderDarkening(context, 0, layout.getHeaderHeight(), width, height);
+    protected void renderMenuBackground(GuiGraphics context) {
+        context.blit(RenderPipelines.GUI_TEXTURED, CreateWorldScreen.TAB_HEADER_BACKGROUND, 0, 0, 0.0F, 0.0F, width, layout.getHeaderHeight(), 16, 16);
+        renderMenuBackground(context, 0, layout.getHeaderHeight(), width, height);
     }
 
-    public void close() {
-        client.setScreen(parent);
+    public void onClose() {
+        minecraft.setScreen(parent);
     }
 
     private Tab getFromType(Knowledge.Type type) {
-        return new KnowledgeTab(type, type.getTranslatedPlural(), new KnowledgeListWidget(client, type));
+        return new KnowledgeTab(type, type.getTranslatedPlural(), new KnowledgeListWidget(minecraft, type));
     }
 
     @Environment(EnvType.CLIENT)
-    public class KnowledgeTab extends GridScreenTab {
+    public class KnowledgeTab extends GridLayoutTab {
         private final Knowledge.Type type;
-        protected final EntryListWidget<?> widget;
+        protected final AbstractSelectionList<?> widget;
 
-        public KnowledgeTab(Knowledge.Type type, Text title, final EntryListWidget<?> widget) {
+        public KnowledgeTab(Knowledge.Type type, Component title, final AbstractSelectionList<?> widget) {
             super(title);
             this.type = type;
             this.widget = widget;
@@ -114,31 +118,31 @@ public class KnowledgeScreen extends Screen {
             return type;
         }
 
-        public void refreshGrid(ScreenRect tabArea) {
-            widget.position(KnowledgeScreen.this.width, KnowledgeScreen.this.layout.getContentHeight(), KnowledgeScreen.this.layout.getHeaderHeight());
+        public void doLayout(ScreenRectangle tabArea) {
+            widget.updateSizeAndPosition(KnowledgeScreen.this.width, KnowledgeScreen.this.layout.getContentHeight(), KnowledgeScreen.this.layout.getHeaderHeight());
             new ArrayList<>(KnowledgeScreen.this.children()).forEach(element -> {
                 if (element instanceof KnowledgeListWidget)
-                    KnowledgeScreen.this.remove(element);
+                    KnowledgeScreen.this.removeWidget(element);
             });
-            KnowledgeScreen.this.addDrawableChild(widget);
-            super.refreshGrid(tabArea);
+            KnowledgeScreen.this.addRenderableWidget(widget);
+            super.doLayout(tabArea);
         }
     }
 
     @Environment(EnvType.CLIENT)
-    class KnowledgeListWidget extends EntryListWidget<KnowledgeListWidget.Entry> {
+    class KnowledgeListWidget extends AbstractSelectionList<KnowledgeListWidget.Entry> {
         private final Knowledge.Type knowledgeType;
 
-        public KnowledgeListWidget(final MinecraftClient client, Knowledge.Type type) {
+        public KnowledgeListWidget(final Minecraft client, Knowledge.Type type) {
             super(client, KnowledgeScreen.this.width, KnowledgeScreen.this.layout.getContentHeight(), 33, 14);
             this.knowledgeType = type;
 
             ObjectArrayList<Knowledge> objectArrayList = new ObjectArrayList<>(GreatBigWorldClient.getKnowledge().getOrDefault(type, new HashSet<>()).iterator());
             if (!objectArrayList.isEmpty()) {
-                objectArrayList.sort(Comparator.comparing(knowledge -> I18n.translate(knowledge.data().toString())));
+                objectArrayList.sort(Comparator.comparing(knowledge -> I18n.get(knowledge.data().toString())));
 
                 for (Knowledge knowledge : objectArrayList) {
-                    addEntry(new Entry(knowledge.data()));
+                    addEntry(new dev.creoii.greatbigworld.client.screen.KnowledgeScreen.KnowledgeListWidget.Entry(knowledge.data()));
                 }
             }
         }
@@ -147,41 +151,46 @@ public class KnowledgeScreen extends Screen {
             return 280;
         }
 
-        protected void drawMenuListBackground(DrawContext context) {
+        protected void renderListBackground(GuiGraphics context) {
         }
 
-        protected void drawHeaderAndFooterSeparators(DrawContext context) {
-        }
-
-        @Override
-        protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-
+        protected void renderListSeparators(GuiGraphics context) {
         }
 
         @Override
-        public @Nullable Entry getFocused() {
+        protected void updateWidgetNarration(NarrationElementOutput builder) {
+
+        }
+
+        @Override
+        public @Nullable dev.creoii.greatbigworld.client.screen.KnowledgeScreen.KnowledgeListWidget.Entry getFocused() {
             return super.getFocused();
         }
 
         @Environment(EnvType.CLIENT)
-        class Entry extends EntryListWidget.Entry<Entry> {
+        class Entry extends ObjectSelectionList.Entry<KnowledgeScreen.KnowledgeListWidget.Entry> {
             private final Identifier id;
 
             Entry(Identifier id) {
                 this.id = id;
             }
 
-            public void render(DrawContext context, int mouseX, int mouseY, boolean hovered, float deltaTicks) {
-                Objects.requireNonNull(KnowledgeScreen.this.textRenderer);
-                int i = getContentMiddleY() - 9 / 2;
-                int j = KnowledgeListWidget.this.children().indexOf(this);
-                int k = j % 2 == 0 ? -1 : -4539718;
-                context.drawTextWithShadow(KnowledgeScreen.this.textRenderer, knowledgeType.getDisplayName(client.world.getRegistryManager(), id), getContentX() + 2, i, k);
+            @Override
+            public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f) {
+                Objects.requireNonNull(KnowledgeScreen.this.font);
+                int i1 = getContentYMiddle() - 9 / 2;
+                int j1 = KnowledgeListWidget.this.children().indexOf(this);
+                int k = j1 % 2 == 0 ? -1 : -4539718;
+                guiGraphics.drawString(KnowledgeScreen.this.font, knowledgeType.getDisplayName(minecraft.level.registryAccess(), id), getContentX() + 2, i1, k);
 
-                context.drawTexture(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRightEnd() - 16 - 4, i, 0f, 0f, 16, 16, 16, 16);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i1, 0f, 0f, 16, 16, 16, 16);
                 if (knowledgeType.hasGlint())
-                    context.drawTexture(RenderPipelines.GLINT, knowledgeType.getSpriteIdentifier(id), getContentRightEnd() - 16 - 4, i, 0f, 0f, 16, 16, 16, 16);
-                //context.drawTextWithShadow(KnowledgeScreen.this.textRenderer, id.toString(), getContentRightEnd() - KnowledgeScreen.this.textRenderer.getWidth(id.toString()) - 4, i, k);
+                    guiGraphics.blit(RenderPipelines.GLINT, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i1, 0f, 0f, 16, 16, 16, 16);
+                //context.drawTextWithShadow(KnowledgeScreen.this.textRenderer, id.toString(), getContentRightEnd() - KnowledgeScreen.this.textRenderer.getWidth(id.toString()) - 4, i1, k);
+            }
+
+            public Component getNarration() {
+                return Component.empty();
             }
         }
     }

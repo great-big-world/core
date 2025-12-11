@@ -3,23 +3,23 @@ package dev.creoii.greatbigworld.block.entity;
 import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.registry.GBWBlockEntityTypes;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 public class StructureTriggerBlockEntity extends BlockEntity {
-    public static final Identifier DEFAULT_DATA_TYPE = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
-    public static final Identifier DEFAULT_TARGET = Identifier.of(GreatBigWorld.NAMESPACE, "empty");
+    public static final Identifier DEFAULT_DATA_TYPE = Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "empty");
+    public static final Identifier DEFAULT_TARGET = Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "empty");
     public static final int DEFAULT_TICK_RATE = 20;
     public static final String DEFAULT_FINAL_STATE = "minecraft:air";
     public static final String GROUP_KEY = "group";
@@ -94,75 +94,75 @@ public class StructureTriggerBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void writeData(WriteView view) {
+    protected void saveAdditional(ValueOutput view) {
         view.putString(GROUP_KEY, group == null ? "" : group.toString());
-        view.put(GROUP_DATA_TYPE_KEY, Identifier.CODEC, groupDataType);
-        view.put(TARGET_KEY, Identifier.CODEC, target);
-        view.putString(TRIGGER_TYPE_KEY, triggerType.asString().toLowerCase());
+        view.store(GROUP_DATA_TYPE_KEY, Identifier.CODEC, groupDataType);
+        view.store(TARGET_KEY, Identifier.CODEC, target);
+        view.putString(TRIGGER_TYPE_KEY, triggerType.getSerializedName().toLowerCase());
         view.putInt(TICK_RATE_KEY, tickRate);
         view.putString(FINAL_STATE_KEY, finalState);
     }
 
     @Override
-    protected void readData(ReadView view) {
-        String nbtGroup = view.getString(GROUP_KEY, "");
-        group = nbtGroup.isEmpty() ? null : Identifier.of(nbtGroup);
+    protected void loadAdditional(ValueInput view) {
+        String nbtGroup = view.getStringOr(GROUP_KEY, "");
+        group = nbtGroup.isEmpty() ? null : Identifier.parse(nbtGroup);
         groupDataType = view.read(GROUP_DATA_TYPE_KEY, Identifier.CODEC).orElse(DEFAULT_DATA_TYPE);
         target = view.read(TARGET_KEY, Identifier.CODEC).orElse(DEFAULT_TARGET);
-        triggerType = StructureTriggerBlock.TriggerType.valueOf(view.getString(TRIGGER_TYPE_KEY, "INIT").toUpperCase());
-        tickRate = view.getInt(TICK_RATE_KEY, DEFAULT_TICK_RATE);
-        finalState = view.getString(FINAL_STATE_KEY, DEFAULT_FINAL_STATE);
+        triggerType = StructureTriggerBlock.TriggerType.valueOf(view.getStringOr(TRIGGER_TYPE_KEY, "INIT").toUpperCase());
+        tickRate = view.getIntOr(TICK_RATE_KEY, DEFAULT_TICK_RATE);
+        finalState = view.getStringOr(FINAL_STATE_KEY, DEFAULT_FINAL_STATE);
     }
 
-    public BlockEntityUpdateS2CPacket toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registries) {
-        return createComponentlessNbt(registries);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
     }
 
-    public record UpdateStructureTriggerC2S(BlockPos pos, @Nullable String group, Identifier groupDataType, Identifier target, String triggerType, int tickRate, String finalState) implements CustomPayload {
-        public static final CustomPayload.Id<UpdateStructureTriggerC2S> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "update_structure_trigger"));
-        public static final PacketCodec<RegistryByteBuf, UpdateStructureTriggerC2S> PACKET_CODEC = PacketCodec.of(UpdateStructureTriggerC2S::write, UpdateStructureTriggerC2S::new);
+    public record UpdateStructureTriggerC2S(BlockPos pos, @Nullable String group, Identifier groupDataType, Identifier target, String triggerType, int tickRate, String finalState) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<UpdateStructureTriggerC2S> PACKET_ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "update_structure_trigger"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, UpdateStructureTriggerC2S> PACKET_CODEC = StreamCodec.ofMember(UpdateStructureTriggerC2S::write, UpdateStructureTriggerC2S::new);
 
-        public UpdateStructureTriggerC2S(RegistryByteBuf buf) {
-            this(buf.readBlockPos(), buf.readString(), buf.readIdentifier(), buf.readIdentifier(), buf.readString(), buf.readInt(), buf.readString());
+        public UpdateStructureTriggerC2S(RegistryFriendlyByteBuf buf) {
+            this(buf.readBlockPos(), buf.readUtf(), buf.readIdentifier(), buf.readIdentifier(), buf.readUtf(), buf.readInt(), buf.readUtf());
         }
 
-        public void write(RegistryByteBuf buf) {
+        public void write(RegistryFriendlyByteBuf buf) {
             buf.writeBlockPos(pos);
-            buf.writeString(group == null ? "" : group);
+            buf.writeUtf(group == null ? "" : group);
             buf.writeIdentifier(groupDataType);
             buf.writeIdentifier(target);
-            buf.writeString(triggerType);
+            buf.writeUtf(triggerType);
             buf.writeInt(tickRate);
-            buf.writeString(finalState);
+            buf.writeUtf(finalState);
         }
 
         @Override
-        public Id<? extends CustomPayload> getId() {
+        public Type<? extends CustomPacketPayload> type() {
             return PACKET_ID;
         }
     }
 
-    public record StructureTriggerC2S(BlockPos pos, Identifier target, String triggerType, int tickRate) implements CustomPayload {
-        public static final CustomPayload.Id<StructureTriggerC2S> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "structure_trigger"));
-        public static final PacketCodec<RegistryByteBuf, StructureTriggerC2S> PACKET_CODEC = PacketCodec.of(StructureTriggerC2S::write, StructureTriggerC2S::new);
+    public record StructureTriggerC2S(BlockPos pos, Identifier target, String triggerType, int tickRate) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<StructureTriggerC2S> PACKET_ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "structure_trigger"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, StructureTriggerC2S> PACKET_CODEC = StreamCodec.ofMember(StructureTriggerC2S::write, StructureTriggerC2S::new);
 
-        public StructureTriggerC2S(RegistryByteBuf buf) {
-            this(buf.readBlockPos(), buf.readIdentifier(), buf.readString(), buf.readInt());
+        public StructureTriggerC2S(RegistryFriendlyByteBuf buf) {
+            this(buf.readBlockPos(), buf.readIdentifier(), buf.readUtf(), buf.readInt());
         }
 
-        public void write(RegistryByteBuf buf) {
+        public void write(RegistryFriendlyByteBuf buf) {
             buf.writeBlockPos(pos);
             buf.writeIdentifier(target);
-            buf.writeString(triggerType);
+            buf.writeUtf(triggerType);
             buf.writeInt(tickRate);
         }
 
         @Override
-        public Id<? extends CustomPayload> getId() {
+        public Type<? extends CustomPacketPayload> type() {
             return PACKET_ID;
         }
     }

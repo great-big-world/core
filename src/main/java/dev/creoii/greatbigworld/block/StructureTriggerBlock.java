@@ -4,77 +4,82 @@ import com.mojang.serialization.MapCodec;
 import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.GameMasterBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 
-public class StructureTriggerBlock extends Block implements BlockEntityProvider, OperatorBlock {
-    public static final MapCodec<StructureTriggerBlock> CODEC = createCodec(StructureTriggerBlock::new);
-    public static final EnumProperty<TriggerType> TRIGGER_TYPE = EnumProperty.of("trigger_type", TriggerType.class);
+public class StructureTriggerBlock extends Block implements EntityBlock, GameMasterBlock {
+    public static final MapCodec<StructureTriggerBlock> CODEC = simpleCodec(StructureTriggerBlock::new);
+    public static final EnumProperty<TriggerType> TRIGGER_TYPE = EnumProperty.create("trigger_type", TriggerType.class);
 
-    public MapCodec<StructureTriggerBlock> getCodec() {
+    public MapCodec<StructureTriggerBlock> codec() {
         return CODEC;
     }
 
-    public StructureTriggerBlock(AbstractBlock.Settings settings) {
+    public StructureTriggerBlock(BlockBehaviour.Properties settings) {
         super(settings);
-        setDefaultState(getStateManager().getDefaultState().with(TRIGGER_TYPE, TriggerType.INIT));
+        registerDefaultState(getStateDefinition().any().setValue(TRIGGER_TYPE, TriggerType.INIT));
     }
 
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new StructureTriggerBlockEntity(pos, state);
     }
 
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (player.isCreativeLevelTwoOp() && world.getBlockEntity(pos) instanceof StructureTriggerBlockEntity) {
-            if (!world.isClient()) {
-                ServerPlayNetworking.send((ServerPlayerEntity) player, new OpenStructureTriggerScreenS2C(pos));
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+        if (player.canUseGameMasterBlocks() && world.getBlockEntity(pos) instanceof StructureTriggerBlockEntity) {
+            if (!world.isClientSide()) {
+                ServerPlayNetworking.send((ServerPlayer) player, new OpenStructureTriggerScreenS2C(pos));
             }
-            return ActionResult.SUCCESS;
-        } else return ActionResult.PASS;
+            return InteractionResult.SUCCESS;
+        } else return InteractionResult.PASS;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(TRIGGER_TYPE);
     }
 
-    public record OpenStructureTriggerScreenS2C(BlockPos pos) implements CustomPayload {
-        public static final CustomPayload.Id<OpenStructureTriggerScreenS2C> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "open_structure_trigger_screen"));
-        public static final PacketCodec<RegistryByteBuf, OpenStructureTriggerScreenS2C> PACKET_CODEC = PacketCodec.of(OpenStructureTriggerScreenS2C::write, OpenStructureTriggerScreenS2C::new);
+    public record OpenStructureTriggerScreenS2C(BlockPos pos) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<OpenStructureTriggerScreenS2C> PACKET_ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "open_structure_trigger_screen"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, OpenStructureTriggerScreenS2C> PACKET_CODEC = StreamCodec.ofMember(OpenStructureTriggerScreenS2C::write, OpenStructureTriggerScreenS2C::new);
 
-        public OpenStructureTriggerScreenS2C(RegistryByteBuf buf) {
+        public OpenStructureTriggerScreenS2C(RegistryFriendlyByteBuf buf) {
             this(buf.readBlockPos());
         }
 
-        public void write(RegistryByteBuf buf) {
+        public void write(RegistryFriendlyByteBuf buf) {
             buf.writeBlockPos(pos);
         }
 
         @Override
-        public Id<? extends CustomPayload> getId() {
+        public Type<? extends CustomPacketPayload> type() {
             return PACKET_ID;
         }
     }
 
-    public enum TriggerType implements StringIdentifiable {
+    public enum TriggerType implements StringRepresentable {
         INIT,
         TICK;
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return name().toLowerCase();
         }
     }

@@ -1,25 +1,24 @@
 package dev.creoii.greatbigworld.knowledge;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.item.Item;
-import net.minecraft.item.tooltip.TooltipAppender;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 
-public record KnowledgeComponent(List<Knowledge> knowledge) implements TooltipAppender {
+public record KnowledgeComponent(List<Knowledge> knowledge) implements TooltipProvider {
     public static final Codec<KnowledgeComponent> CODEC = Knowledge.CODEC.listOf().xmap(KnowledgeComponent::new, KnowledgeComponent::knowledge);
-    public static final PacketCodec<RegistryByteBuf, KnowledgeComponent> PACKET_CODEC = PacketCodec.of(KnowledgeComponent::write, KnowledgeComponent::read);
+    public static final StreamCodec<RegistryFriendlyByteBuf, KnowledgeComponent> PACKET_CODEC = StreamCodec.ofMember(KnowledgeComponent::write, KnowledgeComponent::read);
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeInt(knowledge.size());
 
         knowledge.forEach(knowledge1 -> {
@@ -28,7 +27,7 @@ public record KnowledgeComponent(List<Knowledge> knowledge) implements TooltipAp
         });
     }
 
-    public static KnowledgeComponent read(RegistryByteBuf buf) {
+    public static KnowledgeComponent read(RegistryFriendlyByteBuf buf) {
         int size = buf.readInt();
 
         List<Knowledge> knowledges = new ArrayList<>();
@@ -43,7 +42,7 @@ public record KnowledgeComponent(List<Knowledge> knowledge) implements TooltipAp
     }
 
     @Override
-    public void appendTooltip(Item.TooltipContext context, Consumer<Text> textConsumer, TooltipType type, ComponentsAccess components) {
-        knowledge.forEach(knowledge1 -> textConsumer.accept(Text.translatable("knowledge.tooltip", knowledge1.type().getTranslated(), knowledge1.data().getPath()).formatted(Formatting.GRAY)));
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> textConsumer, TooltipFlag type, DataComponentGetter components) {
+        knowledge.forEach(knowledge1 -> textConsumer.accept(Component.translatable("knowledge.tooltip", knowledge1.type().getTranslated(), knowledge1.data().getPath()).withStyle(ChatFormatting.GRAY)));
     }
 }

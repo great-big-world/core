@@ -1,21 +1,21 @@
 package dev.creoii.greatbigworld.world.structuretrigger;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
-public class StructureTriggerManager extends PersistentState {
+public class StructureTriggerManager extends SavedData {
     public static final Codec<StructureTriggerManager> CODEC = Codec.unboundedMap(Codec.STRING, StructureTriggerGroup.CODEC).xmap(map -> {
         StructureTriggerManager manager = new StructureTriggerManager();
         manager.structureTriggerGroups.putAll(map);
         return manager;
     }, structureTriggerManager -> new HashMap<>(structureTriggerManager.structureTriggerGroups));
-    private static final PersistentStateType<StructureTriggerManager> STATE_TYPE = new PersistentStateType<>("gbw_structure_triggers", StructureTriggerManager::new, CODEC, null);
+    private static final SavedDataType<StructureTriggerManager> STATE_TYPE = new SavedDataType<>("gbw_structure_triggers", StructureTriggerManager::new, CODEC, null);
     private final HashMap<String, StructureTriggerGroup> structureTriggerGroups;
 
     public StructureTriggerManager() {
@@ -31,16 +31,16 @@ public class StructureTriggerManager extends PersistentState {
         structureTriggerGroups.put(uuid.toString(), group);
     }
 
-    public void tick(ServerWorld world) {
+    public void tick(ServerLevel world) {
         Iterator<Map.Entry<String, StructureTriggerGroup>> it = structureTriggerGroups.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, StructureTriggerGroup> entry = it.next();
             StructureTriggerGroup group = entry.getValue();
 
             for (StructureTrigger.Built built : group.triggers()) {
-                if (!world.isChunkLoaded(ChunkSectionPos.getSectionCoord(built.pos().getX()), ChunkSectionPos.getSectionCoord(built.pos().getZ())))
+                if (!world.hasChunk(SectionPos.blockToSectionCoord(built.pos().getX()), SectionPos.blockToSectionCoord(built.pos().getZ())))
                     continue;
-                if (world.getTime() % built.tickRate() == 0) {
+                if (world.getGameTime() % built.tickRate() == 0) {
                     if (built.trigger().trigger(world, built.pos(), built.state(), group)) {
                         it.remove();
                         break;
@@ -50,9 +50,9 @@ public class StructureTriggerManager extends PersistentState {
         }
     }
 
-    public static StructureTriggerManager getServerState(ServerWorld world) {
-        StructureTriggerManager manager = world.getPersistentStateManager().getOrCreate(STATE_TYPE);
-        manager.markDirty();
+    public static StructureTriggerManager getServerState(ServerLevel world) {
+        StructureTriggerManager manager = world.getDataStorage().computeIfAbsent(STATE_TYPE);
+        manager.setDirty();
         return manager;
     }
 }

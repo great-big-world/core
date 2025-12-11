@@ -1,16 +1,16 @@
 accessWidener v2 named
 
-accessible method net/minecraft/world/gen/placementmodifier/AbstractConditionalPlacementModifier shouldPlace (Lnet/minecraft/world/gen/feature/FeaturePlacementContext;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockPos;)Z
-accessible method net/minecraft/client/render/Camera setPos (Lnet/minecraft/util/math/Vec3d;)V
-accessible method net/minecraft/client/render/Camera setRotation (FF)V
+accessible method net/minecraft/world/level/levelgen/placement/PlacementFilter shouldPlace (Lnet/minecraft/world/level/levelgen/placement/PlacementContext;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Z
+accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
+accessible method net/minecraft/client/Camera setRotation (FF)V
 
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
 accessible class net/minecraft/client/render/chunk/SectionBuilder$RenderData
-accessible class net/minecraft/client/gui/screen/world/CreateWorldScreen$GameTab
+accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$GameTab
 
-mutable field net/minecraft/block/AbstractBlock$AbstractBlockState luminance I
+mutable field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase lightEmission I
 accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabs Lcom/google/common/collect/ImmutableList;
-mutable field net/minecraft/block/AbstractBlock$AbstractBlockState hardness F
+mutable field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase destroySpeed F
 accessible field net/minecraft/client/world/ClientWorld client Lnet/minecraft/client/MinecraftClient;
 accessible field net/minecraft/world/ChunkRegion world Lnet/minecraft/server/world/ServerWorld;
-accessible field net/minecraft/client/gui/screen/Screen selectables Ljava/util/List;
+accessible field net/minecraft/client/gui/screens/Screen narratables Ljava/util/List;

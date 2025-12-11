@@ -2,30 +2,29 @@ package dev.creoii.greatbigworld.util.network;
 
 import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record SyncKnowledgeS2C(Map<Knowledge.Type, Set<Knowledge>> knowledge) implements CustomPayload {
-    public static final Id<SyncKnowledgeS2C> PACKET_ID = new Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "sync_knowledge"));
-    public static final PacketCodec<RegistryByteBuf, SyncKnowledgeS2C> PACKET_CODEC = PacketCodec.of(SyncKnowledgeS2C::write, SyncKnowledgeS2C::new);
+public record SyncKnowledgeS2C(Map<Knowledge.Type, Set<Knowledge>> knowledge) implements CustomPacketPayload {
+    public static final Type<SyncKnowledgeS2C> PACKET_ID = new Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "sync_knowledge"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncKnowledgeS2C> PACKET_CODEC = StreamCodec.ofMember(SyncKnowledgeS2C::write, SyncKnowledgeS2C::new);
 
-    public SyncKnowledgeS2C(RegistryByteBuf buf) {
+    public SyncKnowledgeS2C(RegistryFriendlyByteBuf buf) {
         this(readKnowledgeMap(buf));
     }
 
-    private static Map<Knowledge.Type, Set<Knowledge>> readKnowledgeMap(RegistryByteBuf buf) {
+    private static Map<Knowledge.Type, Set<Knowledge>> readKnowledgeMap(RegistryFriendlyByteBuf buf) {
         int size = buf.readVarInt();
         Map<Knowledge.Type, Set<Knowledge>> map = new HashMap<>();
 
         for (int i = 0; i < size; i++) {
-            Knowledge.Type type = Knowledge.Type.valueOf(buf.readString());
+            Knowledge.Type type = Knowledge.Type.valueOf(buf.readUtf());
 
             int count = buf.readVarInt();
             Set<Knowledge> set = new HashSet<>();
@@ -40,11 +39,11 @@ public record SyncKnowledgeS2C(Map<Knowledge.Type, Set<Knowledge>> knowledge) im
         return map;
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(knowledge.size());
 
         for (Map.Entry<Knowledge.Type, Set<Knowledge>> entry : knowledge.entrySet()) {
-            buf.writeString(entry.getKey().name());
+            buf.writeUtf(entry.getKey().name());
 
             Set<Knowledge> set = entry.getValue();
             buf.writeVarInt(set.size());
@@ -56,7 +55,7 @@ public record SyncKnowledgeS2C(Map<Knowledge.Type, Set<Knowledge>> knowledge) im
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return PACKET_ID;
     }
 }

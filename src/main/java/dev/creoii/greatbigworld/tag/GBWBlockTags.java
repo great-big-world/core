@@ -1,11 +1,11 @@
 package dev.creoii.greatbigworld.tag;
 
 import dev.creoii.greatbigworld.GreatBigWorld;
-import net.minecraft.block.Block;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 
 public final class GBWBlockTags {
-    public static final TagKey<Block> PRECIPITATION_IGNORES = TagKey.of(RegistryKeys.BLOCK, Identifier.of(GreatBigWorld.NAMESPACE, "precipitation_ignores"));
+    public static final TagKey<Block> PRECIPITATION_IGNORES = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "precipitation_ignores"));
 }

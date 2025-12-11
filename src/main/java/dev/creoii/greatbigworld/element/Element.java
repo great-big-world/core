@@ -1,33 +1,33 @@
 package dev.creoii.greatbigworld.element;
 
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public enum Element {
-    EARTH(Text.literal("\uD83D\uDF03").formatted(Formatting.DARK_GREEN), 1),
-    FIRE(Text.literal("\uD83D\uDF02").formatted(Formatting.RED), 0),
-    WATER(Text.literal("\uD83D\uDF04").formatted(Formatting.DARK_BLUE), 3),
-    ICE(Text.literal("\uD83D\uDF60").formatted(Formatting.BLUE), 2),
-    AIR(Text.literal("\uD83D\uDF01").formatted(Formatting.LIGHT_PURPLE), 5),
-    LIGHTNING(Text.literal("\uD83D\uDF5F").formatted(Formatting.YELLOW), 4),
-    LIGHT(Text.literal("\uD83D\uDF1A").formatted(Formatting.WHITE)),
-    DARK(Text.literal("\uD83D\uDF1B").formatted(Formatting.BLACK)),
-    VOID(Text.literal("\uD83D\uDF61").formatted(Formatting.DARK_PURPLE)),
-    AETHER(Text.literal("\uD83D\uDF63").formatted(Formatting.GOLD));
+    EARTH(Component.literal("\uD83D\uDF03").withStyle(ChatFormatting.DARK_GREEN), 1),
+    FIRE(Component.literal("\uD83D\uDF02").withStyle(ChatFormatting.RED), 0),
+    WATER(Component.literal("\uD83D\uDF04").withStyle(ChatFormatting.DARK_BLUE), 3),
+    ICE(Component.literal("\uD83D\uDF60").withStyle(ChatFormatting.BLUE), 2),
+    AIR(Component.literal("\uD83D\uDF01").withStyle(ChatFormatting.LIGHT_PURPLE), 5),
+    LIGHTNING(Component.literal("\uD83D\uDF5F").withStyle(ChatFormatting.YELLOW), 4),
+    LIGHT(Component.literal("\uD83D\uDF1A").withStyle(ChatFormatting.WHITE)),
+    DARK(Component.literal("\uD83D\uDF1B").withStyle(ChatFormatting.BLACK)),
+    VOID(Component.literal("\uD83D\uDF61").withStyle(ChatFormatting.DARK_PURPLE)),
+    AETHER(Component.literal("\uD83D\uDF63").withStyle(ChatFormatting.GOLD));
 
-    private final Text symbol;
+    private final Component symbol;
     private final int synergy;
 
-    Element(Text symbol, int synergy) {
+    Element(Component symbol, int synergy) {
         this.symbol = symbol;
         this.synergy = synergy < 0 ? -1 : synergy;
     }
 
-    Element(Text symbol) {
+    Element(Component symbol) {
         this(symbol, -1);
     }
 
-    public Text getSymbol() {
+    public Component getSymbol() {
         return symbol;
     }
 

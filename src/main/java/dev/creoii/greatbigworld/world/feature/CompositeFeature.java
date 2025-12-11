@@ -1,15 +1,15 @@
 package dev.creoii.greatbigworld.world.feature;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.PlacedFeature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.List;
 import java.util.function.BiPredicate;
+import net.minecraft.core.Holder;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class CompositeFeature extends Feature<CompositeFeatureConfig> {
     public CompositeFeature(Codec<CompositeFeatureConfig> configCodec) {
@@ -17,49 +17,49 @@ public class CompositeFeature extends Feature<CompositeFeatureConfig> {
     }
 
     @Override
-    public boolean generate(FeatureContext context) {
-        CompositeFeatureConfig config = (CompositeFeatureConfig) context.getConfig();
+    public boolean place(FeaturePlaceContext context) {
+        CompositeFeatureConfig config = (CompositeFeatureConfig) context.config();
         return config.type().test(context, config.features());
     }
 
-    public enum Type implements StringIdentifiable {
+    public enum Type implements StringRepresentable {
         SOFT("soft", (context, entries) -> {
             MutableBoolean fail = new MutableBoolean(false);
-            for (RegistryEntry<PlacedFeature> entry : entries) {
-                if (entry.value().generateUnregistered(context.getWorld(), context.getGenerator(), context.getRandom(), context.getOrigin()))
+            for (Holder<PlacedFeature> entry : entries) {
+                if (entry.value().place(context.level(), context.chunkGenerator(), context.random(), context.origin()))
                     fail.setTrue();
             }
             return fail.booleanValue();
         }),
         HARD("hard", (context, entries) -> {
-            for (RegistryEntry<PlacedFeature> entry : entries) {
-                if (!entry.value().generateUnregistered(context.getWorld(), context.getGenerator(), context.getRandom(), context.getOrigin()))
+            for (Holder<PlacedFeature> entry : entries) {
+                if (!entry.value().place(context.level(), context.chunkGenerator(), context.random(), context.origin()))
                     return false;
             }
             return true;
         }),
         FREE("free", (context, entries) -> {
-            for (RegistryEntry<PlacedFeature> entry : entries) {
-                entry.value().generateUnregistered(context.getWorld(), context.getGenerator(), context.getRandom(), context.getOrigin());
+            for (Holder<PlacedFeature> entry : entries) {
+                entry.value().place(context.level(), context.chunkGenerator(), context.random(), context.origin());
             }
             return true;
         });
 
-        public static final Codec<Type> CODEC = StringIdentifiable.createCodec(Type::values);
+        public static final Codec<Type> CODEC = StringRepresentable.fromEnum(Type::values);
         private final String id;
-        private final BiPredicate<FeatureContext<?>, List<RegistryEntry<PlacedFeature>>> typePredicate;
+        private final BiPredicate<FeaturePlaceContext<?>, List<Holder<PlacedFeature>>> typePredicate;
 
-        Type(String id, BiPredicate<FeatureContext<?>, List<RegistryEntry<PlacedFeature>>> typePredicate) {
+        Type(String id, BiPredicate<FeaturePlaceContext<?>, List<Holder<PlacedFeature>>> typePredicate) {
             this.id = id;
             this.typePredicate = typePredicate;
         }
 
-        public boolean test(FeatureContext<?> context, List<RegistryEntry<PlacedFeature>> entries) {
+        public boolean test(FeaturePlaceContext<?> context, List<Holder<PlacedFeature>> entries) {
             return typePredicate.test(context, entries);
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }

@@ -3,11 +3,11 @@ package dev.creoii.greatbigworld.world.fastnoise;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.greatbigworld.registry.GBWRegistries;
-import net.minecraft.registry.entry.RegistryElementCodec;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.RegistryFileCodec;
 
 public record FastNoiseParameters(long seed, float frequency, FastNoiseLite.NoiseType noiseType, FastNoiseLite.RotationType3D rotationType3D, Fractal fractal, Cellular cellular, DomainWarp domainWarp) {
-    public static final Codec<RegistryEntry<FastNoiseParameters>> REGISTRY_ENTRY_CODEC = RegistryElementCodec.of(GBWRegistries.FAST_NOISE_PARAMETERS_KEY, FastNoiseParameters.CODEC);
+    public static final Codec<Holder<FastNoiseParameters>> REGISTRY_ENTRY_CODEC = RegistryFileCodec.create(GBWRegistries.FAST_NOISE_PARAMETERS_KEY, FastNoiseParameters.CODEC);
 
     public static class Fractal {
         public static final Fractal DEFAULT = new Fractal(FastNoiseLite.FractalType.NONE, 3, 2f, .5f, 0f, 2f);

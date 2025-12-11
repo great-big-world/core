@@ -3,32 +3,32 @@ package dev.creoii.greatbigworld.world.dimension;
 import com.mojang.serialization.Codec;
 import dev.creoii.greatbigworld.GreatBigWorld;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateType;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class PreviousDimensionManager extends PersistentState {
-    public static final Codec<PreviousDimensionManager> CODEC = Codec.unboundedMap(Codec.STRING, RegistryKey.createCodec(RegistryKeys.WORLD)).xmap(map -> {
+public class PreviousDimensionManager extends SavedData {
+    public static final Codec<PreviousDimensionManager> CODEC = Codec.unboundedMap(Codec.STRING, ResourceKey.codec(Registries.DIMENSION)).xmap(map -> {
         PreviousDimensionManager manager = new PreviousDimensionManager();
         manager.prevDimensions.putAll(map);
         return manager;
     }, structureTriggerManager -> new HashMap<>(structureTriggerManager.prevDimensions));
-    private static final PersistentStateType<PreviousDimensionManager> STATE_TYPE = new PersistentStateType<>("gbw_previous_dimensions", PreviousDimensionManager::new, CODEC, null);
+    private static final SavedDataType<PreviousDimensionManager> STATE_TYPE = new SavedDataType<>("gbw_previous_dimensions", PreviousDimensionManager::new, CODEC, null);
     private MinecraftServer server;
-    private final HashMap<String, RegistryKey<World>> prevDimensions;
-    private final HashMap<String, RegistryKey<World>> toDimensions;
+    private final HashMap<String, ResourceKey<Level>> prevDimensions;
+    private final HashMap<String, ResourceKey<Level>> toDimensions;
 
     public PreviousDimensionManager() {
         prevDimensions = new HashMap<>();
@@ -40,27 +40,27 @@ public class PreviousDimensionManager extends PersistentState {
     }
 
     @Nullable
-    public RegistryKey<World> getPrevDimension(UUID uuid) {
+    public ResourceKey<Level> getPrevDimension(UUID uuid) {
         return prevDimensions.get(uuid.toString());
     }
 
     @Nullable
-    public RegistryKey<World> getToDimension(UUID uuid) {
+    public ResourceKey<Level> getToDimension(UUID uuid) {
         return toDimensions.get(uuid.toString());
     }
 
-    public void setPrevDimension(UUID uuid, RegistryKey<World> group) {
+    public void setPrevDimension(UUID uuid, ResourceKey<Level> group) {
         prevDimensions.put(uuid.toString(), group);
-        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(uuid);
+        ServerPlayer serverPlayer = server.getPlayerList().getPlayer(uuid);
         if (serverPlayer != null)
-            ServerPlayNetworking.send(serverPlayer, new PreviousDimensionS2C(group.getValue(), true));
+            ServerPlayNetworking.send(serverPlayer, new PreviousDimensionS2C(group.identifier(), true));
     }
 
-    public void setToDimension(UUID uuid, RegistryKey<World> group) {
+    public void setToDimension(UUID uuid, ResourceKey<Level> group) {
         toDimensions.put(uuid.toString(), group);
-        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(uuid);
+        ServerPlayer serverPlayer = server.getPlayerList().getPlayer(uuid);
         if (serverPlayer != null)
-            ServerPlayNetworking.send(serverPlayer, new PreviousDimensionS2C(group.getValue(), false));
+            ServerPlayNetworking.send(serverPlayer, new PreviousDimensionS2C(group.identifier(), false));
     }
 
     public void removePrev(UUID uuid) {
@@ -72,26 +72,26 @@ public class PreviousDimensionManager extends PersistentState {
     }
 
     public static PreviousDimensionManager getServerState(MinecraftServer server) {
-        PreviousDimensionManager manager = server.getWorld(ServerWorld.OVERWORLD).getPersistentStateManager().getOrCreate(STATE_TYPE);
-        manager.markDirty();
+        PreviousDimensionManager manager = server.getLevel(ServerLevel.OVERWORLD).getDataStorage().computeIfAbsent(STATE_TYPE);
+        manager.setDirty();
         return manager;
     }
 
-    public record PreviousDimensionS2C(Identifier id, boolean prev) implements CustomPayload {
-        public static final CustomPayload.Id<PreviousDimensionS2C> PACKET_ID = new CustomPayload.Id<>(Identifier.of(GreatBigWorld.NAMESPACE, "previous_dimension"));
-        public static final PacketCodec<RegistryByteBuf, PreviousDimensionS2C> PACKET_CODEC = PacketCodec.of(PreviousDimensionS2C::write, PreviousDimensionS2C::new);
+    public record PreviousDimensionS2C(Identifier id, boolean prev) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<PreviousDimensionS2C> PACKET_ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "previous_dimension"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, PreviousDimensionS2C> PACKET_CODEC = StreamCodec.ofMember(PreviousDimensionS2C::write, PreviousDimensionS2C::new);
 
-        public PreviousDimensionS2C(RegistryByteBuf buf) {
+        public PreviousDimensionS2C(RegistryFriendlyByteBuf buf) {
             this(buf.readIdentifier(), buf.readBoolean());
         }
 
-        public void write(RegistryByteBuf buf) {
+        public void write(RegistryFriendlyByteBuf buf) {
             buf.writeIdentifier(id);
             buf.writeBoolean(prev);
         }
 
         @Override
-        public Id<? extends CustomPayload> getId() {
+        public Type<? extends CustomPacketPayload> type() {
             return PACKET_ID;
         }
     }

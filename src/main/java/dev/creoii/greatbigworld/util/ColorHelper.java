@@ -1,7 +1,7 @@
 package dev.creoii.greatbigworld.util;
 
-import net.minecraft.block.MapColor;
-import net.minecraft.util.DyeColor;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.material.MapColor;
 
 public final class ColorHelper {
     public static int add(int color, int r, int g, int b) {
@@ -74,7 +74,7 @@ public final class ColorHelper {
             case RED -> MapColor.TERRACOTTA_RED;
             case ORANGE -> MapColor.TERRACOTTA_ORANGE;
             case YELLOW -> MapColor.TERRACOTTA_YELLOW;
-            case LIME -> MapColor.TERRACOTTA_LIME;
+            case LIME -> MapColor.TERRACOTTA_LIGHT_GREEN;
             case GREEN -> MapColor.TERRACOTTA_GREEN;
             case CYAN -> MapColor.TERRACOTTA_CYAN;
             case BLUE -> MapColor.TERRACOTTA_BLUE;

@@ -54,14 +54,17 @@
 package dev.creoii.greatbigworld.world.fastnoise;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.StringIdentifiable;
+import dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters.Cellular;
+import dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters.DomainWarp;
+import dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters.Fractal;
+import net.minecraft.util.StringRepresentable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static dev.creoii.greatbigworld.world.fastnoise.FastNoiseParameters.*;
 
 public class FastNoiseLite {
-    public enum NoiseType implements StringIdentifiable {
+    public enum NoiseType implements StringRepresentable {
         OPEN_SIMPLEX_2("open_simplex_2"),
         OPEN_SIMPLEX_2_S("open_simplex_2s"),
         CELLULAR("cellular"),
@@ -69,7 +72,7 @@ public class FastNoiseLite {
         VALUE_CUBIC("value_cubic"),
         VALUE("value");
 
-        public static final Codec<NoiseType> CODEC = StringIdentifiable.createCodec(NoiseType::values);
+        public static final Codec<NoiseType> CODEC = StringRepresentable.fromEnum(NoiseType::values);
         private final String id;
 
         NoiseType(String id) {
@@ -77,17 +80,17 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }
 
-    public enum RotationType3D implements StringIdentifiable {
+    public enum RotationType3D implements StringRepresentable {
         NONE("none"),
         IMPROVE_XY_PLANES("improve_xy_planes"),
         IMPROVE_XZ_PLANES("improve_xz_planes");
 
-        public static final Codec<RotationType3D> CODEC = StringIdentifiable.createCodec(RotationType3D::values);
+        public static final Codec<RotationType3D> CODEC = StringRepresentable.fromEnum(RotationType3D::values);
         private final String id;
 
         RotationType3D(String id) {
@@ -95,12 +98,12 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }
 
-    public enum FractalType implements StringIdentifiable {
+    public enum FractalType implements StringRepresentable {
         NONE("none"),
         F_BM("fractal_brownian_motion"),
         RIDGED("ridged"),
@@ -108,7 +111,7 @@ public class FastNoiseLite {
         DOMAIN_WARP_PROGRESSIVE("domain_warp_progressive"),
         DOMAIN_WARP_INDEPENDENT("domain_warp_independent");
 
-        public static final Codec<FractalType> CODEC = StringIdentifiable.createCodec(FractalType::values);
+        public static final Codec<FractalType> CODEC = StringRepresentable.fromEnum(FractalType::values);
         private final String id;
 
         FractalType(String id) {
@@ -116,18 +119,18 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }
 
-    public enum CellularDistanceFunction implements StringIdentifiable {
+    public enum CellularDistanceFunction implements StringRepresentable {
         EUCLIDEAN("euclidean"),
         EUCLIDEAN_SQ("euclidean_squared"),
         MANHATTAN("manhattan"),
         HYBRID("hybrid");
 
-        public static final Codec<CellularDistanceFunction> CODEC = StringIdentifiable.createCodec(CellularDistanceFunction::values);
+        public static final Codec<CellularDistanceFunction> CODEC = StringRepresentable.fromEnum(CellularDistanceFunction::values);
         private final String id;
 
         CellularDistanceFunction(String id) {
@@ -135,12 +138,12 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }
 
-    public enum CellularReturnType implements StringIdentifiable {
+    public enum CellularReturnType implements StringRepresentable {
         CELL_VALUE("cell_value"),
         DISTANCE("distance"),
         DISTANCE_2("distance_2"),
@@ -149,7 +152,7 @@ public class FastNoiseLite {
         DISTANCE_2_MUL("distance_2_mul"),
         DISTANCE_2_DIV("distance_2_div");
 
-        public static final Codec<CellularReturnType> CODEC = StringIdentifiable.createCodec(CellularReturnType::values);
+        public static final Codec<CellularReturnType> CODEC = StringRepresentable.fromEnum(CellularReturnType::values);
         private final String id;
 
         CellularReturnType(String id) {
@@ -157,17 +160,17 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }
 
-    public enum DomainWarpType implements StringIdentifiable {
+    public enum DomainWarpType implements StringRepresentable {
         OPEN_SIMPLEX_2("open_simplex_2"),
         OPEN_SIMPLEX_2_REDUCED("open_simplex_2_reduced"),
         BASIC_GRID("basic_grid");
 
-        public static final Codec<DomainWarpType> CODEC = StringIdentifiable.createCodec(DomainWarpType::values);
+        public static final Codec<DomainWarpType> CODEC = StringRepresentable.fromEnum(DomainWarpType::values);
         private final String id;
 
         DomainWarpType(String id) {
@@ -175,18 +178,18 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }
 
-    private enum TransformType3D implements StringIdentifiable {
+    private enum TransformType3D implements StringRepresentable {
         NONE("none"),
         IMPROVE_XY_PLANES("improve_xy_planes"),
         IMPROVE_XZ_PLANES("improve_xz_planes"),
         DEFAULT_OPEN_SIMPLEX_2("default_open_simplex_2");
 
-        public static final Codec<TransformType3D> CODEC = StringIdentifiable.createCodec(TransformType3D::values);
+        public static final Codec<TransformType3D> CODEC = StringRepresentable.fromEnum(TransformType3D::values);
         private final String id;
 
         TransformType3D(String id) {
@@ -194,7 +197,7 @@ public class FastNoiseLite {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return id;
         }
     }

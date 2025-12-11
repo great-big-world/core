@@ -1,41 +1,41 @@
 package dev.creoii.greatbigworld.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.block.enums.StairShape;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.StairsShape;
 
-public class TranslucentStairsBlock extends StairsBlock {
-    public TranslucentStairsBlock(BlockState baseBlockState, Settings settings) {
+public class TranslucentStairsBlock extends StairBlock {
+    public TranslucentStairsBlock(BlockState baseBlockState, Properties settings) {
         super(baseBlockState, settings);
     }
 
-    protected boolean isSideInvisible(BlockState state, BlockState stateFrom, Direction direction) {
-        if (stateFrom.isOf(this)) {
-            Direction stateFacing = state.get(StairsBlock.FACING);
-            BlockHalf stateHalf = state.get(StairsBlock.HALF);
-            StairShape stateShape = state.get(StairsBlock.SHAPE);
+    protected boolean skipRendering(BlockState state, BlockState stateFrom, Direction direction) {
+        if (stateFrom.is(this)) {
+            Direction stateFacing = state.getValue(StairBlock.FACING);
+            Half stateHalf = state.getValue(StairBlock.HALF);
+            StairsShape stateShape = state.getValue(StairBlock.SHAPE);
 
-            Direction otherFacing = stateFrom.get(StairsBlock.FACING);
-            BlockHalf otherHalf = stateFrom.get(StairsBlock.HALF);
-            StairShape otherShape = stateFrom.get(StairsBlock.SHAPE);
+            Direction otherFacing = stateFrom.getValue(StairBlock.FACING);
+            Half otherHalf = stateFrom.getValue(StairBlock.HALF);
+            StairsShape otherShape = stateFrom.getValue(StairBlock.SHAPE);
 
             if (direction == Direction.UP) {
-                return otherHalf == BlockHalf.TOP && stateHalf == BlockHalf.TOP && otherFacing == stateFacing;
+                return otherHalf == Half.TOP && stateHalf == Half.TOP && otherFacing == stateFacing;
             } else if (direction == Direction.DOWN) {
-                return otherHalf == BlockHalf.BOTTOM && stateHalf == BlockHalf.BOTTOM && otherFacing == stateFacing;
+                return otherHalf == Half.BOTTOM && stateHalf == Half.BOTTOM && otherFacing == stateFacing;
             }
 
             if (direction.getOpposite() == stateFacing) {
                 return otherFacing == stateFacing && otherShape == stateShape && stateHalf == otherHalf;
             }
 
-            if (stateShape == StairShape.INNER_LEFT || stateShape == StairShape.INNER_RIGHT || stateShape == StairShape.OUTER_LEFT || stateShape == StairShape.OUTER_RIGHT) {
+            if (stateShape == StairsShape.INNER_LEFT || stateShape == StairsShape.INNER_RIGHT || stateShape == StairsShape.OUTER_LEFT || stateShape == StairsShape.OUTER_RIGHT) {
                 return stateShape == otherShape && stateFacing == otherFacing && stateHalf == otherHalf;
             }
         }
 
-        return super.isSideInvisible(state, stateFrom, direction);
+        return super.skipRendering(state, stateFrom, direction);
     }
 }

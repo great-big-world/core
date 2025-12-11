@@ -1,34 +1,37 @@
 package dev.creoii.greatbigworld.util;
 
-import net.minecraft.block.*;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import java.util.function.Function;
 
 public final class RegistryHelper {
-    public static Block registerBlock(Identifier id, AbstractBlock.Settings settings) {
+    public static Block registerBlock(Identifier id, BlockBehaviour.Properties settings) {
         return registerBlock(id, Block::new, settings);
     }
 
-    public static Block registerBlock(Identifier id, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings) {
-        return Registry.register(Registries.BLOCK, id, factory.apply(settings.registryKey(RegistryKey.of(RegistryKeys.BLOCK, id))));
+    public static Block registerBlock(Identifier id, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties settings) {
+        return Registry.register(BuiltInRegistries.BLOCK, id, factory.apply(settings.setId(ResourceKey.create(Registries.BLOCK, id))));
     }
 
-    public static Block registerStairs(Identifier id, BlockState base, AbstractBlock.Settings settings) {
-        return registerBlock(id, (settings1 -> new StairsBlock(base, settings)), settings);
+    public static Block registerStairs(Identifier id, BlockState base, BlockBehaviour.Properties settings) {
+        return registerBlock(id, (settings1 -> new StairBlock(base, settings)), settings);
     }
 
-    public static Block registerWall(Identifier id, AbstractBlock.Settings settings) {
+    public static Block registerWall(Identifier id, BlockBehaviour.Properties settings) {
         return registerBlock(id, WallBlock::new, settings);
     }
 
-    public static Item registerItem(Identifier id, Item.Settings settings) {
+    public static Item registerItem(Identifier id, Item.Properties settings) {
         return registerItem(id, Item::new, settings);
     }
 
@@ -36,19 +39,19 @@ public final class RegistryHelper {
         return registerItem(id, Item::new);
     }
 
-    public static Item registerItem(Identifier id, Function<Item.Settings, Item> factory, Item.Settings settings) {
-        return Registry.register(Registries.ITEM, id, factory.apply(settings.registryKey(RegistryKey.of(RegistryKeys.ITEM, id))));
+    public static Item registerItem(Identifier id, Function<Item.Properties, Item> factory, Item.Properties settings) {
+        return Registry.register(BuiltInRegistries.ITEM, id, factory.apply(settings.setId(ResourceKey.create(Registries.ITEM, id))));
     }
 
-    public static Item registerItem(Identifier id, Function<Item.Settings, Item> factory) {
-        return Registry.register(Registries.ITEM, id, factory.apply(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id))));
+    public static Item registerItem(Identifier id, Function<Item.Properties, Item> factory) {
+        return Registry.register(BuiltInRegistries.ITEM, id, factory.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id))));
     }
 
-    public static Item registerBlockItem(Identifier id, Block block, Item.Settings settings) {
-        return registerItem(id, settings1 -> new BlockItem(block, settings1), settings.registryKey(RegistryKey.of(RegistryKeys.ITEM, id)).useBlockPrefixedTranslationKey());
+    public static Item registerBlockItem(Identifier id, Block block, Item.Properties settings) {
+        return registerItem(id, settings1 -> new BlockItem(block, settings1), settings.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix());
     }
 
     public static Item registerBlockItem(Identifier id, Block block) {
-        return registerItem(id, settings1 -> new BlockItem(block, settings1.registryKey(RegistryKey.of(RegistryKeys.ITEM, id)).useBlockPrefixedTranslationKey()));
+        return registerItem(id, settings1 -> new BlockItem(block, settings1.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()));
     }
 }

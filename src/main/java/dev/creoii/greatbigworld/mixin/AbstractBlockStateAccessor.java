@@ -1,14 +1,14 @@
 package dev.creoii.greatbigworld.mixin;
 
-import net.minecraft.block.AbstractBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(AbstractBlock.AbstractBlockState.class)
+@Mixin(BlockBehaviour.BlockStateBase.class)
 public interface AbstractBlockStateAccessor {
-    @Accessor("luminance")
-    void setLuminance(int luminance);
+    @Accessor("lightEmission")
+    void setLightEmission(int lightEmission);
 
-    @Accessor("hardness")
-    void setHardness(float hardness);
+    @Accessor("destroySpeed")
+    void setDestroySpeed(float destroySpeed);
 }

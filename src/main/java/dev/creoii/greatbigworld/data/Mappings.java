@@ -3,12 +3,11 @@ package dev.creoii.greatbigworld.data;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
-
 import java.util.Map;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 
 public record Mappings(Identifier registry, Map<Identifier, Value> values, Value defaultValue) {
     public static final Codec<Mappings> CODEC = RecordCodecBuilder.create(instance -> {
@@ -21,12 +20,12 @@ public record Mappings(Identifier registry, Map<Identifier, Value> values, Value
         })).apply(instance, Mappings::new);
     });
 
-    public Registry<?> getRegistry(DynamicRegistryManager registryManager) {
-        return registryManager.getOptional(RegistryKey.ofRegistry(registry)).orElseThrow();
+    public Registry<?> getRegistry(RegistryAccess registryManager) {
+        return registryManager.lookup(ResourceKey.createRegistryKey(registry)).orElseThrow();
     }
 
-    public Value getValue(DynamicRegistryManager registryManager, Identifier key) {
-        if (values.containsKey(key) && getRegistry(registryManager).containsId(key)) {
+    public Value getValue(RegistryAccess registryManager, Identifier key) {
+        if (values.containsKey(key) && getRegistry(registryManager).containsKey(key)) {
             return values.get(key);
         }
         return defaultValue;

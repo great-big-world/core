@@ -2,15 +2,6 @@ package dev.creoii.greatbigworld.mixin.entity;
 
 import dev.creoii.greatbigworld.block.AdjacentCollision;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
-import net.minecraft.world.border.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,25 +11,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
-    @Shadow private World world;
-    @Shadow public abstract UUID getUuid();
-    @Shadow public abstract boolean isPlayer();
+    @Shadow private Level level;
+    @Shadow public abstract UUID getUUID();
+    @Shadow public abstract boolean isAlwaysTicking();
 
-    @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiler/Profiler;pop()V", ordinal = 2))
-    private void gbw$collideAdjacentBlock(MovementType movementType, Vec3d movement, CallbackInfo ci) {
+    @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 2))
+    private void gbw$collideAdjacentBlock(MoverType movementType, Vec3 movement, CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
-        Optional<BlockPos> optionalPos = BlockPos.findClosest(entity.getBlockPos(), (int) (entity.getWidth() + .5f), (int) (entity.getHeight() + .5f), pos -> {
-            return entity.getEntityWorld().getBlockState(pos).getBlock() instanceof AdjacentCollision;
+        Optional<BlockPos> optionalPos = BlockPos.findClosestMatch(entity.blockPosition(), (int) (entity.getBbWidth() + .5f), (int) (entity.getBbHeight() + .5f), pos -> {
+            return entity.level().getBlockState(pos).getBlock() instanceof AdjacentCollision;
         });
         if (optionalPos.isPresent()) {
             BlockPos pos = optionalPos.get();
-            WorldBorder worldBorder = entity.getEntityWorld().getWorldBorder();
-            if (!worldBorder.contains(pos))
+            WorldBorder worldBorder = entity.level().getWorldBorder();
+            if (!worldBorder.isWithinBounds(pos))
                 return;
-            BlockState state = entity.getEntityWorld().getBlockState(pos);
+            BlockState state = entity.level().getBlockState(pos);
             if (state.getBlock() instanceof AdjacentCollision adjacentCollision) {
                 adjacentCollision.onAdjacentEntityCollision(entity, state, pos);
             }
@@ -47,19 +47,19 @@ public abstract class EntityMixin {
 
     @Inject(method = "remove", at = @At("HEAD"))
     private void gbw$cleanPreviousDimensions(Entity.RemovalReason reason, CallbackInfo ci) {
-        if (world.getServer() != null) {
-            PreviousDimensionManager manager = PreviousDimensionManager.getServerState(world.getServer());
-            if (reason.shouldDestroy() && !isPlayer()) {
-                manager.removePrev(getUuid());
-                manager.removeTo(getUuid());
+        if (level.getServer() != null) {
+            PreviousDimensionManager manager = PreviousDimensionManager.getServerState(level.getServer());
+            if (reason.shouldDestroy() && !isAlwaysTicking()) {
+                manager.removePrev(getUUID());
+                manager.removeTo(getUUID());
             }
         }
     }
 
     @Inject(method = "teleportCrossDimension", at = @At("HEAD"))
-    private void gbw$updatePrevDimensionManager(ServerWorld from, ServerWorld to, TeleportTarget teleportTarget, CallbackInfoReturnable<Entity> cir) {
+    private void gbw$updatePrevDimensionManager(ServerLevel from, ServerLevel to, TeleportTransition teleportTarget, CallbackInfoReturnable<Entity> cir) {
         PreviousDimensionManager manager = PreviousDimensionManager.getServerState(to.getServer());
-        manager.setPrevDimension(getUuid(), from.getRegistryKey());
-        manager.setToDimension(getUuid(), to.getRegistryKey());
+        manager.setPrevDimension(getUUID(), from.dimension());
+        manager.setToDimension(getUUID(), to.dimension());
     }
 }

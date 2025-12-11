@@ -17,13 +17,15 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.registry.*;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.LevelStem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,8 +38,8 @@ public class GreatBigWorld implements ModInitializer {
     public static final String NAMESPACE = "great_big_world";
     public static final Logger LOGGER = LogManager.getLogger(GreatBigWorld.class);
 
-    public static final RegistryKey<World> ALTERWORLD_KEY = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(NAMESPACE, "the_alterworld"));
-    public static final RegistryKey<DimensionOptions> ALTERWORLD_OPTIONS = RegistryKey.of(RegistryKeys.DIMENSION, Identifier.of(NAMESPACE, "the_alterworld"));
+    public static final ResourceKey<Level> ALTERWORLD_KEY = ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath(NAMESPACE, "the_alterworld"));
+    public static final ResourceKey<LevelStem> ALTERWORLD_OPTIONS = ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath(NAMESPACE, "the_alterworld"));
 
     @Override
     public void onInitialize() {
@@ -65,42 +67,42 @@ public class GreatBigWorld implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(LearnKnowledgeS2C.PACKET_ID, LearnKnowledgeS2C.PACKET_CODEC);
         PayloadTypeRegistry.playS2C().register(ScreenShakeS2C.PACKET_ID, ScreenShakeS2C.PACKET_CODEC);
 
-        ComponentTooltipAppenderRegistry.addBefore(DataComponentTypes.MAP_ID, GBWDataComponentTypes.KNOWLEDGE);
+        ComponentTooltipAppenderRegistry.addBefore(DataComponents.MAP_ID, GBWDataComponentTypes.KNOWLEDGE);
 
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.UpdateStructureTriggerC2S.PACKET_ID, (updateStructureTriggerC2S, context) -> {
             context.server().execute(() -> {
-                if (!context.player().isCreativeLevelTwoOp())
+                if (!context.player().canUseGameMasterBlocks())
                     return;
-                BlockEntity blockEntity = context.player().getEntityWorld().getBlockEntity(updateStructureTriggerC2S.pos());
+                BlockEntity blockEntity = context.player().level().getBlockEntity(updateStructureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
                     if (updateStructureTriggerC2S.group() != null)
-                        structureTriggerBlockEntity.setGroup(Identifier.of(updateStructureTriggerC2S.group()));
+                        structureTriggerBlockEntity.setGroup(Identifier.parse(updateStructureTriggerC2S.group()));
                     structureTriggerBlockEntity.setGroupDataType(updateStructureTriggerC2S.groupDataType());
                     structureTriggerBlockEntity.setTarget(updateStructureTriggerC2S.target());
                     structureTriggerBlockEntity.setTriggerType(StructureTriggerBlock.TriggerType.valueOf(updateStructureTriggerC2S.triggerType().toUpperCase()));
                     structureTriggerBlockEntity.setTickRate(updateStructureTriggerC2S.tickRate());
                     structureTriggerBlockEntity.setFinalState(updateStructureTriggerC2S.finalState());
 
-                    structureTriggerBlockEntity.markDirty();
+                    structureTriggerBlockEntity.setChanged();
                 }
             });
         });
         ServerPlayNetworking.registerGlobalReceiver(StructureTriggerBlockEntity.StructureTriggerC2S.PACKET_ID, (structureTriggerC2S, context) -> {
             context.server().execute(() -> {
-                if (!context.player().isCreativeLevelTwoOp())
+                if (!context.player().canUseGameMasterBlocks())
                     return;
-                BlockEntity blockEntity = context.player().getEntityWorld().getBlockEntity(structureTriggerC2S.pos());
+                BlockEntity blockEntity = context.player().level().getBlockEntity(structureTriggerC2S.pos());
                 if (blockEntity instanceof StructureTriggerBlockEntity structureTriggerBlockEntity) {
                     Identifier id = Identifier.tryParse(structureTriggerBlockEntity.getFinalState());
                     if (id == null) {
-                        id = Identifier.of("air");
+                        id = Identifier.parse("air");
                     }
-                    BlockState finalState = Registries.BLOCK.get(id).getDefaultState();
+                    BlockState finalState = BuiltInRegistries.BLOCK.getValue(id).defaultBlockState();
 
-                    StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.get(structureTriggerC2S.target()), structureTriggerC2S.pos(), finalState, structureTriggerC2S.tickRate());
+                    StructureTrigger.Built trigger = StructureTrigger.build(GBWRegistries.STRUCTURE_TRIGGERS.getValue(structureTriggerC2S.target()), structureTriggerC2S.pos(), finalState, structureTriggerC2S.tickRate());
 
                     UUID uuid = UUID.randomUUID();
-                    StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().getEntityWorld());
+                    StructureTriggerManager manager = StructureTriggerManager.getServerState(context.player().level());
 
                     StructureTriggerGroup group = manager.getGroup(uuid);
                     if (group == null) {
@@ -109,7 +111,7 @@ public class GreatBigWorld implements ModInitializer {
                     }
 
                     if (StructureTriggerBlock.TriggerType.valueOf(structureTriggerC2S.triggerType().toUpperCase()) == StructureTriggerBlock.TriggerType.INIT) {
-                        trigger.trigger().trigger(context.player().getEntityWorld(), structureTriggerC2S.pos(), finalState, group);
+                        trigger.trigger().trigger(context.player().level(), structureTriggerC2S.pos(), finalState, group);
                     } else {
                         group.addTrigger(trigger);
                     }
@@ -126,14 +128,14 @@ public class GreatBigWorld implements ModInitializer {
         });
 
         ServerWorldEvents.LOAD.register((server, world) -> {
-            if (world.getDimensionEntry() == World.OVERWORLD) {
+            if (world.dimensionTypeRegistration() == Level.OVERWORLD) {
                 PreviousDimensionManager manager = PreviousDimensionManager.getServerState(server);
                 manager.init(server);
             }
         });
 
         ServerTickEvents.END_WORLD_TICK.register(world -> {
-            if (world.getTickManager().shouldTick()) {
+            if (world.tickRateManager().runsNormally()) {
                 StructureTriggerManager manager = StructureTriggerManager.getServerState(world);
                 manager.tick(world);
             }
