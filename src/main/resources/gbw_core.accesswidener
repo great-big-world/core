@@ -4,13 +4,8 @@ accessible method net/minecraft/world/level/levelgen/placement/PlacementFilter s
 accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
 accessible method net/minecraft/client/Camera setRotation (FF)V
 
-accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
-accessible class net/minecraft/client/render/chunk/SectionBuilder$RenderData
 accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$GameTab
 
 mutable field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase lightEmission I
-accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabs Lcom/google/common/collect/ImmutableList;
 mutable field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase destroySpeed F
-accessible field net/minecraft/client/world/ClientWorld client Lnet/minecraft/client/MinecraftClient;
-accessible field net/minecraft/world/ChunkRegion world Lnet/minecraft/server/world/ServerWorld;
 accessible field net/minecraft/client/gui/screens/Screen narratables Ljava/util/List;
