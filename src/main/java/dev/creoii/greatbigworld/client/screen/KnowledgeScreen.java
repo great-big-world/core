@@ -179,13 +179,14 @@ public class KnowledgeScreen extends Screen {
             public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f) {
                 Objects.requireNonNull(KnowledgeScreen.this.font);
                 int i1 = getContentYMiddle() - 9 / 2;
+                int i2 = getContentYMiddle() - 16 / 2;
                 int j1 = KnowledgeListWidget.this.children().indexOf(this);
                 int k = j1 % 2 == 0 ? -1 : -4539718;
                 guiGraphics.drawString(KnowledgeScreen.this.font, knowledgeType.getDisplayName(minecraft.level.registryAccess(), id), getContentX() + 2, i1, k);
 
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i1, 0f, 0f, 16, 16, 16, 16);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i2, 0f, 0f, 16, 16, 16, 16);
                 if (knowledgeType.hasGlint())
-                    guiGraphics.blit(RenderPipelines.GLINT, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i1, 0f, 0f, 16, 16, 16, 16);
+                    guiGraphics.blit(RenderPipelines.GLINT, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i2, 0f, 0f, 16, 16, 16, 16);
                 //context.drawTextWithShadow(KnowledgeScreen.this.textRenderer, id.toString(), getContentRightEnd() - KnowledgeScreen.this.textRenderer.getWidth(id.toString()) - 4, i1, k);
             }
 

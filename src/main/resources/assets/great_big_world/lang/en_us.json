@@ -51,6 +51,7 @@
   "commands.heal.success.multiple": "Healed %s health to %s entities",
   "commands.knowledge.success": "Learned %s for type %s",
   "commands.knowledge.fail": "Already learnt %s for type %s",
+  "commands.knowledge.nothing": "No new knowledge was learnt",
   "commands.velocity.success.multiple": "Added (%s, %s, %s) velocity to %s entities",
   "commands.velocity.success.single": "Added (%s, %s, %s) velocity to %s"
 }
