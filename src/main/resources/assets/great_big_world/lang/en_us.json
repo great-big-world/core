@@ -42,5 +42,15 @@
   "structure_trigger.trigger": "Trigger",
   "structure_trigger.trigger_type_init": "Init",
   "structure_trigger.trigger_type_tick": "Tick",
-  "structure_trigger.tick_rate": "Tick Rate"
+  "structure_trigger.tick_rate": "Tick Rate",
+
+  "commands.gameevent.success": "Emit game event %s at %s, %s, %s",
+  "commands.gameevent.fail": "Failed to emit game event %s",
+  "commands.gameevent.gameevent.invalid": "There is no game event with id \"%s\"",
+  "commands.heal.success.single": "Healed %s health to %s",
+  "commands.heal.success.multiple": "Healed %s health to %s entities",
+  "commands.knowledge.success": "Learned %s for type %s",
+  "commands.knowledge.fail": "Already learnt %s for type %s",
+  "commands.velocity.success.multiple": "Added (%s, %s, %s) velocity to %s entities",
+  "commands.velocity.success.single": "Added (%s, %s, %s) velocity to %s"
 }
