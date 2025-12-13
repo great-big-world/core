@@ -142,7 +142,7 @@ public class KnowledgeScreen extends Screen {
                 objectArrayList.sort(Comparator.comparing(knowledge -> I18n.get(knowledge.data().toString())));
 
                 for (Knowledge knowledge : objectArrayList) {
-                    addEntry(new dev.creoii.greatbigworld.client.screen.KnowledgeScreen.KnowledgeListWidget.Entry(knowledge.data()));
+                    addEntry(new KnowledgeListWidget.Entry(knowledge.data()));
                 }
             }
         }
