@@ -1,5 +1,6 @@
 package dev.creoii.greatbigworld.client.screen;
 
+import dev.creoii.greatbigworld.GreatBigWorld;
 import dev.creoii.greatbigworld.client.GreatBigWorldClient;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
 import dev.creoii.greatbigworld.util.network.RequestKnowledgeC2S;
@@ -20,6 +21,7 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -34,7 +36,9 @@ import java.util.*;
 @Environment(EnvType.CLIENT)
 public class KnowledgeScreen extends Screen {
     private static final Component TITLE_TEXT = Component.translatable("gui.knowledge");
+    private static final Identifier KNOWLEDGE_BOOK_ID = Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "textures/gui/knowledge_book.png");
     protected final Screen parent;
+
     final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
     @Nullable
@@ -87,12 +91,13 @@ public class KnowledgeScreen extends Screen {
 
     public void render(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
-        context.blit(RenderPipelines.GUI_TEXTURED, Screen.FOOTER_SEPARATOR, 0, height - layout.getFooterHeight(), 0.0F, 0.0F, width, 2, 32, 2);
+        context.blit(RenderPipelines.GUI_TEXTURED, Screen.FOOTER_SEPARATOR, 0, height - layout.getFooterHeight(), 0f, 0f, width, 2, 32, 2);
     }
 
     protected void renderMenuBackground(GuiGraphics context) {
-        context.blit(RenderPipelines.GUI_TEXTURED, CreateWorldScreen.TAB_HEADER_BACKGROUND, 0, 0, 0.0F, 0.0F, width, layout.getHeaderHeight(), 16, 16);
+        context.blit(RenderPipelines.GUI_TEXTURED, CreateWorldScreen.TAB_HEADER_BACKGROUND, 0, 0, 0f, 0f, width, layout.getHeaderHeight(), 16, 16);
         renderMenuBackground(context, 0, layout.getHeaderHeight(), width, height);
+        //context.blit(RenderPipelines.GUI_TEXTURED, KNOWLEDGE_BOOK_ID, 20 + (width / 2), 2, 0f, 0f, 256, 256, 256, 256);
     }
 
     public void onClose() {
@@ -134,7 +139,7 @@ public class KnowledgeScreen extends Screen {
         private final Knowledge.Type knowledgeType;
 
         public KnowledgeListWidget(final Minecraft client, Knowledge.Type type) {
-            super(client, KnowledgeScreen.this.width, KnowledgeScreen.this.layout.getContentHeight(), 33, 14);
+            super(client, KnowledgeScreen.this.width, KnowledgeScreen.this.layout.getContentHeight(), 33, 20);
             this.knowledgeType = type;
 
             ObjectArrayList<Knowledge> objectArrayList = new ObjectArrayList<>(GreatBigWorldClient.getKnowledge().getOrDefault(type, new HashSet<>()).iterator());
@@ -148,7 +153,7 @@ public class KnowledgeScreen extends Screen {
         }
 
         public int getRowWidth() {
-            return 280;
+            return 180;
         }
 
         protected void renderListBackground(GuiGraphics context) {
@@ -159,11 +164,10 @@ public class KnowledgeScreen extends Screen {
 
         @Override
         protected void updateWidgetNarration(NarrationElementOutput builder) {
-
         }
 
         @Override
-        public @Nullable dev.creoii.greatbigworld.client.screen.KnowledgeScreen.KnowledgeListWidget.Entry getFocused() {
+        public @Nullable KnowledgeListWidget.Entry getFocused() {
             return super.getFocused();
         }
 
@@ -184,9 +188,9 @@ public class KnowledgeScreen extends Screen {
                 int k = j1 % 2 == 0 ? -1 : -4539718;
                 guiGraphics.drawString(KnowledgeScreen.this.font, knowledgeType.getDisplayName(minecraft.level.registryAccess(), id), getContentX() + 2, i1, k);
 
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i2, 0f, 0f, 16, 16, 16, 16);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16, i2, 0f, 0f, 16, 16, 16, 16);
                 if (knowledgeType.hasGlint())
-                    guiGraphics.blit(RenderPipelines.GLINT, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16 - 4, i2, 0f, 0f, 16, 16, 16, 16);
+                    guiGraphics.blit(RenderPipelines.GLINT, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16, i2, 0f, 0f, 16, 16, 16, 16);
                 //context.drawTextWithShadow(KnowledgeScreen.this.textRenderer, id.toString(), getContentRightEnd() - KnowledgeScreen.this.textRenderer.getWidth(id.toString()) - 4, i1, k);
             }
 
