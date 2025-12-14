@@ -23,6 +23,7 @@
   ],
   "client": [
     "client.GameRendererMixin",
+    "client.LayerDefinitionsMixin",
     "client.MinecraftClientMixin",
     "client.SectionBuilderMixin",
     "client.WeatherRenderingMixin",
