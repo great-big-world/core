@@ -1,9 +1,7 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"particle": "#all",
-		"all": "#bottom",
-		"emissive": "#top"
+      "particle": "#all"
 	},
 	"elements": [
 		{
