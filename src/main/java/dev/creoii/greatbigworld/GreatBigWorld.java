@@ -120,9 +120,10 @@ public class GreatBigWorld implements ModInitializer {
         });
         ServerPlayNetworking.registerGlobalReceiver(RequestKnowledgeC2S.PACKET_ID, (requestKnowledgeC2S, context) -> {
             context.server().execute(() -> {
-                Map<Knowledge.Type, Set<Knowledge>> knowledge = KnowledgeManager.getInstance().getPlayerKnowledge(context.player());
-                if (knowledge == null || knowledge.isEmpty())
+                Map<Knowledge.Type, Set<Knowledge>> knowledge = KnowledgeManager.getServerState(context.server()).getPlayerKnowledge(context.player());
+                if (knowledge == null || knowledge.isEmpty()) {
                     return;
+                }
                 ServerPlayNetworking.send(context.player(), new SyncKnowledgeS2C(knowledge));
             });
         });

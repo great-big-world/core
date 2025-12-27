@@ -4,6 +4,7 @@ import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
+import dev.creoii.greatbigworld.knowledge.KnowledgeManager;
 import dev.creoii.greatbigworld.util.network.*;
 import dev.creoii.greatbigworld.world.dimension.PreviousDimensionManager;
 import net.fabricmc.api.ClientModInitializer;
@@ -52,6 +53,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncKnowledgeS2C.PACKET_ID, (syncKnowledgeS2C, context) -> {
             context.client().execute(() -> {
+                System.out.println("sync");
                 knowledge = syncKnowledgeS2C.knowledge();
             });
         });
@@ -67,6 +69,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
                         GreatBigWorldClient.knowledge.put(type, newKnowledge);
                     }
 
+                    System.out.println("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase());
                     context.client().player.displayClientMessage(Component.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
                 });
             });
@@ -90,7 +93,12 @@ public class GreatBigWorldClient implements ClientModInitializer {
             cameraRenderState.pos = cameraRenderState.pos.add(ScreenShakeManager.getXOffset(), ScreenShakeManager.getYOffset(), 0);
         });
 
-        ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, client) -> ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE));
+        ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, client) -> {
+            ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE);
+        });
+        ClientPlayConnectionEvents.DISCONNECT.register((clientPacketListener, minecraft) -> {
+            knowledge = KnowledgeManager.createEmptyKnowledge();
+        });
     }
 
     public static @Nullable Identifier getPreviousDimension() {

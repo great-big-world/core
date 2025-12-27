@@ -13,16 +13,19 @@ import java.util.stream.Collectors;
 public class KnowledgeManager extends SavedData {
     public static final Codec<Map<Knowledge.Type, Set<Knowledge>>> KNOWLEDGE_CODEC = Codec.unboundedMap(Knowledge.Type.CODEC, Knowledge.CODEC.listOf()).xmap(typeListMap -> typeListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet<>(e.getValue()))), typeSetMap -> typeSetMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue()))));
     public static final Codec<KnowledgeManager> CODEC = Codec.unboundedMap(Codec.STRING, KNOWLEDGE_CODEC).xmap(map -> {
-        KnowledgeManager knowledgeManager = KnowledgeManager.INSTANCE;
+        KnowledgeManager knowledgeManager = new KnowledgeManager();
         knowledgeManager.playerKnowledge.putAll(map);
         return knowledgeManager;
     }, knowledgeManager -> new HashMap<>(knowledgeManager.playerKnowledge));
-    private static final SavedDataType<KnowledgeManager> STATE_TYPE = new SavedDataType<>("gbw_knowledge", KnowledgeManager::getInstance, CODEC, null);
-    private static final KnowledgeManager INSTANCE = new KnowledgeManager();
+    private static final SavedDataType<KnowledgeManager> STATE_TYPE = new SavedDataType<>("gbw_knowledge", KnowledgeManager::new, CODEC, null);
     private final Map<String, Map<Knowledge.Type, Set<Knowledge>>> playerKnowledge = new HashMap<>();
 
-    public static KnowledgeManager getInstance() {
-        return INSTANCE;
+    public static Map<Knowledge.Type, Set<Knowledge>> createEmptyKnowledge() {
+        Map<Knowledge.Type, Set<Knowledge>> empty = new HashMap<>();
+        for (Knowledge.Type type : Knowledge.Type.values()) {
+            empty.put(type, new HashSet<>());
+        }
+        return empty;
     }
 
     public Map<String, Map<Knowledge.Type, Set<Knowledge>>> getAllKnowledge() {
