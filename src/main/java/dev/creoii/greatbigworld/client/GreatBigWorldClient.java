@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,7 +81,6 @@ public class GreatBigWorldClient implements ClientModInitializer {
             ScreenShakeManager.Easing easing = screenShakeS2C.easing();
             context.client().execute(() -> ScreenShakeManager.addShake(intensity, duration, easing));
         });
-
 
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
             if (context.worldState() == null) // don't listen to Intellij, this can be null!
