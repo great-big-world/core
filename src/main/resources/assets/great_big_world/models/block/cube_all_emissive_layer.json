@@ -19,7 +19,7 @@
 		{
 			"name": "emissive_layer",
 			"from": [-0.01, -0.01, -0.01],
-			"to": [16.01, 16.01, 16.01],
+			"to": [16.02, 16.02, 16.02],
 			"shade": false,
 			"light_emission": 15,
 			"faces": {
