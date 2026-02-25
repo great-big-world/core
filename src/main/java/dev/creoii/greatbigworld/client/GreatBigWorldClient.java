@@ -17,7 +17,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +26,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
     private static Identifier previousDimension;
     @Nullable
     private static Identifier toDimension;
-    private static Map<Knowledge.Type, Set<Knowledge>> knowledge = new HashMap<>();
+    private static Map<Knowledge.Type, Set<Knowledge>> knowledge;
 
     @Override
     public void onInitializeClient() {
@@ -52,13 +51,13 @@ public class GreatBigWorldClient implements ClientModInitializer {
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncKnowledgeS2C.PACKET_ID, (syncKnowledgeS2C, context) -> {
-            context.client().execute(() -> {
-                System.out.println("sync");
-                knowledge = syncKnowledgeS2C.knowledge();
-            });
+            context.client().execute(() -> knowledge = syncKnowledgeS2C.knowledge());
         });
         ClientPlayNetworking.registerGlobalReceiver(LearnKnowledgeS2C.PACKET_ID, (learnKnowledgeS2C, context) -> {
             context.client().execute(() -> {
+                if (knowledge == null)
+                    return;
+
                 learnKnowledgeS2C.knowledge().forEach(knowledge -> {
                     Knowledge.Type type = learnKnowledgeS2C.knowledgeType();
                     if (GreatBigWorldClient.knowledge.containsKey(type)) {
@@ -69,7 +68,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
                         GreatBigWorldClient.knowledge.put(type, newKnowledge);
                     }
 
-                    System.out.println("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase());
+                    //System.out.println("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase());
                     context.client().player.displayClientMessage(Component.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
                 });
             });
@@ -117,6 +116,6 @@ public class GreatBigWorldClient implements ClientModInitializer {
     }
 
     public static Map<Knowledge.Type, Set<Knowledge>> getKnowledge() {
-        return knowledge;
+        return knowledge == null ? knowledge = KnowledgeManager.createEmptyKnowledge() : knowledge;
     }
 }
