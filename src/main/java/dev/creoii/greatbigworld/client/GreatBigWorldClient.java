@@ -17,6 +17,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -93,6 +94,7 @@ public class GreatBigWorldClient implements ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, client) -> {
             ClientPlayNetworking.send(RequestKnowledgeC2S.INSTANCE);
+            knowledge = KnowledgeManager.createEmptyKnowledge();
         });
         ClientPlayConnectionEvents.DISCONNECT.register((clientPacketListener, minecraft) -> {
             knowledge = KnowledgeManager.createEmptyKnowledge();
