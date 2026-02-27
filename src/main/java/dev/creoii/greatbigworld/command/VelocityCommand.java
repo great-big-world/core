@@ -18,7 +18,6 @@ public class VelocityCommand {
     private static int addVelocity(CommandSourceStack commandSourceStack, Collection<? extends Entity> entities, Vec3 velocity) {
         if (velocity.isFinite()) {
             for (Entity entity : entities) {
-                System.out.println(entity.getDisplayName().getString() + ": " + velocity);
                 Vec3 vec3 = entity.getDeltaMovement();
                 entity.setDeltaMovement(vec3.x + velocity.x, vec3.y + velocity.y, vec3.z + velocity.z);
                 entity.needsSync = true;
