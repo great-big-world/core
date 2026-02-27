@@ -73,6 +73,7 @@ public class PreviousDimensionManager extends SavedData {
 
     public static PreviousDimensionManager getServerState(MinecraftServer server) {
         PreviousDimensionManager manager = server.getLevel(ServerLevel.OVERWORLD).getDataStorage().computeIfAbsent(STATE_TYPE);
+        manager.init(server);
         manager.setDirty();
         return manager;
     }
