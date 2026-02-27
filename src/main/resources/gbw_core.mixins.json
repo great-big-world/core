@@ -30,7 +30,8 @@
     "client.WeatherRenderingMixin",
     "client.compat.ChunkBuilderMeshingTaskMixin",
     "client.screen.CreateWorldScreenGameTabMixin",
-    "client.screen.GameMenuScreenMixin"
+    "client.screen.GameMenuScreenMixin",
+    "client.screen.VideoOptionsScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
