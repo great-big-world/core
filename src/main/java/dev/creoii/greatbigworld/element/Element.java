@@ -1,19 +1,22 @@
 package dev.creoii.greatbigworld.element;
 
-import net.minecraft.ChatFormatting;
+import dev.creoii.greatbigworld.GreatBigWorld;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.objects.AtlasSprite;
+import net.minecraft.resources.Identifier;
 
 public enum Element {
-    EARTH(Component.literal("\uD83D\uDF03").withStyle(ChatFormatting.DARK_GREEN), 1),
-    FIRE(Component.literal("\uD83D\uDF02").withStyle(ChatFormatting.RED), 0),
-    WATER(Component.literal("\uD83D\uDF04").withStyle(ChatFormatting.DARK_BLUE), 3),
-    ICE(Component.literal("\uD83D\uDF60").withStyle(ChatFormatting.BLUE), 2),
-    AIR(Component.literal("\uD83D\uDF01").withStyle(ChatFormatting.LIGHT_PURPLE), 5),
-    LIGHTNING(Component.literal("\uD83D\uDF5F").withStyle(ChatFormatting.YELLOW), 4),
-    LIGHT(Component.literal("\uD83D\uDF1A").withStyle(ChatFormatting.WHITE)),
-    DARK(Component.literal("\uD83D\uDF1B").withStyle(ChatFormatting.BLACK)),
-    VOID(Component.literal("\uD83D\uDF61").withStyle(ChatFormatting.DARK_PURPLE)),
-    AETHER(Component.literal("\uD83D\uDF63").withStyle(ChatFormatting.GOLD));
+    EARTH(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/earth"))), 1),
+    FIRE(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/fire"))), 0),
+    WATER(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/water"))), 3),
+    ICE(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/ice"))), 2),
+    AIR(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/air"))), 5),
+    LIGHTNING(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/lightning"))), 4),
+    LIGHT(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/light")))),
+    DARK(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/dark")))),
+    VOID(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/void")))),
+    AETHER(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/aether"))));
 
     private final Component symbol;
     private final int synergy;
