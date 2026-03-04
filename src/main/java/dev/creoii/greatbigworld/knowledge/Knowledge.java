@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.DecoratedPotPattern;
+import net.minecraft.world.level.block.entity.DecoratedPotPatterns;
 
 public record Knowledge(Type type, Identifier data) {
     public static final Codec<Knowledge> CODEC = RecordCodecBuilder.create(instance -> {
@@ -37,6 +38,9 @@ public record Knowledge(Type type, Identifier data) {
         POTTERY_SHERD("knowledge.type.pottery_sherd", false, id -> Identifier.fromNamespaceAndPath(id.getNamespace(), "textures/item/" + id.getPath() + ".png"), (registryManager, id) -> {
             Item bannerPattern = registryManager.lookupOrThrow(Registries.ITEM).getValue(id);
             ResourceKey<DecoratedPotPattern> key = KnowledgeUtil.getDecoratedPotPatternFromItem(bannerPattern);
+            if (key == null)
+                key = DecoratedPotPatterns.getPatternFromItem(bannerPattern);
+
             if (key != null) {
                 DecoratedPotPattern pattern = registryManager.lookupOrThrow(Registries.DECORATED_POT_PATTERN).getValue(key);
                 return Component.translatable(pattern.assetId().getNamespace() + ".decorated_pot_pattern." + pattern.assetId().getPath());
