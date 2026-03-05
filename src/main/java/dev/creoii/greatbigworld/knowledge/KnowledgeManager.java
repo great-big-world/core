@@ -1,10 +1,15 @@
 package dev.creoii.greatbigworld.knowledge;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -54,11 +59,15 @@ public class KnowledgeManager extends SavedData {
             Map<Knowledge.Type, Set<Knowledge>> map = playerKnowledge.get(player.getUUID().toString());
 
             if (map.containsKey(knowledge.type())) {
-                return map.get(knowledge.type()).add(knowledge);
+                if (map.get(knowledge.type()).add(knowledge)) {
+                    emitParticles(player);
+                    return true;
+                }
             } else {
                 Set<Knowledge> knowledges = new HashSet<>();
                 knowledges.add(knowledge);
                 map.put(knowledge.type(), knowledges);
+                emitParticles(player);
                 return true;
             }
         } else {
@@ -69,7 +78,26 @@ public class KnowledgeManager extends SavedData {
             map.put(knowledge.type(), knowledges);
 
             playerKnowledge.put(player.getUUID().toString(), map);
+            emitParticles(player);
             return true;
+        }
+        return false;
+    }
+
+    private void emitParticles(Player player) {
+        Level level = player.level();
+        if (level.isClientSide())
+            return;
+
+        RandomSource random = level.getRandom();
+        int count = random.nextIntBetweenInclusive(20, 30);
+        Vec3 min = player.getBoundingBox().getMinPosition();
+        Vec3 max = player.getBoundingBox().getMaxPosition();
+        for (int i = 0; i < count; ++i) {
+            double x = min.x + random.nextFloat() * (max.x - min.x);
+            double y = min.y + random.nextFloat() * (max.y - min.y);
+            double z = min.z + random.nextFloat() * (max.z - min.z);
+            ((ServerLevel) level).sendParticles(ParticleTypes.ENCHANT, x, y, z, 1, 0d, 1d * random.nextFloat(), 0d, 2d);
         }
     }
 
