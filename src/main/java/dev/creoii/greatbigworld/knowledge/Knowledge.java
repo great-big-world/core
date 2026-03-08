@@ -36,16 +36,19 @@ public record Knowledge(Type type, Identifier data) {
             return Identifier.fromNamespaceAndPath(itemId.getNamespace(), "textures/item/" + itemId.getPath() + ".png");
         }, (registryManager, id) -> registryManager.lookupOrThrow(Registries.TRIM_PATTERN).getValue(id).description()),
         POTTERY_SHERD("knowledge.type.pottery_sherd", false, id -> Identifier.fromNamespaceAndPath(id.getNamespace(), "textures/item/" + id.getPath() + ".png"), (registryManager, id) -> {
-            Item bannerPattern = registryManager.lookupOrThrow(Registries.ITEM).getValue(id);
-            ResourceKey<DecoratedPotPattern> key = KnowledgeUtil.getDecoratedPotPatternFromItem(bannerPattern);
-            if (key == null)
-                key = DecoratedPotPatterns.getPatternFromItem(bannerPattern);
+            Item potterySherd = registryManager.lookupOrThrow(Registries.ITEM).getValue(id);
+            ResourceKey<DecoratedPotPattern> key = DecoratedPotPatterns.getPatternFromItem(potterySherd);
 
+            DecoratedPotPattern pattern;
             if (key != null) {
-                DecoratedPotPattern pattern = registryManager.lookupOrThrow(Registries.DECORATED_POT_PATTERN).getValue(key);
-                return Component.translatable(pattern.assetId().getNamespace() + ".decorated_pot_pattern." + pattern.assetId().getPath());
+                pattern = registryManager.lookupOrThrow(Registries.DECORATED_POT_PATTERN).getValue(key);
+            } else {
+                pattern = registryManager.lookupOrThrow(Registries.DECORATED_POT_PATTERN).getValue(id);
             }
-            return CommonComponents.EMPTY;
+
+            if (pattern == null)
+                return CommonComponents.EMPTY;
+            return Component.translatable(pattern.assetId().getNamespace() + ".decorated_pot_pattern." + pattern.assetId().getPath());
         }),
         BANNER_PATTERN("knowledge.type.banner_pattern", false, id -> {
             Item bannerPattern = KnowledgeUtil.getItemFromBannerPattern(ResourceKey.create(Registries.BANNER_PATTERN, id));
