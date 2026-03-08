@@ -11,6 +11,7 @@
   "knowledge.type.pottery_sherd.plural": "Pottery Sherds",
   "knowledge.type.banner_pattern.plural": "Banner Patterns",
   "knowledge.tooltip": "%s: %s",
+  "knowledge.toast.learned": "Learned New %s!",
 
   "minecraft.decorated_pot_pattern.angler_pottery_pattern": "Angler",
   "minecraft.decorated_pot_pattern.archer_pottery_pattern": "Archer",

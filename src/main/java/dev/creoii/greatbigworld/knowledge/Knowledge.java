@@ -53,7 +53,7 @@ public record Knowledge(Type type, Identifier data) {
             return Identifier.fromNamespaceAndPath(itemId.getNamespace(), "textures/item/" + itemId.getPath() + ".png");
         }, (registryManager, id) -> Component.translatable(registryManager.lookupOrThrow(Registries.BANNER_PATTERN).getValue(id).translationKey()));
 
-        public static final Codec<Knowledge.Type> CODEC = StringRepresentable.fromEnum(Knowledge.Type::values);
+        public static final Codec<Type> CODEC = StringRepresentable.fromEnum(Type::values);
         private final Component translated;
         private final Component translatedPlural;
         private final boolean glint;
@@ -84,8 +84,13 @@ public record Knowledge(Type type, Identifier data) {
             return spriteIdentifier.apply(id);
         }
 
-        public Component getDisplayName(RegistryAccess registryManager, Identifier id) {
-            return displayName.apply(registryManager, id);
+        public static Component getDisplayName(Type type, RegistryAccess registryManager, Identifier id) {
+            return switch (type) {
+                case ENCHANTMENT -> ENCHANTMENT.displayName.apply(registryManager, id);
+                case ARMOR_TRIM -> ARMOR_TRIM.displayName.apply(registryManager, id);
+                case POTTERY_SHERD -> POTTERY_SHERD.displayName.apply(registryManager, id);
+                case BANNER_PATTERN -> BANNER_PATTERN.displayName.apply(registryManager, id);
+            };
         }
 
         @Override

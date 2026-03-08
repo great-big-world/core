@@ -186,7 +186,7 @@ public class KnowledgeScreen extends Screen {
                 int i2 = getContentYMiddle() - 16 / 2;
                 int j1 = KnowledgeListWidget.this.children().indexOf(this);
                 int k = j1 % 2 == 0 ? -1 : -4539718;
-                guiGraphics.drawString(KnowledgeScreen.this.font, knowledgeType.getDisplayName(minecraft.level.registryAccess(), id), getContentX() + 2, i1, k);
+                guiGraphics.drawString(KnowledgeScreen.this.font, Knowledge.Type.getDisplayName(knowledgeType, minecraft.level.registryAccess(), id), getContentX() + 2, i1, k);
 
                 guiGraphics.blit(RenderPipelines.GUI_TEXTURED, knowledgeType.getSpriteIdentifier(id), getContentRight() - 16, i2, 0f, 0f, 16, 16, 16, 16);
                 if (knowledgeType.hasGlint())

@@ -3,6 +3,7 @@ package dev.creoii.greatbigworld.client;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.client.screen.StructureTriggerScreen;
+import dev.creoii.greatbigworld.client.toasts.KnowledgeToast;
 import dev.creoii.greatbigworld.knowledge.Knowledge;
 import dev.creoii.greatbigworld.util.network.LearnKnowledgeS2C;
 import dev.creoii.greatbigworld.util.network.ScreenShakeS2C;
@@ -51,16 +52,18 @@ public final class GBWClientNetworking {
 
                 learnKnowledgeS2C.knowledge().forEach(knowledge -> {
                     Knowledge.Type type = learnKnowledgeS2C.knowledgeType();
+                    Knowledge knowledge1 = new Knowledge(type, knowledge.data());
                     if (GreatBigWorldClient.knowledge.containsKey(type)) {
-                        GreatBigWorldClient.knowledge.get(type).add(new Knowledge(type, knowledge.data()));
+                        GreatBigWorldClient.knowledge.get(type).add(knowledge1);
                     } else {
                         Set<Knowledge> newKnowledge = new HashSet<>();
-                        newKnowledge.add(new Knowledge(type, knowledge.data()));
+                        newKnowledge.add(knowledge1);
                         GreatBigWorldClient.knowledge.put(type, newKnowledge);
                     }
 
                     //System.out.println("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase());
-                    context.client().player.displayClientMessage(Component.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
+                    context.client().getToastManager().addToast(new KnowledgeToast(knowledge1));
+                    //context.client().player.displayClientMessage(Component.literal("Learned " + knowledge.data().toString() + " of type " + knowledge.type().name().toLowerCase()), true);
                 });
             });
         });
