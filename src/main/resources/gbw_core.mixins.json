@@ -11,6 +11,7 @@
     "compat.LithiumEntityCollisionsMixin",
     "entity.EntityMixin",
     "entity.ItemEntityMixin",
+    "entity.ServerPlayerMixin",
     "world.CollisionViewMixin",
     "world.HeightmapTypeMixin",
     "world.LevelStorageMixin",

@@ -20,7 +20,6 @@ public class NetherPortalBlockMixin {
         if (key == Level.OVERWORLD) {
             PreviousDimensionManager manager = PreviousDimensionManager.getServerState(instance);
             return original.call(instance, manager.getPrevDimension(entity.getUUID()));
-        }
-        return original.call(instance, key);
+        } else return original.call(instance, key);
     }
 }
