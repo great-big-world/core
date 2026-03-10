@@ -19,7 +19,8 @@ public class NetherPortalBlockMixin {
     private ServerLevel gbw$fixNetherPortalTargetDimension(MinecraftServer instance, ResourceKey<Level> key, Operation<ServerLevel> original, @Local(argsOnly = true) Entity entity) {
         if (key == Level.OVERWORLD) {
             PreviousDimensionManager manager = PreviousDimensionManager.getServerState(instance);
-            return original.call(instance, manager.getPrevDimension(entity.getUUID()));
+            ResourceKey<Level> levelKey = manager.getPrevDimension(entity.getUUID());
+            return original.call(instance, levelKey == null ? Level.OVERWORLD : levelKey);
         } else return original.call(instance, key);
     }
 }
