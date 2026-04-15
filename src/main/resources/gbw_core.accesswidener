@@ -9,4 +9,5 @@ accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScre
 mutable field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase lightEmission I
 mutable field net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase destroySpeed F
 accessible field net/minecraft/client/gui/screens/Screen narratables Ljava/util/List;
-accessible field net/minecraft/client/model/geom/ModelLayers ALL_MODELS Ljava/util/Set;
+
+accessible method net/minecraft/world/level/biome/OverworldBiomeBuilder addBiomes (Ljava/util/function/Consumer;)V

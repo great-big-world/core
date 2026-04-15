@@ -12,6 +12,7 @@
     "entity.ItemEntityMixin",
     "entity.ServerPlayerMixin",
     "world.LevelStorageMixin",
+    "world.SurfaceSystemMixin",
     "world.structure.JigsawReplacementStructureProcessorMixin",
     "world.structure.ListPoolElementMixin",
     "world.structure.PoolStructurePieceMixin",
