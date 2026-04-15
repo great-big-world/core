@@ -3,6 +3,7 @@ accessWidener v2 named
 accessible method net/minecraft/world/level/levelgen/placement/PlacementFilter shouldPlace (Lnet/minecraft/world/level/levelgen/placement/PlacementContext;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Z
 accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
 accessible method net/minecraft/client/Camera setRotation (FF)V
+accessible method net/minecraft/world/level/biome/OverworldBiomeBuilder addBiomes (Ljava/util/function/Consumer;)V
 
 accessible class net/minecraft/client/gui/screens/worldselection/CreateWorldScreen$GameTab
 
