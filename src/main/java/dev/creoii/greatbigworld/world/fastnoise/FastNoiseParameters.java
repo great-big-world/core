@@ -9,6 +9,37 @@ import net.minecraft.resources.RegistryFileCodec;
 public record FastNoiseParameters(long seed, float frequency, FastNoiseLite.NoiseType noiseType, FastNoiseLite.RotationType3D rotationType3D, Fractal fractal, Cellular cellular, DomainWarp domainWarp) {
     public static final Codec<Holder<FastNoiseParameters>> REGISTRY_ENTRY_CODEC = RegistryFileCodec.create(GBWRegistries.FAST_NOISE_PARAMETERS_KEY, FastNoiseParameters.CODEC);
 
+    public FastNoiseParameters(long seed, float frequency, FastNoiseLite.NoiseType noiseType, FastNoiseLite.RotationType3D rotationType3D, Fractal fractal) {
+        this(seed, frequency, noiseType, rotationType3D, fractal, null, null);
+    }
+
+    public static FastNoiseLite build(FastNoiseParameters params) {
+        FastNoiseLite noise = new FastNoiseLite((int) params.seed());
+
+        noise.frequency(params.frequency());
+        noise.noiseType(params.noiseType());
+        noise.rotationType3D(params.rotationType3D());
+
+        if (params.fractal() != null) {
+            noise.fractalType(params.fractal().type);
+            noise.fractalOctaves(params.fractal().octaves);
+            noise.fractalLacunarity(params.fractal().lacunarity);
+            noise.fractalGain(params.fractal().gain);
+        }
+
+        if (params.cellular() != null) {
+            noise.cellularDistanceFunction(params.cellular().distanceFunction);
+            noise.cellularReturnType(params.cellular().returnType);
+        }
+
+        if (params.domainWarp() != null) {
+            noise.domainWarpType(params.domainWarp().type);
+            noise.domainWarpAmp(params.domainWarp().amplitude);
+        }
+
+        return noise;
+    }
+
     public static class Fractal {
         public static final Fractal DEFAULT = new Fractal(FastNoiseLite.FractalType.NONE, 3, 2f, .5f, 0f, 2f);
         public static final Codec<Fractal> CODEC = RecordCodecBuilder.create(instance -> {

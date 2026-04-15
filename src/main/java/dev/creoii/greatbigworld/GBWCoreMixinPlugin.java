@@ -24,9 +24,6 @@ public class GBWCoreMixinPlugin implements IMixinConfigPlugin {
         if ("dev.creoii.greatbigworld.mixin.client.compat.ChunkBuilderMeshingTaskMixin".equals(mixinClassName)) {
             return FabricLoader.getInstance().isModLoaded("sodium");
         }
-        if ("dev.creoii.greatbigworld.mixin.compat.LithiumEntityCollisionsMixin".equals(mixinClassName)) {
-            return FabricLoader.getInstance().isModLoaded("lithium");
-        }
         return true;
     }
 

@@ -13,5 +13,4 @@ loom {
 
 dependencies {
     modCompileOnly "maven.modrinth:sodium:mc1.21.11-0.8.0-fabric"
-    modCompileOnly "maven.modrinth:lithium:mc1.21.11-0.21.0-fabric"
 }
