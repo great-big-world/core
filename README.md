@@ -4,6 +4,7 @@ Core mod for the Great Big World project.
 # Subprojects
 
 # Standalone Mods
+Great Big World includes a variety of smaller mods packaged in the single jar file. These mods can be downloaded & used outside of the Great Big World project.
 - [Lightning Flash](https://github.com/great-big-world/lightning-flash)
 - [Rotatable Sculk](https://github.com/great-big-world/rotatable-sculk)
 - [Copper Pressure Plates](https://github.com/great-big-world/copper-pressure-plates)
