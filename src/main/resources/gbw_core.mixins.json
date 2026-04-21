@@ -10,6 +10,7 @@
     "NetherPortalBlockMixin",
     "entity.EntityMixin",
     "entity.ItemEntityMixin",
+    "entity.ServerPlayerContainerListenerMixin",
     "entity.ServerPlayerMixin",
     "world.LevelStorageMixin",
     "world.structure.JigsawReplacementStructureProcessorMixin",
