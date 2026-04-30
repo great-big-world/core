@@ -5,6 +5,7 @@ import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 public enum Element {
     EARTH(Component.object(new AtlasSprite(AtlasIds.GUI, Identifier.fromNamespaceAndPath(GreatBigWorld.NAMESPACE, "element/earth"))), 1),
@@ -23,7 +24,7 @@ public enum Element {
 
     Element(Component symbol, int synergy) {
         this.symbol = symbol;
-        this.synergy = synergy < 0 ? -1 : synergy;
+        this.synergy = synergy;
     }
 
     Element(Component symbol) {
@@ -34,7 +35,10 @@ public enum Element {
         return symbol;
     }
 
+    @Nullable
     public Element getSynergy() {
+        if (synergy < 0)
+            return null;
         return Element.values()[synergy];
     }
 }
