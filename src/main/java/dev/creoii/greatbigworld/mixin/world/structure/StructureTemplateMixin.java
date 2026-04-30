@@ -3,6 +3,7 @@ package dev.creoii.greatbigworld.mixin.world.structure;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.creoii.greatbigworld.block.PlaceableByStructure;
 import dev.creoii.greatbigworld.block.StructureTriggerBlock;
 import dev.creoii.greatbigworld.block.entity.StructureTriggerBlockEntity;
 import dev.creoii.greatbigworld.registry.GBWBlocks;
@@ -42,6 +43,10 @@ public abstract class StructureTemplateMixin implements StructureTriggerStart {
 
     @WrapOperation(method = "placeInWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ServerLevelAccessor;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", ordinal = 1))
     private boolean gbw$triggerStructureTriggersOnPlace(ServerLevelAccessor instance, BlockPos pos, BlockState blockState, int i, Operation<Boolean> original, @Local StructureTemplate.StructureBlockInfo structureBlockInfo) {
+        if (blockState.getBlock() instanceof PlaceableByStructure placeableByStructure) {
+            placeableByStructure.onPlaceByStructure(instance, blockState, pos);
+        }
+
         if (structureBlockInfo.state().is(GBWBlocks.STRUCTURE_TRIGGER) && structureBlockInfo.nbt() != null) {
             Identifier finalStateId = Identifier.tryParse(structureBlockInfo.nbt().getStringOr("final_state", "minecraft:air"));
             if (finalStateId == null) {

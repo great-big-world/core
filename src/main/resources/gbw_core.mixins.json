@@ -17,6 +17,7 @@
     "world.structure.ListPoolElementMixin",
     "world.structure.PoolStructurePieceMixin",
     "world.structure.SinglePoolElementMixin",
+    "world.structure.StructurePieceMixin",
     "world.structure.StructurePoolElementMixin",
     "world.structure.StructureStartMixin",
     "world.structure.StructureTemplateMixin"
