@@ -8,25 +8,24 @@
       "from": [0, 0, 0],
       "to": [16, 16, 16],
       "faces": {
-        "north": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "east": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "south": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "west": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "up": {"uv": [0, 0, 16, 16], "texture": "#all"},
-        "down": {"uv": [0, 0, 16, 16], "texture": "#all"}
+        "north": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "north"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "east"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "south"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "west"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "up"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#all", "cullface": "down"}
       }
     },
     {
-      "name": "overlay",
       "from": [-0.0875, -0.0875, -0.0875],
       "to": [16.0875, 16.0875, 16.0875],
       "faces": {
-        "north": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0},
-        "east": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0},
-        "south": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0},
-        "west": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0},
-        "up": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0},
-        "down": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0}
+        "north": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0, "cullface": "north"},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0, "cullface": "east"},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0, "cullface": "south"},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0, "cullface": "west"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0, "cullface": "up"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#overlay", "tintindex": 0, "cullface": "down"}
       }
     }
   ]
