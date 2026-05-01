@@ -13,13 +13,13 @@ public final class ColorHelper {
     }
 
     public static int interpolate(double delta, int color1, int color2) {
-        delta = Math.max(Math.min(delta, 1f), 0f);
+        delta = Math.clamp(delta, 0f, 1f);
 
         int red = (int) (red(color1) + ((red(color2) - red(color1)) * delta));
         int green = (int) (green(color1) + ((green(color2) - green(color1)) * delta));
         int blue = (int) (blue(color1) + ((blue(color2) - blue(color1)) * delta));
 
-        return Math.max(Math.min(red, 255), 0) << 16 | Math.max(Math.min(green, 255), 0) << 8 | Math.max(Math.min(blue, 255), 0);
+        return Math.clamp(red, 0, 255) << 16 | Math.clamp(green, 0, 255) << 8 | Math.clamp(blue, 0, 255);
     }
 
     public static int multiply(int color1, int color2) {
@@ -32,7 +32,7 @@ public final class ColorHelper {
     }
 
     public static int multiply(int color1, int color2, double delta) {
-        delta = Math.max(0, Math.min(delta, 1));
+        delta = Math.clamp(delta, 0, 1);
 
         int rBase = red(color1);
         int gBase = green(color1);
