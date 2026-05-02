@@ -25,7 +25,9 @@
   ],
   "client": [
     "client.GameRendererMixin",
+    "client.LevelRendererMixin",
     "client.MinecraftClientMixin",
+    "client.MovingBlockRenderStateAccessor",
     "client.SectionBuilderMixin",
     "client.compat.ChunkBuilderMeshingTaskMixin",
     "client.screen.CreateWorldScreenGameTabMixin",
