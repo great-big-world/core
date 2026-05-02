@@ -1,9 +1,11 @@
 package dev.creoii.greatbigworld.block;
 
+import dev.creoii.greatbigworld.registry.GBWDataAttachments;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -74,7 +76,7 @@ public class HollowLogBlock extends RotatedPillarBlock implements SimpleWaterlog
 
     @Override
     public void onAdjacentEntityCollision(Entity entity, BlockState state, BlockPos pos) {
-        if (!entity.isSprinting() || entity.isVehicle() || entity.isPassenger() || entity.isVisuallyCrawling())
+        if (!(entity instanceof Player player) || entity.level().isClientSide() || !entity.isSprinting() || entity.isVehicle() || entity.isPassenger() || entity.isVisuallyCrawling())
             return;
         BlockPos difference = pos.subtract(entity.blockPosition());
         if (Math.abs(difference.getY()) > .15d || difference.equals(BlockPos.ZERO))
@@ -82,24 +84,20 @@ public class HollowLogBlock extends RotatedPillarBlock implements SimpleWaterlog
         Vec3 vecDifference = pos.getBottomCenter().subtract(entity.position());
         boolean canEnter = switch (state.getValue(AXIS)) {
             case Y -> false;
-            case X -> Math.abs(vecDifference.z()) < .1d && difference.getX() == entity.getDirection().getStepX();
-            case Z -> Math.abs(vecDifference.x()) < .1d && difference.getZ() == entity.getDirection().getStepZ();
+            case X -> Math.abs(vecDifference.z) < .1d && difference.getX() == entity.getDirection().getStepX();
+            case Z -> Math.abs(vecDifference.x) < .1d && difference.getZ() == entity.getDirection().getStepZ();
         };
 
         if (canEnter) {
-            BlockPos entrancePos = BlockPos.containing(entity.position()).relative(state.getValue(AXIS) == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X, 0);
-            VoxelShape shape = entity.level().getBlockState(entrancePos).getCollisionShape(entity.level(), entrancePos);
-            final double y = shape.isEmpty() ? 0d : shape.max(Direction.Axis.Y);
-            if (y >= .375d)
-                return;
+            player.setPose(Pose.SWIMMING);
+            player.setSwimming(true);
 
-            Vec3 target = pos.getBottomCenter();
-            Vec3 direction = entity.position().subtract(target).normalize().scale(.5d);
-            Vec3 destination = target.add(direction.x, Math.min(.2d, y), direction.z);
+            Vec3 targetPos = pos.getBottomCenter();
+            Vec3 direction = entity.position().subtract(targetPos).normalize().scale(.5d);
+            Vec3 destPos = targetPos.add(direction.x, .2d, direction.z);
+            player.setPos(destPos.x, destPos.y, destPos.z);
 
-            entity.setPose(Pose.SWIMMING);
-            entity.setSwimming(true);
-            entity.setPosRaw(destination.x, destination.y, destination.z);
+            player.setAttached(GBWDataAttachments.PLAYER_ENTERING_HOLLOW_LOG, true);
         }
     }
 }

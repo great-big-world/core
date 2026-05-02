@@ -8,6 +8,7 @@
     "AbstractBlockStateAccessor",
     "BrushItemMixin",
     "NetherPortalBlockMixin",
+    "ServerGamePacketListenerImplMixin",
     "entity.EntityMixin",
     "entity.ItemEntityMixin",
     "entity.ServerPlayerContainerListenerMixin",
