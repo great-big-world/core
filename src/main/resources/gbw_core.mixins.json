@@ -13,7 +13,6 @@
     "entity.ItemEntityMixin",
     "entity.ServerPlayerContainerListenerMixin",
     "entity.ServerPlayerMixin",
-    "world.LevelStorageMixin",
     "world.structure.JigsawReplacementStructureProcessorMixin",
     "world.structure.ListPoolElementMixin",
     "world.structure.PoolStructurePieceMixin",
@@ -30,7 +29,6 @@
     "client.MovingBlockRenderStateAccessor",
     "client.SectionBuilderMixin",
     "client.compat.ChunkBuilderMeshingTaskMixin",
-    "client.screen.CreateWorldScreenGameTabMixin",
     "client.screen.GameMenuScreenMixin",
     "client.screen.VideoOptionsScreenMixin"
   ],

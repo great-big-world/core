@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftClientMixin {
-    @ModifyConstant(method = "<init>", constant = @Constant(stringValue = "saves"))
+    /*@ModifyConstant(method = "<init>", constant = @Constant(stringValue = "saves"))
     private String gbw$changeSavesDirectoryClient(String constant) {
         return constant.concat("/gbw");
     }
@@ -20,7 +20,7 @@ public class MinecraftClientMixin {
     @ModifyConstant(method = "<init>", constant = @Constant(stringValue = "backups"))
     private String gbw$changeBackupsDirectoryClient(String constant) {
         return constant.concat("/gbw");
-    }
+    }*/
 
     @Inject(method = "setLevel", at = @At("HEAD"))
     private void gbw$initToDimension(ClientLevel world, CallbackInfo ci) {

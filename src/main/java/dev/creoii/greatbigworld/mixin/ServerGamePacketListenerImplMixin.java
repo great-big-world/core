@@ -20,7 +20,7 @@ public class ServerGamePacketListenerImplMixin {
         if (original) {
             return true;
         }
-        return player.getAttached(GBWDataAttachments.PLAYER_ENTERING_HOLLOW_LOG);
+        return player.getAttachedOrElse(GBWDataAttachments.PLAYER_ENTERING_HOLLOW_LOG, false);
     }
 
     @Inject(method = "handleMovePlayer", at = @At("TAIL"))
